@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - CMCS</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <header>
+        @if (User.Identity.IsAuthenticated)
+        {
+        <nav class="navbar">
+            <div class="container">
+                <div class="navbar-brand">
+                    <h2>CMCS</h2>
+                </div>
+                <div class="navbar-menu">
+                    <span class="navbar-user">Welcome, @User.Identity.Name</span>
+                    <form asp-controller="Account" asp-action="Logout" method="post" class="navbar-form">
+                        <button type="submit" class="btn btn-link">Logout</button>
+                    </form>
+                </div>
+            </div>
+        </nav>
+        }
+    </header>
+
+    <main role="main" class="main-content">
+        @if (TempData["Success"] != null)
+        {
+        <div class="alert alert-success">
+            @TempData["Success"]
+        </div>
+        }
+        @if (TempData["Error"] != null)
+        {
+        <div class="alert alert-danger">
+            @TempData["Error"]
+        </div>
+        }
+        @RenderBody()
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <span>&copy; 2024 - Contract Monthly Claim System - Independent Institute of Education</span>
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

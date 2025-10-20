@@ -1,0 +1,135 @@
+﻿@model CMCS.ViewModels.ClaimSubmissionViewModel
+@{
+    ViewData["Title"] = "Submit New Claim";
+}
+
+<div class="container">
+    <div class="card">
+        <div class="header">
+            <h1>Submit New Claim</h1>
+        </div>
+
+        <div class="progress-steps">
+            <div class="step active">
+                <div class="step-number">1</div>
+                <div class="step-label">Claim Details</div>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-label">Documents</div>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-label">Review & Submit</div>
+            </div>
+        </div>
+
+        <form asp-action="SubmitClaim" method="post" enctype="multipart/form-data">
+            <h3>Basic Information</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="ModuleId">Module/Course *</label>
+                    <select asp-for="ModuleId" asp-items="Model.AvailableModules" class="form-control" id="moduleSelect">
+                        <option value="">Select Module...</option>
+                    </select>
+                    <span asp-validation-for="ModuleId" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="ClaimPeriod">Claim Period *</label>
+                    <input asp-for="ClaimPeriod" type="month" class="form-control" />
+                    <span asp-validation-for="ClaimPeriod" class="text-danger"></span>
+                </div>
+            </div>
+
+            <h3>Hours & Rate Information</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="HoursWorked">Hours Worked *</label>
+                    <input asp-for="HoursWorked" type="number" step="0.5" min="0" max="999" class="form-control" id="hoursWorked" />
+                    <span asp-validation-for="HoursWorked" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label>Hourly Rate (R) *</label>
+                    <input type="number" class="form-control" id="hourlyRate" value="450.00" readonly />
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Total Amount (R)</label>
+                    <input type="text" class="form-control" id="totalAmount" value="Calculated automatically" readonly />
+                </div>
+                <div class="form-group">
+                    <label>Standard Module Rate (R)</label>
+                    <input type="text" class="form-control" value="R450.00" readonly />
+                </div>
+            </div>
+
+            <h3>Additional Information</h3>
+            <div class="form-group">
+                <label asp-for="AdditionalNotes">Additional Notes</label>
+                <textarea asp-for="AdditionalNotes" class="form-control" rows="4" placeholder="Enter any additional notes or comments about this claim..."></textarea>
+            </div>
+
+            <h3>Supporting Documents</h3>
+            <div class="upload-area" id="uploadArea">
+                <p style="font-size: 2rem; margin-bottom: 10px;">📎</p>
+                <p>Click to browse or drag files here</p>
+                <p style="font-size: 0.85rem; color: #6b7280; margin-top: 10px;">Supported: PDF, DOC, DOCX, XLS, XLSX (Max 10MB each)</p>
+                <input type="file" name="Documents" multiple accept=".pdf,.doc,.docx,.xls,.xlsx" id="fileInput" style="display: none;" />
+            </div>
+            <div id="fileList"></div>
+
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary">Save as Draft</button>
+                <button type="submit" class="btn btn-primary">Submit Claim</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Calculate total amount
+        document.getElementById('hoursWorked').addEventListener('input', function() {
+            const hours = parseFloat(this.value) || 0;
+            const rate = parseFloat(document.getElementById('hourlyRate').value) || 0;
+            const total = hours * rate;
+            document.getElementById('totalAmount').value = 'R' + total.toFixed(2);
+        });
+
+        // File upload handling
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragging');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragging');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragging');
+            fileInput.files = e.dataTransfer.files;
+            displayFiles();
+        });
+
+        fileInput.addEventListener('change', displayFiles);
+
+        function displayFiles() {
+            const fileList = document.getElementById('fileList');
+            fileList.innerHTML = '';
+            for (let file of fileInput.files) {
+                const div = document.createElement('div');
+                div.className = 'file-item';
+                div.textContent = file.name + ' (' + (file.size / 1024 / 1024).toFixed(2) + ' MB)';
+                fileList.appendChild(div);
+            }
+        }
+    </script>
+}

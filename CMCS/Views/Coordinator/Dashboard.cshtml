@@ -1,0 +1,148 @@
+@model CMCS.ViewModels.CoordinatorDashboardViewModel
+@{
+    ViewData["Title"] = "Coordinator Dashboard";
+}
+
+<div class="container">
+    <div class="card">
+        <div class="header">
+            <h1>Programme Coordinator Dashboard</h1>
+            <p>Review and approve monthly claims efficiently</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" style="color: #f59e0b;">@Model.PendingReview</div>
+                <div class="stat-label">Pending Review</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" style="color: #10b981;">@Model.ApprovedToday</div>
+                <div class="stat-label">Approved Today</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" style="color: #ef4444;">@Model.UrgentClaims</div>
+                <div class="stat-label">Urgent (>5 days)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">R@Model.TotalThisWeek.ToString("N2")</div>
+                <div class="stat-label">Total This Week</div>
+            </div>
+        </div>
+
+        <h2>Claims Awaiting Review</h2>
+
+        <div class="filter-buttons" style="margin-bottom: 20px;">
+            <button class="btn btn-primary">All Claims</button>
+            <button class="btn btn-secondary">Urgent</button>
+            <button class="btn btn-secondary">This Week</button>
+            <button class="btn btn-secondary">By Module</button>
+        </div>
+
+        @if (Model.ClaimsForReview != null && Model.ClaimsForReview.Any())
+        {
+        <div class="bulk-actions" style="margin-bottom: 20px;">
+            <button class="btn btn-success">Approve Selected</button>
+            <button class="btn btn-danger">Reject Selected</button>
+        </div>
+
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" id="selectAll" /></th>
+                        <th>Lecturer</th>
+                        <th>Module</th>
+                        <th>Hours</th>
+                        <th>Amount</th>
+                        <th>Submitted</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var claim in Model.ClaimsForReview)
+                        {
+                            var isUrgent = claim.SubmissionDate < DateTime.Now.AddDays(-5);
+                    <tr class="@(isUrgent ? "urgent-claim" : "")">
+                        <td><input type="checkbox" class="claim-checkbox" value="@claim.ClaimId" /></td>
+                        <td>
+                            @claim.User.FirstName @claim.User.LastName<br />
+                            <small>@claim.User.Email</small>
+                        </td>
+                        <td>
+                            @claim.Module.ModuleCode<br />
+                            <small>@claim.Module.ModuleName</small>
+                        </td>
+                        <td>@claim.HoursWorked hrs</td>
+                        <td>R@claim.TotalAmount.ToString("N2")</td>
+                        <td>
+                            @{
+                                        var daysAgo = (DateTime.Now - claim.SubmissionDate).Days;
+                            }
+                            @daysAgo days ago
+                            @if (isUrgent)
+                                    {
+                            <span class="badge badge-urgent">URGENT</span>
+                                    }
+                        </td>
+                        <td>
+                            <span class="badge badge-pending">PENDING</span>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="@Url.Action("ViewClaim", new { id = claim.ClaimId })" class="btn btn-sm btn-info">View</a>
+                                <form asp-action="ApproveClaim" asp-route-id="@claim.ClaimId" method="post" style="display: inline;">
+                                    <button type="submit" class="btn btn-sm btn-success">Approve</button>
+                                </form>
+                                <button type="button" class="btn btn-sm btn-danger" onclick="showRejectModal(@claim.ClaimId)">Reject</button>
+                            </div>
+                        </td>
+                    </tr>
+                        }
+                </tbody>
+            </table>
+        </div>
+        }
+        else
+        {
+        <p style="text-align: center; padding: 40px;">No claims pending review.</p>
+        }
+    </div>
+</div>
+
+<!-- Reject Modal -->
+<div id="rejectModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <h3>Reject Claim</h3>
+        <form id="rejectForm" method="post">
+            <input type="hidden" id="rejectClaimId" name="id" />
+            <div class="form-group">
+                <label>Reason for Rejection</label>
+                <textarea name="reason" class="form-control" rows="3" required></textarea>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeRejectModal()">Cancel</button>
+                <button type="submit" class="btn btn-danger">Reject Claim</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('selectAll').addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.claim-checkbox');
+            checkboxes.forEach(cb => cb.checked = this.checked);
+        });
+
+        function showRejectModal(claimId) {
+            document.getElementById('rejectClaimId').value = claimId;
+            document.getElementById('rejectForm').action = '@Url.Action("RejectClaim")';
+            document.getElementById('rejectModal').style.display = 'block';
+        }
+
+        function closeRejectModal() {
+            document.getElementById('rejectModal').style.display = 'none';
+        }
+    </script>
+}
