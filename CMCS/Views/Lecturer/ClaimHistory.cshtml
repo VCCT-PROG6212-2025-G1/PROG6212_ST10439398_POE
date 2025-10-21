@@ -1,0 +1,167 @@
+@model List<CMCS.Models.Claim>
+    @{
+    ViewData["Title"] = "Claim History";
+    }
+
+    <div class="container">
+        <div class="card">
+            <div class="header">
+                <h1>Claim History</h1>
+                <p>Complete overview of all your submitted claims</p>
+            </div>
+
+            <div class="stats-grid" style="margin-bottom: 30px;">
+                <div class="stat-card" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">
+                    <h3>Total Claims</h3>
+                    <p>@Model.Count</p>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                    <h3>Approved</h3>
+                    <p>@Model.Count(c => c.CurrentStatus == CMCS.Models.ClaimStatus.Approved)</p>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                    <h3>Pending</h3>
+                    <p>@Model.Count(c => c.CurrentStatus == CMCS.Models.ClaimStatus.Submitted || c.CurrentStatus == CMCS.Models.ClaimStatus.UnderReview)</p>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
+                    <h3>Rejected</h3>
+                    <p>@Model.Count(c => c.CurrentStatus == CMCS.Models.ClaimStatus.Rejected)</p>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+                    <h3>Total Earned</h3>
+                    <p>R@Model.Where(c => c.CurrentStatus == CMCS.Models.ClaimStatus.Approved || c.CurrentStatus == CMCS.Models.ClaimStatus.Paid).Sum(c => c.TotalAmount).ToString("N2")</p>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <input type="text" id="searchInput" placeholder="Search claims..." class="form-control" style="max-width: 300px;" onkeyup="filterTable()" />
+                <button onclick="exportToExcel()" class="btn btn-success">Export to Excel</button>
+            </div>
+
+            <table id="claimsTable">
+                <thead>
+                    <tr>
+                        <th>Claim ID</th>
+                        <th>Module</th>
+                        <th>Period</th>
+                        <th>Hours</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Submitted</th>
+                        <th>Last Updated</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                {
+                    foreach (var claim in Model)
+                    {
+                    <tr>
+                        <td><strong>CLC-@claim.ClaimId.ToString("D4")</strong></td>
+                        <td>
+                            <strong>@claim.Module.ModuleCode</strong><br />
+                            <small style="color: #6b7280;">@claim.Module.ModuleName</small>
+                        </td>
+                        <td>@claim.ClaimPeriod</td>
+                        <td>@claim.HoursWorked hrs</td>
+                        <td><strong style="color: #10b981;">R@claim.TotalAmount.ToString("N2")</strong></td>
+                        <td>
+                            @switch (claim.CurrentStatus)
+                                {
+                                    case CMCS.Models.ClaimStatus.Draft:
+                            <span class="status status-pending">DRAFT</span>
+                                        break;
+                                    case CMCS.Models.ClaimStatus.Submitted:
+                                    case CMCS.Models.ClaimStatus.UnderReview:
+                            <span class="status status-submitted">PENDING</span>
+                                        break;
+                                    case CMCS.Models.ClaimStatus.Approved:
+                            <span class="status status-approved">APPROVED</span>
+                                        break;
+                                    case CMCS.Models.ClaimStatus.Rejected:
+                            <span class="status status-rejected">REJECTED</span>
+                                        break;
+                                    case CMCS.Models.ClaimStatus.Paid:
+                            <span class="status status-approved">PAID</span>
+                                        break;
+                                }
+                        </td>
+                        <td>@claim.SubmissionDate.ToString("dd MMM yyyy")</td>
+                        <td>@(claim.LastModified?.ToString("dd MMM yyyy") ?? "-")</td>
+                        <td>
+                            <div style="display: flex; gap: 5px;">
+                                <a asp-action="ViewClaim" asp-route-id="@claim.ClaimId" class="btn btn-primary" style="padding: 6px 12px;">View</a>
+                                @if (claim.CurrentStatus == CMCS.Models.ClaimStatus.Draft)
+                                    {
+                                <a href="#" class="btn" style="background: #f59e0b; color: white; padding: 6px 12px;">Edit</a>
+                                    }
+                                @if (claim.CurrentStatus == CMCS.Models.ClaimStatus.Approved || claim.CurrentStatus == CMCS.Models.ClaimStatus.Paid)
+                                    {
+                                <button onclick="downloadReceipt(@claim.ClaimId)" class="btn btn-success" style="padding: 6px 12px;">Download</button>
+                                    }
+                            </div>
+                        </td>
+                    </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="9" style="text-align: center; padding: 40px; color: #6b7280;">
+                            No claims found. <a asp-action="SubmitClaim" style="color: #3b82f6; text-decoration: underline;">Submit your first claim</a>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+
+            @if (Model != null && Model.Any())
+        {
+            <div style="text-align: right; margin-top: 15px; color: #6b7280;">
+                Showing @Model.Count claim(s)
+            </div>
+        }
+
+            <div style="margin-top: 30px;">
+                <a asp-action="Dashboard" class="btn btn-primary">Back to Dashboard</a>
+                <a asp-action="SubmitClaim" class="btn btn-success">Submit New Claim</a>
+            </div>
+        </div>
+    </div>
+
+    @section Scripts {
+        <script>
+        function filterTable() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toUpperCase();
+            const table = document.getElementById('claimsTable');
+            const tr = table.getElementsByTagName('tr');
+
+            for (let i = 1; i < tr.length; i++) {
+                let found = false;
+                const td = tr[i].getElementsByTagName('td');
+
+                for (let j = 0; j < td.length; j++) {
+                    if (td[j]) {
+                        const txtValue = td[j].textContent || td[j].innerText;
+                        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+
+                tr[i].style.display = found ? '' : 'none';
+            }
+        }
+
+        function exportToExcel() {
+            alert('Export to Excel functionality will be implemented in Part 3');
+        }
+
+        function downloadReceipt(claimId) {
+            alert(`Downloading receipt for claim ${claimId}...`);
+        }
+        </script>
+    }

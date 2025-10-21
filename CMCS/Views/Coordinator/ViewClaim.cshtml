@@ -1,0 +1,249 @@
+﻿@model CMCS.Models.Claim
+@{
+    ViewData["Title"] = "Claim Details";
+}
+
+<div class="container">
+    <div class="card">
+        <div class="header">
+            <h1>Claim Details</h1>
+            <p>Review complete claim information</p>
+        </div>
+
+        <div style="background: #f9fafb; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h2 style="color: #1e3a8a; margin-bottom: 5px;">Claim #CLC-@Model.ClaimId.ToString("D4")</h2>
+                    <p style="color: #6b7280; margin: 0;">Submitted on @Model.SubmissionDate.ToString("dd MMMM yyyy")</p>
+                </div>
+                <div>
+                    @switch (Model.CurrentStatus)
+                    {
+                        case CMCS.Models.ClaimStatus.Submitted:
+                    <span class="status status-submitted" style="font-size: 1.1rem; padding: 10px 20px;">UNDER REVIEW</span>
+                            break;
+                        case CMCS.Models.ClaimStatus.Approved:
+                    <span class="status status-approved" style="font-size: 1.1rem; padding: 10px 20px;">APPROVED</span>
+                            break;
+                        case CMCS.Models.ClaimStatus.Rejected:
+                    <span class="status status-rejected" style="font-size: 1.1rem; padding: 10px 20px;">REJECTED</span>
+                            break;
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px;">
+            <div>
+                <h3 style="color: #1e3a8a; margin-bottom: 15px;">Lecturer Information</h3>
+                <dl style="display: grid; grid-template-columns: 150px 1fr; gap: 10px;">
+                    <dt style="font-weight: 600; color: #374151;">Name:</dt>
+                    <dd>@Model.User.FirstName @Model.User.LastName</dd>
+
+                    <dt style="font-weight: 600; color: #374151;">Email:</dt>
+                    <dd>@Model.User.Email</dd>
+
+                    <dt style="font-weight: 600; color: #374151;">Phone:</dt>
+                    <dd>@Model.User.PhoneNumber</dd>
+                </dl>
+            </div>
+
+            <div>
+                <h3 style="color: #1e3a8a; margin-bottom: 15px;">Module Information</h3>
+                <dl style="display: grid; grid-template-columns: 150px 1fr; gap: 10px;">
+                    <dt style="font-weight: 600; color: #374151;">Module Code:</dt>
+                    <dd>@Model.Module.ModuleCode</dd>
+
+                    <dt style="font-weight: 600; color: #374151;">Module Name:</dt>
+                    <dd>@Model.Module.ModuleName</dd>
+
+                    <dt style="font-weight: 600; color: #374151;">Standard Rate:</dt>
+                    <dd>R@Model.Module.StandardHourlyRate.ToString("N2") per hour</dd>
+                </dl>
+            </div>
+        </div>
+
+        <div style="background: #eff6ff; padding: 20px; border-radius: 8px; border-left: 4px solid #3b82f6; margin-bottom: 30px;">
+            <h3 style="color: #1e3a8a; margin-bottom: 15px;">Claim Details</h3>
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;">
+                <div>
+                    <p style="color: #6b7280; margin-bottom: 5px;">Claim Period</p>
+                    <p style="font-weight: 600; font-size: 1.1rem;">@Model.ClaimPeriod</p>
+                </div>
+                <div>
+                    <p style="color: #6b7280; margin-bottom: 5px;">Hours Worked</p>
+                    <p style="font-weight: 600; font-size: 1.1rem;">@Model.HoursWorked hrs</p>
+                </div>
+                <div>
+                    <p style="color: #6b7280; margin-bottom: 5px;">Hourly Rate</p>
+                    <p style="font-weight: 600; font-size: 1.1rem;">R@Model.HourlyRate.ToString("N2")</p>
+                </div>
+                <div>
+                    <p style="color: #6b7280; margin-bottom: 5px;">Total Amount</p>
+                    <p style="font-weight: 600; font-size: 1.3rem; color: #10b981;">R@Model.TotalAmount.ToString("N2")</p>
+                </div>
+            </div>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(Model.AdditionalNotes))
+        {
+        <div style="margin-bottom: 30px;">
+            <h3 style="color: #1e3a8a; margin-bottom: 15px;">Additional Notes</h3>
+            <div style="background: #f9fafb; padding: 15px; border-radius: 8px; border: 1px solid #e5e7eb;">
+                <p style="margin: 0; white-space: pre-wrap;">@Model.AdditionalNotes</p>
+            </div>
+        </div>
+        }
+
+        @if (Model.SupportingDocuments != null && Model.SupportingDocuments.Any())
+        {
+        <div style="margin-bottom: 30px;">
+            <h3 style="color: #1e3a8a; margin-bottom: 15px;">Supporting Documents</h3>
+            <div style="display: grid; gap: 10px;">
+                @foreach (var doc in Model.SupportingDocuments)
+                    {
+                <div style="background: #f9fafb; padding: 15px; border-radius: 8px; border: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <strong>@doc.FileName</strong><br />
+                        <small style="color: #6b7280;">@((doc.FileSize / 1024.0 / 1024.0).ToString("F2")) MB • Uploaded @doc.UploadDate.ToString("dd MMM yyyy")</small>
+                    </div>
+                    <a href="@doc.FilePath" target="_blank" class="btn btn-primary" style="padding: 8px 16px;">Download</a>
+                </div>
+                    }
+            </div>
+        </div>
+        }
+
+        @if (Model.StatusHistory != null && Model.StatusHistory.Any())
+        {
+        <div style="margin-bottom: 30px;">
+            <h3 style="color: #1e3a8a; margin-bottom: 15px;">Status History</h3>
+            <div style="position: relative; padding-left: 30px;">
+                @foreach (var history in Model.StatusHistory.OrderByDescending(h => h.ChangeDate))
+                    {
+                <div style="position: relative; padding-bottom: 20px;">
+                    <div style="position: absolute; left: -22px; width: 12px; height: 12px; border-radius: 50%; background: #3b82f6; border: 3px solid white; box-shadow: 0 0 0 1px #3b82f6;"></div>
+                    <div style="background: #f9fafb; padding: 15px; border-radius: 8px; border: 1px solid #e5e7eb;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                            <strong style="color: #1e3a8a;">@history.PreviousStatus → @history.NewStatus</strong>
+                            <span style="color: #6b7280; font-size: 0.9rem;">@history.ChangeDate.ToString("dd MMM yyyy HH:mm")</span>
+                        </div>
+                        @if (history.User != null)
+                                {
+                        <p style="color: #6b7280; margin: 5px 0; font-size: 0.9rem;">By: @history.User.FirstName @history.User.LastName</p>
+                                }
+                        @if (!string.IsNullOrWhiteSpace(history.Comments))
+                                {
+                        <p style="margin: 10px 0 0 0; font-style: italic;">"@history.Comments"</p>
+                                }
+                    </div>
+                </div>
+                    }
+            </div>
+        </div>
+        }
+
+        <div style="display: flex; gap: 10px; margin-top: 30px;">
+            @if (Model.CurrentStatus == CMCS.Models.ClaimStatus.Submitted || Model.CurrentStatus == CMCS.Models.ClaimStatus.UnderReview)
+            {
+            <button onclick="approveClaim(@Model.ClaimId)" class="btn btn-success">Approve Claim</button>
+            <button onclick="showRejectModal(@Model.ClaimId)" class="btn btn-danger">Reject Claim</button>
+            }
+            <a asp-action="Dashboard" class="btn" style="background: #6b7280; color: white;">Back to Dashboard</a>
+        </div>
+    </div>
+</div>
+
+<!-- Reject Modal -->
+<div id="rejectModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeRejectModal()">&times;</span>
+        <h2 style="color: #dc2626; margin-bottom: 20px;">Reject Claim</h2>
+        <p style="margin-bottom: 20px;">Please provide a reason for rejecting this claim:</p>
+        <textarea id="rejectReason" rows="4" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; margin-bottom: 20px;" placeholder="Enter rejection reason..."></textarea>
+        <div style="display: flex; gap: 10px;">
+            <button onclick="confirmReject()" class="btn btn-danger">Confirm Rejection</button>
+            <button onclick="closeRejectModal()" class="btn" style="background: #6b7280; color: white;">Cancel</button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let currentClaimId = @Model.ClaimId;
+
+        async function approveClaim(claimId) {
+            if (!confirm('Are you sure you want to approve this claim?')) return;
+
+            try {
+                const response = await fetch('/Coordinator/ApproveClaim', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `id=${claimId}`
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert(result.message);
+                    window.location.href = '/Coordinator/Dashboard';
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred approving the claim.');
+            }
+        }
+
+        function showRejectModal(claimId) {
+            currentClaimId = claimId;
+            document.getElementById('rejectReason').value = '';
+            document.getElementById('rejectModal').style.display = 'block';
+        }
+
+        function closeRejectModal() {
+            document.getElementById('rejectModal').style.display = 'none';
+        }
+
+        async function confirmReject() {
+            const reason = document.getElementById('rejectReason').value.trim();
+
+            if (!reason) {
+                alert('Please provide a rejection reason.');
+                return;
+            }
+
+            try {
+                const response = await fetch('/Coordinator/RejectClaim', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `id=${currentClaimId}&reason=${encodeURIComponent(reason)}`
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert(result.message);
+                    window.location.href = '/Coordinator/Dashboard';
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred rejecting the claim.');
+            }
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('rejectModal');
+            if (event.target == modal) {
+                closeRejectModal();
+            }
+        }
+    </script>
+}

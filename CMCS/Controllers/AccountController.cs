@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using System.Collections.Generic;
 using CMCS.Models;
 using CMCS.Data;
 using System.Linq;
@@ -30,40 +29,41 @@ namespace CMCS.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Login(string email, string password, string role)
+        public async Task<IActionResult> Login(string email, string password, string userType)
         {
             // Simple authentication - in production, use proper password hashing
-            var user = _context.Users.FirstOrDefault(u => u.Email == email && u.IsActive);
+            var user = _context.Users.FirstOrDefault(u =>
+                u.Email == email &&
+                u.IsActive &&
+                u.UserRole.ToString() == userType);
 
-            if (user != null)
+            if (user == null)
             {
-                var claims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.Name, user.FirstName + " " + user.LastName),
-                    new Claim(ClaimTypes.Email, user.Email),
-                    new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
-                    new Claim(ClaimTypes.Role, user.UserRole.ToString())
-                };
-
-                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
-                    new ClaimsPrincipal(claimsIdentity));
-
-                // Redirect based on role
-                switch (user.UserRole)
-                {
-                    case UserRole.Lecturer:
-                        return RedirectToAction("Dashboard", "Lecturer");
-                    case UserRole.Coordinator:
-                    case UserRole.Manager:
-                        return RedirectToAction("Dashboard", "Coordinator");
-                    default:
-                        return RedirectToAction("Index", "Home");
-                }
+                ViewBag.Error = "Invalid credentials or user type";
+                return View();
             }
 
-            ViewBag.ErrorMessage = "Invalid login credentials";
-            return View();
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
+                new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}"),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Role, user.UserRole.ToString())
+            };
+
+            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var authProperties = new AuthenticationProperties
+            {
+                IsPersistent = true,
+                ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(60)
+            };
+
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                new ClaimsPrincipal(claimsIdentity),
+                authProperties);
+
+            return RedirectToAction("Index", "Home");
         }
 
         [HttpPost]

@@ -34,61 +34,57 @@ namespace CMCS.Data
                     Email = "john.lecturer@iie.ac.za",
                     PhoneNumber = "+27 11 123 4567",
                     UserRole = UserRole.Lecturer,
-                    IsActive = true
+                    IsActive = true,
+                    CreatedDate = DateTime.Now
                 },
                 new User
                 {
                     UserId = 2,
                     FirstName = "Jane",
-                    LastName = "Smith",
-                    Email = "jane.smith@iie.ac.za",
-                    PhoneNumber = "+27 11 123 4568",
+                    LastName = "Coordinator",
+                    Email = "jane.coordinator@iie.ac.za",
+                    PhoneNumber = "+27 11 234 5678",
                     UserRole = UserRole.Coordinator,
-                    IsActive = true
+                    IsActive = true,
+                    CreatedDate = DateTime.Now
                 },
                 new User
                 {
                     UserId = 3,
                     FirstName = "Mike",
-                    LastName = "Wilson",
-                    Email = "mike.wilson@iie.ac.za",
-                    PhoneNumber = "+27 11 123 4569",
+                    LastName = "Manager",
+                    Email = "mike.manager@iie.ac.za",
+                    PhoneNumber = "+27 11 345 6789",
                     UserRole = UserRole.Manager,
-                    IsActive = true
+                    IsActive = true,
+                    CreatedDate = DateTime.Now
                 }
             );
 
+            // Seed modules
             modelBuilder.Entity<Module>().HasData(
                 new Module
                 {
                     ModuleId = 1,
                     ModuleCode = "PROG6212",
                     ModuleName = "Programming 2B",
-                    StandardHourlyRate = 450.00m,
+                    StandardHourlyRate = 350.00m,
                     IsActive = true
                 },
                 new Module
                 {
                     ModuleId = 2,
-                    ModuleCode = "HCIN6212",
-                    ModuleName = "Human Computer Interaction",
-                    StandardHourlyRate = 450.00m,
+                    ModuleCode = "CLDV6212",
+                    ModuleName = "Cloud Development",
+                    StandardHourlyRate = 375.00m,
                     IsActive = true
                 },
                 new Module
                 {
                     ModuleId = 3,
-                    ModuleCode = "PROG5112",
-                    ModuleName = "Programming 1B",
-                    StandardHourlyRate = 450.00m,
-                    IsActive = true
-                },
-                new Module
-                {
-                    ModuleId = 4,
-                    ModuleCode = "WEDE5020",
-                    ModuleName = "Web Development",
-                    StandardHourlyRate = 450.00m,
+                    ModuleCode = "DATA6222",
+                    ModuleName = "Database Development",
+                    StandardHourlyRate = 400.00m,
                     IsActive = true
                 }
             );

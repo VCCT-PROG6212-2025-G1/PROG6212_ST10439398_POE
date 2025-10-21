@@ -11,88 +11,98 @@
         </div>
 
         <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-value">@Model.PendingClaims</div>
-                <div class="stat-label">Pending Claims</div>
+            <div class="stat-card" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                <h3>Pending Claims</h3>
+                <p>@Model.PendingClaims</p>
             </div>
-            <div class="stat-card">
-                <div class="stat-value">R@Model.MonthlyTotal.ToString("N2")</div>
-                <div class="stat-label">This Month Total</div>
+            <div class="stat-card" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                <h3>This Month Total</h3>
+                <p>R@Model.MonthlyTotal.ToString("N2")</p>
             </div>
-            <div class="stat-card">
-                <div class="stat-value">R@Model.YearToDate.ToString("N2")</div>
-                <div class="stat-label">Year to Date</div>
+            <div class="stat-card" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">
+                <h3>Year to Date</h3>
+                <p>R@Model.YearToDate.ToString("N2")</p>
             </div>
-            <div class="stat-card">
-                <div class="stat-value">@Model.ClaimsThisMonth</div>
-                <div class="stat-label">Claims This Month</div>
-            </div>
-        </div>
-
-        <h2>Quick Actions</h2>
-        <div class="action-grid">
-            <a href="@Url.Action("SubmitClaim", "Lecturer")" class="action-card">
-                <i>📝</i>
-                <h3>Submit New Claim</h3>
-                <p>Create and submit a new monthly claim</p>
-            </a>
-            <a href="@Url.Action("ClaimHistory", "Lecturer")" class="action-card">
-                <i>📊</i>
-                <h3>View Claim History</h3>
-                <p>Track status of all your claims</p>
-            </a>
-            <div class="action-card">
-                <i>📎</i>
-                <h3>Upload Documents</h3>
-                <p>Add supporting documents to claims</p>
-            </div>
-            <div class="action-card">
-                <i>⚙️</i>
-                <h3>Account Settings</h3>
-                <p>Update your profile and preferences</p>
+            <div class="stat-card" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+                <h3>Claims This Month</h3>
+                <p>@Model.ClaimsThisMonth</p>
             </div>
         </div>
 
-        <h2>Recent Claims</h2>
-        <div class="table-responsive">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Claim ID</th>
-                        <th>Module</th>
-                        <th>Hours</th>
-                        <th>Amount</th>
-                        <th>Status</th>
-                        <th>Date Submitted</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (Model.RecentClaims != null && Model.RecentClaims.Any())
-                    {
-                    @foreach (var claim in Model.RecentClaims)
-                        {
-                    <tr>
-                        <td>CLC-@claim.ClaimId.ToString("D4")</td>
-                        <td>@claim.Module.ModuleCode</td>
-                        <td>@claim.HoursWorked</td>
-                        <td>R@claim.TotalAmount.ToString("N2")</td>
-                        <td>
-                            <span class="badge badge-@(claim.CurrentStatus.ToString().ToLower())">
-                                @claim.CurrentStatus
-                            </span>
-                        </td>
-                        <td>@claim.SubmissionDate.ToString("dd MMM yyyy")</td>
-                    </tr>
-                        }
-                    }
-                    else
-                    {
-                    <tr>
-                        <td colspan="6" style="text-align: center;">No claims found</td>
-                    </tr>
-                    }
-                </tbody>
-            </table>
+        <div style="background: #f9fafb; padding: 30px; border-radius: 12px; margin-bottom: 30px;">
+            <h2 style="color: #1e3a8a; margin-bottom: 20px;">Quick Actions</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                <a asp-action="SubmitClaim" class="btn btn-primary" style="text-align: center; padding: 20px;">
+                    📄 Submit New Claim
+                </a>
+                <a asp-action="ClaimHistory" class="btn" style="background: #3b82f6; color: white; text-align: center; padding: 20px;">
+                    📊 View Claim History
+                </a>
+                <a href="#" class="btn" style="background: #8b5cf6; color: white; text-align: center; padding: 20px;">
+                    📎 Upload Documents
+                </a>
+                <a href="#" class="btn" style="background: #6b7280; color: white; text-align: center; padding: 20px;">
+                    ⚙️ Account Settings
+                </a>
+            </div>
         </div>
+
+        <h2 style="color: #1e3a8a; margin-bottom: 20px;">Recent Claims</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Claim ID</th>
+                    <th>Module</th>
+                    <th>Hours</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Date Submitted</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.RecentClaims != null && Model.RecentClaims.Any())
+                {
+                    foreach (var claim in Model.RecentClaims)
+                    {
+                <tr>
+                    <td>CLC-@claim.ClaimId.ToString("D4")</td>
+                    <td>@claim.Module.ModuleCode</td>
+                    <td>@claim.HoursWorked hrs</td>
+                    <td>R@claim.TotalAmount.ToString("N2")</td>
+                    <td>
+                        @switch (claim.CurrentStatus)
+                                {
+                                    case CMCS.Models.ClaimStatus.Submitted:
+                        <span class="status status-submitted">Pending</span>
+                                        break;
+                                    case CMCS.Models.ClaimStatus.Approved:
+                        <span class="status status-approved">Approved</span>
+                                        break;
+                                    case CMCS.Models.ClaimStatus.Rejected:
+                        <span class="status status-rejected">Rejected</span>
+                                        break;
+                                    default:
+                        <span class="status status-pending">@claim.CurrentStatus</span>
+                                        break;
+                                }
+                    </td>
+                    <td>@claim.SubmissionDate.ToString("dd MMM yyyy")</td>
+                    <td>
+                        <a asp-action="ViewClaim" asp-route-id="@claim.ClaimId" class="btn btn-primary" style="padding: 6px 12px;">View</a>
+                    </td>
+                </tr>
+                    }
+                }
+                else
+                {
+                <tr>
+                    <td colspan="7" style="text-align: center; color: #6b7280; padding: 40px;">
+                        No claims submitted yet. Click "Submit New Claim" to get started.
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
     </div>
 </div>

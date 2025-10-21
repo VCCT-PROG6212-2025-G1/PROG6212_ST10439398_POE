@@ -1,6 +1,7 @@
-@model CMCS.ViewModels.CoordinatorDashboardViewModel
+﻿@model CMCS.ViewModels.CoordinatorDashboardViewModel
 @{
     ViewData["Title"] = "Coordinator Dashboard";
+    var currentFilter = ViewBag.CurrentFilter ?? "all";
 }
 
 <div class="container">
@@ -11,45 +12,47 @@
         </div>
 
         <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-value" style="color: #f59e0b;">@Model.PendingReview</div>
-                <div class="stat-label">Pending Review</div>
+            <div class="stat-card" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                <h3>Pending Review</h3>
+                <p>@Model.PendingReview</p>
             </div>
-            <div class="stat-card">
-                <div class="stat-value" style="color: #10b981;">@Model.ApprovedToday</div>
-                <div class="stat-label">Approved Today</div>
+            <div class="stat-card" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                <h3>Approved Today</h3>
+                <p>@Model.ApprovedToday</p>
             </div>
-            <div class="stat-card">
-                <div class="stat-value" style="color: #ef4444;">@Model.UrgentClaims</div>
-                <div class="stat-label">Urgent (>5 days)</div>
+            <div class="stat-card" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
+                <h3>Urgent (>5 days)</h3>
+                <p>@Model.UrgentClaims</p>
             </div>
-            <div class="stat-card">
-                <div class="stat-value">R@Model.TotalThisWeek.ToString("N2")</div>
-                <div class="stat-label">Total This Week</div>
+            <div class="stat-card" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">
+                <h3>Total This Week</h3>
+                <p>R@Model.TotalThisWeek.ToString("N2")</p>
             </div>
         </div>
 
-        <h2>Claims Awaiting Review</h2>
+        <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="color: #1e3a8a; margin: 0;">Claims Awaiting Review</h2>
+                <div style="display: flex; gap: 10px;">
+                    <a asp-action="Dashboard" asp-route-filter="all" class="btn @(currentFilter == "all" ? "btn-primary" : "")" style="@(currentFilter != "all" ? "background: #e5e7eb; color: #374151;" : "")">All Claims</a>
+                    <a asp-action="Dashboard" asp-route-filter="urgent" class="btn @(currentFilter == "urgent" ? "btn-danger" : "")" style="@(currentFilter != "urgent" ? "background: #e5e7eb; color: #374151;" : "")">Urgent</a>
+                    <a asp-action="Dashboard" asp-route-filter="thisweek" class="btn @(currentFilter == "thisweek" ? "btn-primary" : "")" style="@(currentFilter != "thisweek" ? "background: #e5e7eb; color: #374151;" : "")">This Week</a>
+                    <a asp-action="Dashboard" asp-route-filter="bymodule" class="btn @(currentFilter == "bymodule" ? "btn-primary" : "")" style="@(currentFilter != "bymodule" ? "background: #e5e7eb; color: #374151;" : "")">By Module</a>
+                </div>
+            </div>
 
-        <div class="filter-buttons" style="margin-bottom: 20px;">
-            <button class="btn btn-primary">All Claims</button>
-            <button class="btn btn-secondary">Urgent</button>
-            <button class="btn btn-secondary">This Week</button>
-            <button class="btn btn-secondary">By Module</button>
-        </div>
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <button onclick="approveSelected()" class="btn btn-success">Approve Selected</button>
+                <button onclick="rejectSelected()" class="btn btn-danger">Reject Selected</button>
+                <span id="selectedCount" style="margin-left: 10px; color: #6b7280; align-self: center;">0 claims selected</span>
+            </div>
 
-        @if (Model.ClaimsForReview != null && Model.ClaimsForReview.Any())
-        {
-        <div class="bulk-actions" style="margin-bottom: 20px;">
-            <button class="btn btn-success">Approve Selected</button>
-            <button class="btn btn-danger">Reject Selected</button>
-        </div>
-
-        <div class="table-responsive">
             <table>
                 <thead>
                     <tr>
-                        <th><input type="checkbox" id="selectAll" /></th>
+                        <th style="width: 50px;">
+                            <input type="checkbox" id="selectAll" onchange="toggleSelectAll(this)" />
+                        </th>
                         <th>Lecturer</th>
                         <th>Module</th>
                         <th>Hours</th>
@@ -60,89 +63,294 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var claim in Model.ClaimsForReview)
+                    @if (Model.ClaimsForReview != null && Model.ClaimsForReview.Any())
+                    {
+                        foreach (var claim in Model.ClaimsForReview)
                         {
-                            var isUrgent = claim.SubmissionDate < DateTime.Now.AddDays(-5);
-                    <tr class="@(isUrgent ? "urgent-claim" : "")">
-                        <td><input type="checkbox" class="claim-checkbox" value="@claim.ClaimId" /></td>
+                            var isUrgent = (DateTime.Now - claim.SubmissionDate).Days > 5;
+                            var rowStyle = isUrgent ? "border-left: 4px solid #ef4444;" : "";
+
+                    <tr style="@rowStyle">
                         <td>
-                            @claim.User.FirstName @claim.User.LastName<br />
-                            <small>@claim.User.Email</small>
+                            <input type="checkbox" class="claim-checkbox" value="@claim.ClaimId" onchange="updateSelectedCount()" />
                         </td>
                         <td>
-                            @claim.Module.ModuleCode<br />
-                            <small>@claim.Module.ModuleName</small>
+                            <div>
+                                <strong>@claim.User.FirstName @claim.User.LastName</strong><br />
+                                <small style="color: #6b7280;">@claim.User.Email</small>
+                            </div>
+                        </td>
+                        <td>
+                            <strong>@claim.Module.ModuleCode</strong><br />
+                            <small style="color: #6b7280;">@claim.Module.ModuleName</small>
                         </td>
                         <td>@claim.HoursWorked hrs</td>
-                        <td>R@claim.TotalAmount.ToString("N2")</td>
+                        <td><strong style="color: #10b981;">R@claim.TotalAmount.ToString("N2")</strong></td>
                         <td>
                             @{
                                         var daysAgo = (DateTime.Now - claim.SubmissionDate).Days;
+                                        var timeText = daysAgo == 0 ? "Today" : $"{daysAgo} day{(daysAgo > 1 ? "s" : "")} ago";
                             }
-                            @daysAgo days ago
+                            @timeText
+                        </td>
+                        <td>
                             @if (isUrgent)
                                     {
-                            <span class="badge badge-urgent">URGENT</span>
+                            <span class="status" style="background: #fee2e2; color: #991b1b;">URGENT</span>
+                                    }
+                                    else
+                                    {
+                            <span class="status status-submitted">PENDING</span>
                                     }
                         </td>
                         <td>
-                            <span class="badge badge-pending">PENDING</span>
-                        </td>
-                        <td>
-                            <div class="action-buttons">
-                                <a href="@Url.Action("ViewClaim", new { id = claim.ClaimId })" class="btn btn-sm btn-info">View</a>
-                                <form asp-action="ApproveClaim" asp-route-id="@claim.ClaimId" method="post" style="display: inline;">
-                                    <button type="submit" class="btn btn-sm btn-success">Approve</button>
-                                </form>
-                                <button type="button" class="btn btn-sm btn-danger" onclick="showRejectModal(@claim.ClaimId)">Reject</button>
+                            <div style="display: flex; gap: 5px;">
+                                <a asp-action="ViewClaim" asp-route-id="@claim.ClaimId" class="btn" style="background: #3b82f6; color: white; padding: 6px 12px;">View</a>
+                                <button onclick="approveClaim(@claim.ClaimId)" class="btn btn-success" style="padding: 6px 12px;">Approve</button>
+                                <button onclick="showRejectModal(@claim.ClaimId)" class="btn btn-danger" style="padding: 6px 12px;">Reject</button>
                             </div>
                         </td>
                     </tr>
                         }
+                    }
+                    else
+                    {
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 40px; color: #6b7280;">
+                            No claims awaiting review. Great job! ✅
+                        </td>
+                    </tr>
+                    }
                 </tbody>
             </table>
+
+            @if (Model.ClaimsForReview != null && Model.ClaimsForReview.Any())
+            {
+            <div style="text-align: right; margin-top: 15px; color: #6b7280;">
+                Showing @Model.ClaimsForReview.Count claim(s) pending review
+            </div>
+            }
         </div>
-        }
-        else
-        {
-        <p style="text-align: center; padding: 40px;">No claims pending review.</p>
-        }
     </div>
 </div>
 
 <!-- Reject Modal -->
-<div id="rejectModal" class="modal" style="display: none;">
+<div id="rejectModal" class="modal">
     <div class="modal-content">
-        <h3>Reject Claim</h3>
-        <form id="rejectForm" method="post">
-            <input type="hidden" id="rejectClaimId" name="id" />
-            <div class="form-group">
-                <label>Reason for Rejection</label>
-                <textarea name="reason" class="form-control" rows="3" required></textarea>
-            </div>
-            <div class="form-actions">
-                <button type="button" class="btn btn-secondary" onclick="closeRejectModal()">Cancel</button>
-                <button type="submit" class="btn btn-danger">Reject Claim</button>
-            </div>
-        </form>
+        <span class="close" onclick="closeRejectModal()">&times;</span>
+        <h2 style="color: #dc2626; margin-bottom: 20px;">Reject Claim</h2>
+        <p style="margin-bottom: 20px;">Please provide a reason for rejecting this claim:</p>
+        <textarea id="rejectReason" rows="4" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; margin-bottom: 20px;" placeholder="Enter rejection reason..."></textarea>
+        <div style="display: flex; gap: 10px;">
+            <button onclick="confirmReject()" class="btn btn-danger">Confirm Rejection</button>
+            <button onclick="closeRejectModal()" class="btn" style="background: #6b7280; color: white;">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- Bulk Reject Modal -->
+<div id="bulkRejectModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeBulkRejectModal()">&times;</span>
+        <h2 style="color: #dc2626; margin-bottom: 20px;">Reject Selected Claims</h2>
+        <p style="margin-bottom: 20px;">Please provide a reason for rejecting the selected claims:</p>
+        <textarea id="bulkRejectReason" rows="4" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; margin-bottom: 20px;" placeholder="Enter rejection reason..."></textarea>
+        <div style="display: flex; gap: 10px;">
+            <button onclick="confirmBulkReject()" class="btn btn-danger">Confirm Rejection</button>
+            <button onclick="closeBulkRejectModal()" class="btn" style="background: #6b7280; color: white;">Cancel</button>
+        </div>
     </div>
 </div>
 
 @section Scripts {
     <script>
-        document.getElementById('selectAll').addEventListener('change', function() {
+        let currentClaimId = null;
+
+        // Select all functionality
+        function toggleSelectAll(checkbox) {
             const checkboxes = document.querySelectorAll('.claim-checkbox');
-            checkboxes.forEach(cb => cb.checked = this.checked);
-        });
+            checkboxes.forEach(cb => cb.checked = checkbox.checked);
+            updateSelectedCount();
+        }
+
+        function updateSelectedCount() {
+            const selected = document.querySelectorAll('.claim-checkbox:checked').length;
+            document.getElementById('selectedCount').textContent = `${selected} claim${selected !== 1 ? 's' : ''} selected`;
+        }
+
+        // Individual claim actions
+        async function approveClaim(claimId) {
+            if (!confirm('Are you sure you want to approve this claim?')) return;
+
+            try {
+                const response = await fetch('/Coordinator/ApproveClaim', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `id=${claimId}`
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert(result.message);
+                    location.reload();
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred approving the claim.');
+            }
+        }
 
         function showRejectModal(claimId) {
-            document.getElementById('rejectClaimId').value = claimId;
-            document.getElementById('rejectForm').action = '@Url.Action("RejectClaim")';
+            currentClaimId = claimId;
+            document.getElementById('rejectReason').value = '';
             document.getElementById('rejectModal').style.display = 'block';
         }
 
         function closeRejectModal() {
             document.getElementById('rejectModal').style.display = 'none';
+            currentClaimId = null;
+        }
+
+        async function confirmReject() {
+            const reason = document.getElementById('rejectReason').value.trim();
+
+            if (!reason) {
+                alert('Please provide a rejection reason.');
+                return;
+            }
+
+            try {
+                const response = await fetch('/Coordinator/RejectClaim', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `id=${currentClaimId}&reason=${encodeURIComponent(reason)}`
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert(result.message);
+                    closeRejectModal();
+                    location.reload();
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred rejecting the claim.');
+            }
+        }
+
+        // Bulk actions
+        function getSelectedClaimIds() {
+            const checkboxes = document.querySelectorAll('.claim-checkbox:checked');
+            return Array.from(checkboxes).map(cb => parseInt(cb.value));
+        }
+
+        async function approveSelected() {
+            const claimIds = getSelectedClaimIds();
+
+            if (claimIds.length === 0) {
+                alert('Please select at least one claim to approve.');
+                return;
+            }
+
+            if (!confirm(`Are you sure you want to approve ${claimIds.length} claim(s)?`)) return;
+
+            try {
+                const response = await fetch('/Coordinator/BulkApprove', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(claimIds)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert(result.message);
+                    location.reload();
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred approving claims.');
+            }
+        }
+
+        function rejectSelected() {
+            const claimIds = getSelectedClaimIds();
+
+            if (claimIds.length === 0) {
+                alert('Please select at least one claim to reject.');
+                return;
+            }
+
+            document.getElementById('bulkRejectReason').value = '';
+            document.getElementById('bulkRejectModal').style.display = 'block';
+        }
+
+        function closeBulkRejectModal() {
+            document.getElementById('bulkRejectModal').style.display = 'none';
+        }
+
+        async function confirmBulkReject() {
+            const reason = document.getElementById('bulkRejectReason').value.trim();
+
+            if (!reason) {
+                alert('Please provide a rejection reason.');
+                return;
+            }
+
+            const claimIds = getSelectedClaimIds();
+
+            try {
+                const response = await fetch('/Coordinator/BulkReject', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        claimIds: claimIds,
+                        reason: reason
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert(result.message);
+                    closeBulkRejectModal();
+                    location.reload();
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred rejecting claims.');
+            }
+        }
+
+        // Close modals when clicking outside
+        window.onclick = function (event) {
+            const rejectModal = document.getElementById('rejectModal');
+            const bulkRejectModal = document.getElementById('bulkRejectModal');
+
+            if (event.target == rejectModal) {
+                closeRejectModal();
+            }
+            if (event.target == bulkRejectModal) {
+                closeBulkRejectModal();
+            }
         }
     </script>
 }

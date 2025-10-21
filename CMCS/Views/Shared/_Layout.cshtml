@@ -7,36 +7,57 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 <body>
-    <header>
-        @if (User.Identity.IsAuthenticated)
-        {
-        <nav class="navbar">
-            <div class="container">
-                <div class="navbar-brand">
-                    <h2>CMCS</h2>
-                </div>
-                <div class="navbar-menu">
-                    <span class="navbar-user">Welcome, @User.Identity.Name</span>
-                    <form asp-controller="Account" asp-action="Logout" method="post" class="navbar-form">
-                        <button type="submit" class="btn btn-link">Logout</button>
-                    </form>
-                </div>
+    @if (User.Identity.IsAuthenticated)
+    {
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-brand">
+                <h2>CMCS</h2>
             </div>
-        </nav>
-        }
-    </header>
+            <div class="navbar-menu">
+                @if (User.IsInRole("Lecturer"))
+                    {
+                <a asp-controller="Lecturer" asp-action="Dashboard" class="navbar-link">Dashboard</a>
+                <a asp-controller="Lecturer" asp-action="SubmitClaim" class="navbar-link">Submit Claim</a>
+                <a asp-controller="Lecturer" asp-action="ClaimHistory" class="navbar-link">Claim History</a>
+                    }
+                @if (User.IsInRole("Coordinator") || User.IsInRole("Manager"))
+                    {
+                <a asp-controller="Coordinator" asp-action="Dashboard" class="navbar-link">Dashboard</a>
+                <a asp-controller="Modules" asp-action="Index" class="navbar-link">Modules</a>
+                    }
+                <span class="navbar-user">Welcome, @User.Identity.Name</span>
+                <form asp-controller="Account" asp-action="Logout" method="post" class="navbar-form">
+                    <button type="submit" class="btn btn-link">Logout</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+    }
 
     <main role="main" class="main-content">
         @if (TempData["Success"] != null)
         {
-        <div class="alert alert-success">
-            @TempData["Success"]
+        <div class="container">
+            <div class="alert alert-success">
+                ✅ @TempData["Success"]
+            </div>
         </div>
         }
         @if (TempData["Error"] != null)
         {
-        <div class="alert alert-danger">
-            @TempData["Error"]
+        <div class="container">
+            <div class="alert alert-danger">
+                ❌ @TempData["Error"]
+            </div>
+        </div>
+        }
+        @if (TempData["Warning"] != null)
+        {
+        <div class="container">
+            <div class="alert" style="background: #fef3c7; color: #92400e; border-left: 4px solid #f59e0b;">
+                ⚠️ @TempData["Warning"]
+            </div>
         </div>
         }
         @RenderBody()
@@ -52,3 +73,21 @@
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
+
+<style>
+    .navbar-link {
+        color: #374151;
+        text-decoration: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        transition: background 0.3s;
+    }
+
+        .navbar-link:hover {
+            background: #f3f4f6;
+        }
+
+    .main-content {
+        padding-bottom: 60px;
+    }
+</style>

@@ -1,0 +1,70 @@
+@model IEnumerable<CMCS.Models.Module>
+    @{
+    ViewData["Title"] = "Modules Management";
+    }
+
+    <div class="container">
+        <div class="card">
+            <div class="header">
+                <h1>Modules Management</h1>
+                <p>Manage course modules and hourly rates</p>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <a asp-action="Create" class="btn btn-primary">
+                    <i class="icon">+</i> Create New Module
+                </a>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Module Code</th>
+                        <th>Module Name</th>
+                        <th>Hourly Rate</th>
+                        <th>Status</th>
+                        <th>Created Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.ModuleCode</td>
+                        <td>@item.ModuleName</td>
+                        <td>R @item.StandardHourlyRate.ToString("N2")</td>
+                        <td>
+                            @if (item.IsActive)
+                            {
+                            <span class="status status-approved">Active</span>
+                            }
+                            else
+                            {
+                            <span class="status status-rejected">Inactive</span>
+                            }
+                        </td>
+                        <td>@item.CreatedDate.ToString("dd MMM yyyy")</td>
+                        <td>
+                            <a asp-action="Details" asp-route-id="@item.ModuleId" class="btn btn-sm" style="background: #6b7280; color: white; padding: 6px 12px; margin-right: 5px;">Details</a>
+                            <a asp-action="Edit" asp-route-id="@item.ModuleId" class="btn btn-sm btn-primary" style="padding: 6px 12px; margin-right: 5px;">Edit</a>
+                            <form asp-action="ToggleActive" asp-route-id="@item.ModuleId" method="post" style="display: inline;">
+                                <button type="submit" class="btn btn-sm @(item.IsActive ? "btn-danger" : "btn-success")" style="padding: 6px 12px; margin-right: 5px;">
+                                    @(item.IsActive ? "Deactivate" : "Activate")
+                                </button>
+                            </form>
+                            <a asp-action="Delete" asp-route-id="@item.ModuleId" class="btn btn-sm btn-danger" style="padding: 6px 12px;">Delete</a>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+
+            @if (!Model.Any())
+        {
+            <div style="text-align: center; padding: 40px; color: #6b7280;">
+                <p>No modules found. Create your first module to get started.</p>
+            </div>
+        }
+        </div>
+    </div>

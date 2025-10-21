@@ -1,0 +1,56 @@
+@model CMCS.Models.Module
+@{
+    ViewData["Title"] = "Module Details";
+}
+
+<div class="container">
+    <div class="card">
+        <div class="header">
+            <h1>Module Details</h1>
+            <p>View complete module information</p>
+        </div>
+
+        <dl style="display: grid; grid-template-columns: 200px 1fr; gap: 15px;">
+            <dt style="font-weight: 600; color: #374151;">Module Code:</dt>
+            <dd>@Model.ModuleCode</dd>
+
+            <dt style="font-weight: 600; color: #374151;">Module Name:</dt>
+            <dd>@Model.ModuleName</dd>
+
+            <dt style="font-weight: 600; color: #374151;">Hourly Rate:</dt>
+            <dd>R @Model.StandardHourlyRate.ToString("N2")</dd>
+
+            <dt style="font-weight: 600; color: #374151;">Description:</dt>
+            <dd>@(string.IsNullOrEmpty(Model.Description) ? "No description provided" : Model.Description)</dd>
+
+            <dt style="font-weight: 600; color: #374151;">Status:</dt>
+            <dd>
+                @if (Model.IsActive)
+                {
+                <span class="status status-approved">Active</span>
+                }
+                else
+                {
+                <span class="status status-rejected">Inactive</span>
+                }
+            </dd>
+
+            <dt style="font-weight: 600; color: #374151;">Created Date:</dt>
+            <dd>@Model.CreatedDate.ToString("dd MMMM yyyy")</dd>
+
+            @if (Model.LastModified.HasValue)
+            {
+            <dt style="font-weight: 600; color: #374151;">Last Modified:</dt>
+            <dd>@Model.LastModified.Value.ToString("dd MMMM yyyy")</dd>
+            }
+
+            <dt style="font-weight: 600; color: #374151;">Associated Claims:</dt>
+            <dd>@(Model.Claims?.Count ?? 0) claims</dd>
+        </dl>
+
+        <div style="margin-top: 30px; display: flex; gap: 10px;">
+            <a asp-action="Edit" asp-route-id="@Model.ModuleId" class="btn btn-primary">Edit</a>
+            <a asp-action="Index" class="btn" style="background: #6b7280; color: white;">Back to List</a>
+        </div>
+    </div>
+</div>
