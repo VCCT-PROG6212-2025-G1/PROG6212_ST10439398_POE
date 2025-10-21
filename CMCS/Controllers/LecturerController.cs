@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using CMCS.Models;
 using CMCS.Data;
 using CMCS.ViewModels;
+using Claim = CMCS.Models.Claim;
 
 namespace CMCS.Controllers
 {

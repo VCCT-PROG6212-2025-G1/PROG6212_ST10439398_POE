@@ -1,3 +1,4 @@
+@model CMCS.ViewModels.LoginViewModel
 @{
     ViewData["Title"] = "Login";
     Layout = null;
@@ -11,56 +12,137 @@
     <title>Login - CMCS</title>
     <link rel="stylesheet" href="~/css/site.css" />
 </head>
-<body>
-    <div class="login-container">
-        <div class="card login-card">
-            <div class="header">
-                <h1>CMCS</h1>
-                <p>Contract Monthly Claims System</p>
+<body style="margin: 0; padding: 0; min-height: 100vh; background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); display: flex; align-items: center; justify-content: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+
+    <div style="background: white; padding: 40px; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); width: 100%; max-width: 500px; margin: 20px;">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="color: #1e3a8a; font-size: 2.5rem; margin-bottom: 10px; font-weight: 700;">CMCS</h1>
+            <p style="color: #6b7280; font-size: 1rem;">Contract Monthly Claims System</p>
+        </div>
+
+        @if (TempData["Error"] != null)
+        {
+            <div style="background: #fee2e2; color: #991b1b; padding: 12px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #ef4444;">
+                @TempData["Error"]
+            </div>
+        }
+
+        <form asp-action="Login" method="post" id="loginForm">
+            <div asp-validation-summary="ModelOnly" style="color: #dc2626; margin-bottom: 15px;"></div>
+
+            <!-- Role Selection -->
+            <div style="margin-bottom: 25px;">
+                <div style="display: flex; gap: 10px;">
+                    <button type="button" class="role-btn" data-role="Lecturer" style="flex: 1; padding: 12px; border: 2px solid #d1d5db; border-radius: 8px; background: white; color: #374151; font-weight: 500; cursor: pointer; transition: all 0.3s;">
+                        Lecturer
+                    </button>
+                    <button type="button" class="role-btn" data-role="Coordinator" style="flex: 1; padding: 12px; border: 2px solid #d1d5db; border-radius: 8px; background: white; color: #374151; font-weight: 500; cursor: pointer; transition: all 0.3s;">
+                        Coordinator
+                    </button>
+                    <button type="button" class="role-btn" data-role="Manager" style="flex: 1; padding: 12px; border: 2px solid #d1d5db; border-radius: 8px; background: white; color: #374151; font-weight: 500; cursor: pointer; transition: all 0.3s;">
+                        Manager
+                    </button>
+                </div>
+                <input type="hidden" asp-for="UserType" id="userTypeInput" />
+                <span asp-validation-for="UserType" style="color: #dc2626; font-size: 0.875rem;"></span>
             </div>
 
-            <form asp-action="Login" method="post">
-                <div class="role-selector">
-                    <button type="button" class="btn btn-role active" data-role="Lecturer">Lecturer</button>
-                    <button type="button" class="btn btn-role" data-role="Coordinator">Coordinator</button>
-                    <button type="button" class="btn btn-role" data-role="Manager">Manager</button>
-                </div>
+            <!-- Email -->
+            <div style="margin-bottom: 20px;">
+                <label asp-for="Email" style="display: block; margin-bottom: 8px; color: #374151; font-weight: 500;">Email Address</label>
+                <input asp-for="Email" type="email" placeholder="Enter your email" style="width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s;" />
+                <span asp-validation-for="Email" style="color: #dc2626; font-size: 0.875rem;"></span>
+            </div>
 
-                <input type="hidden" name="role" id="selectedRole" value="Lecturer" />
+            <!-- Password -->
+            <div style="margin-bottom: 25px;">
+                <label asp-for="Password" style="display: block; margin-bottom: 8px; color: #374151; font-weight: 500;">Password</label>
+                <input asp-for="Password" type="password" placeholder="Enter your password" style="width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s;" />
+                <span asp-validation-for="Password" style="color: #dc2626; font-size: 0.875rem;"></span>
+            </div>
 
-                @if (ViewBag.ErrorMessage != null)
-                {
-                <div class="alert alert-danger">
-                    @ViewBag.ErrorMessage
-                </div>
-                }
+            <!-- Submit Button -->
+            <button type="submit" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;">
+                Sign In
+            </button>
+        </form>
 
-                <div class="form-group">
-                    <label>Email Address</label>
-                    <input type="email" name="email" class="form-control" placeholder="Enter your email" required />
-                </div>
-
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" name="password" class="form-control" placeholder="Enter your password" required />
-                </div>
-
-                <button type="submit" class="btn btn-primary btn-block">Sign In</button>
-            </form>
-
-            <p class="login-footer">
-                Independent Institute of Education<br />
-                Secure Claims Management Portal
-            </p>
+        <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+            <p style="color: #6b7280; font-size: 0.9rem; margin: 0;">Independent Institute of Education</p>
+            <p style="color: #6b7280; font-size: 0.9rem; margin: 5px 0 0 0;">Secure Claims Management Portal</p>
         </div>
     </div>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation-unobtrusive@3.2.12/dist/jquery.validate.unobtrusive.min.js"></script>
+
     <script>
-        document.querySelectorAll('.btn-role').forEach(button => {
-            button.addEventListener('click', function() {
-                document.querySelectorAll('.btn-role').forEach(btn => btn.classList.remove('active'));
-                this.classList.add('active');
-                document.getElementById('selectedRole').value = this.dataset.role;
+        // Role selection functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const roleButtons = document.querySelectorAll('.role-btn');
+            const userTypeInput = document.getElementById('userTypeInput');
+
+            // Set default role
+            roleButtons[0].click();
+
+            roleButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove active class from all buttons
+                    roleButtons.forEach(btn => {
+                        btn.style.background = 'white';
+                        btn.style.color = '#374151';
+                        btn.style.borderColor = '#d1d5db';
+                    });
+
+                    // Add active class to clicked button
+                    this.style.background = 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)';
+                    this.style.color = 'white';
+                    this.style.borderColor = '#3b82f6';
+
+                    // Set the hidden input value
+                    userTypeInput.value = this.getAttribute('data-role');
+                });
+            });
+
+            // Hover effects
+            roleButtons.forEach(button => {
+                button.addEventListener('mouseenter', function() {
+                    if (this.style.background !== 'linear-gradient(135deg, rgb(59, 130, 246) 0%, rgb(37, 99, 235) 100%)') {
+                        this.style.transform = 'translateY(-2px)';
+                        this.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.2)';
+                    }
+                });
+
+                button.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = 'none';
+                });
+            });
+
+            // Submit button hover
+            const submitBtn = document.querySelector('button[type="submit"]');
+            submitBtn.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+                this.style.boxShadow = '0 8px 20px rgba(59, 130, 246, 0.4)';
+            });
+            submitBtn.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = 'none';
+            });
+
+            // Input focus effects
+            const inputs = document.querySelectorAll('input[type="email"], input[type="password"]');
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.style.borderColor = '#3b82f6';
+                    this.style.outline = 'none';
+                    this.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
+                });
+                input.addEventListener('blur', function() {
+                    this.style.borderColor = '#d1d5db';
+                    this.style.boxShadow = 'none';
+                });
             });
         });
     </script>
