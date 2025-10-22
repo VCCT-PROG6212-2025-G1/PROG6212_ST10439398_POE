@@ -1,4 +1,4 @@
-// ViewModels/CoordinatorDashboardViewModel.cs
+//--------------------------Start Of File--------------------------//
 using System.Collections.Generic;
 using CMCS.Models;
 
@@ -13,3 +13,4 @@ namespace CMCS.ViewModels
         public List<Claim> ClaimsForReview { get; set; }
     }
 }
+//--------------------------End Of File--------------------------//

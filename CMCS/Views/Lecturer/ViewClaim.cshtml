@@ -1,4 +1,4 @@
-﻿@using CMCS.Models.CMCS.Models
+﻿<!--------------------- Start of File ------------------------->
 @model CMCS.Models.Claim
 @{
     ViewData["Title"] = "Claim Status Tracking";
@@ -91,6 +91,16 @@
         color: #991b1b;
     }
 
+    .status-processing {
+        background: #e0e7ff;
+        color: #4338ca;
+    }
+
+    .status-paid {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
     .info-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
@@ -115,6 +125,92 @@
         color: #1e3a8a;
         font-size: 1.1rem;
         font-weight: 600;
+    }
+
+    .documents-section {
+        background: #f9fafb;
+        padding: 20px;
+        border-radius: 12px;
+        margin-top: 30px;
+        border: 2px solid #e5e7eb;
+    }
+
+    .documents-title {
+        color: #1e3a8a;
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 15px;
+    }
+
+    .document-item {
+        background: white;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border: 1px solid #e5e7eb;
+        transition: all 0.2s;
+    }
+
+        .document-item:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+        }
+
+    .document-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex: 1;
+    }
+
+    .document-icon {
+        font-size: 1.5rem;
+    }
+
+    .document-details {
+        flex: 1;
+    }
+
+    .document-name {
+        color: #374151;
+        font-weight: 500;
+        display: block;
+        margin-bottom: 3px;
+    }
+
+    .document-meta {
+        color: #6b7280;
+        font-size: 0.85rem;
+    }
+
+    .btn-download {
+        background: #3b82f6;
+        color: white;
+        padding: 8px 16px;
+        border: none;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.85rem;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+        .btn-download:hover {
+            background: #2563eb;
+            color: white;
+            transform: translateY(-1px);
+        }
+
+    .no-documents {
+        text-align: center;
+        padding: 30px;
+        color: #6b7280;
     }
 
     .timeline-section {
@@ -229,20 +325,32 @@
                     var statusClass = "status-submitted";
                     var statusText = "SUBMITTED";
 
-                    if (Model.CurrentStatus == CMCS.Models.CMCS.Models.ClaimStatus.UnderReview)
+                    switch (Model.CurrentStatus)
                     {
-                        statusClass = "status-review";
-                        statusText = "UNDER REVIEW";
-                    }
-                    else if (Model.CurrentStatus == CMCS.Models.CMCS.Models.ClaimStatus.Approved)
-                    {
-                        statusClass = "status-approved";
-                        statusText = "APPROVED";
-                    }
-                    else if (Model.CurrentStatus == CMCS.Models.CMCS.Models.ClaimStatus.Rejected)
-                    {
-                        statusClass = "status-rejected";
-                        statusText = "REJECTED";
+                        case ClaimStatus.Submitted:
+                            statusClass = "status-submitted";
+                            statusText = "SUBMITTED";
+                            break;
+                        case ClaimStatus.UnderReview:
+                            statusClass = "status-review";
+                            statusText = "UNDER REVIEW";
+                            break;
+                        case ClaimStatus.Approved:
+                            statusClass = "status-approved";
+                            statusText = "APPROVED";
+                            break;
+                        case ClaimStatus.Rejected:
+                            statusClass = "status-rejected";
+                            statusText = "REJECTED";
+                            break;
+                        case ClaimStatus.PaymentProcessing:
+                            statusClass = "status-processing";
+                            statusText = "PAYMENT PROCESSING";
+                            break;
+                        case ClaimStatus.Paid:
+                            statusClass = "status-paid";
+                            statusText = "PAID";
+                            break;
                     }
                 }
                 <span class="status-badge @statusClass">@statusText</span>
@@ -264,7 +372,7 @@
             </div>
             <div class="info-box">
                 <div class="info-label">Total Amount</div>
-                <div class="info-value">R@Model.TotalAmount.ToString("N2")</div>
+                <div class="info-value">R@(Model.TotalAmount.ToString("N2"))</div>
             </div>
             <div class="info-box">
                 <div class="info-label">Submission Date</div>
@@ -274,20 +382,82 @@
                 <div class="info-label">Current Reviewer</div>
                 <div class="info-value">
                     @{
-                        var reviewer = "-";
-                        if (Model.CurrentStatus == ClaimStatus.UnderReview)
+                        var reviewer = "Pending";
+                        switch (Model.CurrentStatus)
                         {
-                            reviewer = "Programme Coordinator";
-                        }
-                        else if (Model.CurrentStatus == ClaimStatus.Approved)
-                        {
-                            reviewer = "Academic Manager";
+                            case ClaimStatus.Submitted:
+                                reviewer = "Awaiting Review";
+                                break;
+                            case ClaimStatus.UnderReview:
+                                reviewer = "Programme Coordinator";
+                                break;
+                            case ClaimStatus.Approved:
+                                reviewer = "Academic Manager";
+                                break;
+                            case ClaimStatus.Rejected:
+                                reviewer = "-";
+                                break;
+                            case ClaimStatus.PaymentProcessing:
+                                reviewer = "Finance Department";
+                                break;
+                            case ClaimStatus.Paid:
+                                reviewer = "Completed";
+                                break;
                         }
                     }
                     @reviewer
                 </div>
             </div>
         </div>
+
+        @if (Model.SupportingDocuments != null && Model.SupportingDocuments.Any())
+        {
+            <div class="documents-section">
+                <h3 class="documents-title">Supporting Documents (@Model.SupportingDocuments.Count)</h3>
+                @foreach (var doc in Model.SupportingDocuments)
+                {
+                    <div class="document-item">
+                        <div class="document-info">
+                            <span class="document-icon">
+                                @if (doc.FileType == ".pdf")
+                                {
+                                    @:📄
+                                }
+                                else if (doc.FileType == ".doc" || doc.FileType == ".docx")
+                                {
+                                    @:📝
+                                }
+                                else if (doc.FileType == ".xls" || doc.FileType == ".xlsx")
+                                {
+                                    @:📊
+                                }
+                                else
+                                {
+                                    @:📎
+                                }
+                            </span>
+                            <div class="document-details">
+                                <span class="document-name">@doc.FileName</span>
+                                <span class="document-meta">
+                                    @doc.FileType.ToUpper() • @((doc.FileSize / 1024.0 / 1024.0).ToString("0.00")) MB
+                                </span>
+                            </div>
+                        </div>
+                        <a href="@doc.FilePath" target="_blank" class="btn-download" download="@doc.FileName">
+                            ⬇️ Download
+                        </a>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="documents-section">
+                <div class="no-documents">
+                    <p>📂 No supporting documents uploaded</p>
+                </div>
+            </div>
+        }
     </div>
 
     <div class="timeline-section">
@@ -331,21 +501,33 @@
             </div>
 
             @{
-                var step4Class = Model.CurrentStatus == ClaimStatus.PaymentProcessing ? "active" : "";
+                var step4Class = Model.CurrentStatus == ClaimStatus.PaymentProcessing ? "active" : (Model.CurrentStatus == ClaimStatus.Paid ? "completed" : "");
+                var step4Date = "Pending";
+                if (Model.CurrentStatus >= ClaimStatus.PaymentProcessing)
+                {
+                    var processHistory = Model.StatusHistory?.FirstOrDefault(sh => sh.NewStatus == ClaimStatus.PaymentProcessing);
+                    step4Date = processHistory?.ChangeDate.ToString("dd MMM yyyy") ?? "Pending";
+                }
             }
             <div class="timeline-step @step4Class">
                 <div class="timeline-circle">4</div>
                 <div class="timeline-label">Payment Processing</div>
-                <div class="timeline-date">Pending</div>
+                <div class="timeline-date">@step4Date</div>
             </div>
 
             @{
                 var step5Class = Model.CurrentStatus == ClaimStatus.Paid ? "completed" : "";
+                var step5Date = "Pending";
+                if (Model.CurrentStatus == ClaimStatus.Paid)
+                {
+                    var paidHistory = Model.StatusHistory?.FirstOrDefault(sh => sh.NewStatus == ClaimStatus.Paid);
+                    step5Date = paidHistory?.ChangeDate.ToString("dd MMM yyyy") ?? "Pending";
+                }
             }
             <div class="timeline-step @step5Class">
                 <div class="timeline-circle">5</div>
                 <div class="timeline-label">Paid</div>
-                <div class="timeline-date">Pending</div>
+                <div class="timeline-date">@step5Date</div>
             </div>
         </div>
 
@@ -357,8 +539,51 @@
             </div>
         }
 
+        @if (Model.StatusHistory != null && Model.StatusHistory.Any())
+        {
+            <div style="margin-top: 40px; padding: 20px; background: #f9fafb; border-radius: 12px;">
+                <h3 style="color: #1e3a8a; margin-bottom: 15px;">Status History</h3>
+                @foreach (var history in Model.StatusHistory.OrderBy(h => h.ChangeDate))
+                {
+                    <div style="padding: 12px; background: white; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid #3b82f6;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                            <strong style="color: #1e3a8a;">
+                                @switch (history.NewStatus)
+                                {
+                                    case ClaimStatus.Submitted:
+                                        @:Submitted
+                                        break;
+                                    case ClaimStatus.UnderReview:
+                                        @:Under Review
+                                        break;
+                                    case ClaimStatus.Approved:
+                                        @:Approved ✓
+                                        break;
+                                    case ClaimStatus.Rejected:
+                                        @:Rejected ✗
+                                        break;
+                                    case ClaimStatus.PaymentProcessing:
+                                        @:Payment Processing
+                                        break;
+                                    case ClaimStatus.Paid:
+                                        @:Paid
+                                        break;
+                                }
+                            </strong>
+                            <span style="color: #6b7280; font-size: 0.9rem;">@history.ChangeDate.ToString("dd MMM yyyy HH:mm")</span>
+                        </div>
+                        @if (!string.IsNullOrEmpty(history.Comments))
+                        {
+                            <p style="color: #374151; margin: 0; font-size: 0.9rem;">"@history.Comments"</p>
+                        }
+                    </div>
+                }
+            </div>
+        }
+
         <div style="text-align: center;">
             <a asp-action="ClaimHistory" class="back-button">← Back to Claim History</a>
         </div>
     </div>
 </div>
+<!--------------------- End of File ------------------------->

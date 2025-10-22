@@ -1,3 +1,4 @@
+//---------------------Start of File -------------------------//
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using CMCS.Data;
@@ -80,3 +81,4 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
+//---------------------End of File -------------------------//

@@ -1,3 +1,4 @@
+//--------------------------Start Of File--------------------------//
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
@@ -37,3 +38,4 @@ namespace CMCS.Controllers
         }
     }
 }
+//--------------------------End Of File--------------------------//

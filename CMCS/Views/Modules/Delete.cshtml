@@ -1,51 +1,247 @@
+﻿<!--------------------- Start of File ------------------------->
 @model CMCS.Models.Module
 @{
     ViewData["Title"] = "Delete Module";
+    Layout = "_Layout";
 }
 
-<div class="container">
-    <div class="card">
-        <div class="header">
-            <h1 style="color: #dc2626;">Delete Module</h1>
-            <p>Are you sure you want to delete this module?</p>
+<style>
+    .delete-container {
+        max-width: 700px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+
+    .delete-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        border: 2px solid #fee2e2;
+    }
+
+    .card-header {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        padding: 30px 40px;
+        color: white;
+    }
+
+        .card-header h2 {
+            margin: 0 0 8px 0;
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .card-header p {
+            margin: 0;
+            opacity: 0.9;
+        }
+
+    .card-body {
+        padding: 40px;
+    }
+
+    .warning-box {
+        background: #fef3c7;
+        border-left: 4px solid #f59e0b;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 30px;
+    }
+
+    .warning-title {
+        color: #92400e;
+        font-weight: 700;
+        font-size: 1.1rem;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .warning-text {
+        color: #78350f;
+        line-height: 1.6;
+    }
+
+    .module-info {
+        background: #f9fafb;
+        padding: 25px;
+        border-radius: 12px;
+        margin-bottom: 30px;
+    }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+    .info-label {
+        font-weight: 600;
+        color: #6b7280;
+    }
+
+    .info-value {
+        color: #1f2937;
+        font-weight: 600;
+    }
+
+        .info-value.currency {
+            color: #10b981;
+        }
+
+            .info-value.currency::before {
+                content: 'R ';
+            }
+
+    .status-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+
+    .status-active {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .status-inactive {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 12px;
+        padding-top: 30px;
+        border-top: 1px solid #e5e7eb;
+    }
+
+    .btn {
+        padding: 12px 30px;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.3s;
+        display: inline-block;
+    }
+
+    .btn-danger {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+    }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+        }
+
+    .btn-secondary {
+        background: #6b7280;
+        color: white;
+    }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+            color: white;
+        }
+
+    .confirmation-text {
+        font-size: 1.1rem;
+        color: #374151;
+        font-weight: 600;
+        margin-bottom: 20px;
+    }
+</style>
+
+<div class="delete-container">
+    <div class="delete-card">
+        <div class="card-header">
+            <h2>
+                <span>⚠️</span>
+                Delete Module
+            </h2>
+            <p>Permanently remove this module from the system</p>
         </div>
 
-        <div class="alert alert-danger">
-            <strong>Warning!</strong> This action cannot be undone.
-        </div>
+        <div class="card-body">
+            <div class="warning-box">
+                <div class="warning-title">
+                    <span>⚠️</span>
+                    Warning: This action cannot be undone
+                </div>
+                <p class="warning-text">
+                    Deleting this module will permanently remove it from the system. If this module has associated claims,
+                    you will not be able to delete it. Consider deactivating the module instead if you want to prevent
+                    future use while preserving historical data.
+                </p>
+            </div>
 
-        <dl style="display: grid; grid-template-columns: 200px 1fr; gap: 15px; margin: 20px 0;">
-            <dt style="font-weight: 600; color: #374151;">Module Code:</dt>
-            <dd>@Model.ModuleCode</dd>
+            <p class="confirmation-text">
+                Are you sure you want to delete the following module?
+            </p>
 
-            <dt style="font-weight: 600; color: #374151;">Module Name:</dt>
-            <dd>@Model.ModuleName</dd>
+            <div class="module-info">
+                <div class="info-row">
+                    <span class="info-label">Module Code:</span>
+                    <span class="info-value">@Model.ModuleCode</span>
+                </div>
 
-            <dt style="font-weight: 600; color: #374151;">Hourly Rate:</dt>
-            <dd>R @Model.StandardHourlyRate.ToString("N2")</dd>
+                <div class="info-row">
+                    <span class="info-label">Module Name:</span>
+                    <span class="info-value">@Model.ModuleName</span>
+                </div>
 
-            <dt style="font-weight: 600; color: #374151;">Associated Claims:</dt>
-            <dd>
+                <div class="info-row">
+                    <span class="info-label">Description:</span>
+                    <span class="info-value">@Model.Description</span>
+                </div>
+
+                <div class="info-row">
+                    <span class="info-label">Hourly Rate:</span>
+                    <span class="info-value currency">@Model.StandardHourlyRate.ToString("N2")</span>
+                </div>
+
+                <div class="info-row">
+                    <span class="info-label">Status:</span>
+                    <span class="status-badge @(Model.IsActive ? "status-active" : "status-inactive")">
+                        @(Model.IsActive ? "Active" : "Inactive")
+                    </span>
+                </div>
+
                 @if (Model.Claims != null && Model.Claims.Any())
                 {
-                <span style="color: #dc2626; font-weight: 600;">@Model.Claims.Count claims (Cannot delete!)</span>
+                    <div class="info-row">
+                        <span class="info-label">Total Claims:</span>
+                        <span class="info-value" style="color: #ef4444;">@Model.Claims.Count (Cannot delete)</span>
+                    </div>
                 }
-                else
-                {
-                <span>No associated claims</span>
-                }
-            </dd>
-        </dl>
-
-        <form asp-action="Delete" method="post">
-            <input type="hidden" asp-for="ModuleId" />
-            <div style="display: flex; gap: 10px;">
-                @if (Model.Claims == null || !Model.Claims.Any())
-                {
-                <button type="submit" class="btn btn-danger">Confirm Delete</button>
-                }
-                <a asp-action="Index" class="btn" style="background: #6b7280; color: white;">Cancel</a>
             </div>
-        </form>
+
+            <form asp-action="Delete" method="post">
+                <input type="hidden" asp-for="ModuleId" />
+                @Html.AntiForgeryToken()
+
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-danger">🗑️ Yes, Delete Module</button>
+                    <a asp-action="Index" class="btn btn-secondary">← Cancel</a>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
+<!--------------------- End of File ------------------------->

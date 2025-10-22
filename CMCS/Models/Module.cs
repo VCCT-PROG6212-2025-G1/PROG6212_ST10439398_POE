@@ -1,3 +1,4 @@
+//--------------------------Start Of File--------------------------//
 using System.ComponentModel.DataAnnotations;
 
 namespace CMCS.Models
@@ -32,3 +33,4 @@ namespace CMCS.Models
         public ICollection<Claim> Claims { get; set; } = new List<Claim>();
     }
 }
+//--------------------------End Of File--------------------------//

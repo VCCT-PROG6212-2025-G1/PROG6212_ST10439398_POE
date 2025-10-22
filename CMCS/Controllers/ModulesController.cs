@@ -1,3 +1,4 @@
+//--------------------------Start Of File--------------------------//
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
@@ -13,13 +14,14 @@ namespace CMCS.Controllers
     public class ModulesController : Controller
     {
         private readonly CMCSContext _context;
+        private readonly ILogger<ModulesController> _logger;
 
-        public ModulesController(CMCSContext context)
+        public ModulesController(CMCSContext context, ILogger<ModulesController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
-        // GET: Modules
         public async Task<IActionResult> Index()
         {
             var modules = await _context.Modules
@@ -28,7 +30,6 @@ namespace CMCS.Controllers
             return View(modules);
         }
 
-        // GET: Modules/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -48,20 +49,17 @@ namespace CMCS.Controllers
             return View(module);
         }
 
-        // GET: Modules/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Modules/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ModuleCode,ModuleName,StandardHourlyRate,Description,IsActive")] Module module)
         {
             if (ModelState.IsValid)
             {
-                // Check if module code already exists
                 var existingModule = await _context.Modules
                     .FirstOrDefaultAsync(m => m.ModuleCode == module.ModuleCode);
 
@@ -81,7 +79,6 @@ namespace CMCS.Controllers
             return View(module);
         }
 
-        // GET: Modules/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -97,7 +94,6 @@ namespace CMCS.Controllers
             return View(module);
         }
 
-        // POST: Modules/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("ModuleId,ModuleCode,ModuleName,StandardHourlyRate,Description,IsActive,CreatedDate")] Module module)
@@ -111,7 +107,6 @@ namespace CMCS.Controllers
             {
                 try
                 {
-                    // Check if module code already exists for a different module
                     var existingModule = await _context.Modules
                         .FirstOrDefaultAsync(m => m.ModuleCode == module.ModuleCode && m.ModuleId != id);
 
@@ -143,7 +138,6 @@ namespace CMCS.Controllers
             return View(module);
         }
 
-        // GET: Modules/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -163,50 +157,98 @@ namespace CMCS.Controllers
             return View(module);
         }
 
-        // POST: Modules/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var module = await _context.Modules
-                .Include(m => m.Claims)
-                .FirstOrDefaultAsync(m => m.ModuleId == id);
-
-            if (module == null)
+            try
             {
-                return NotFound();
-            }
+                var module = await _context.Modules
+                    .Include(m => m.Claims)
+                    .FirstOrDefaultAsync(m => m.ModuleId == id);
 
-            // Check if module has associated claims
-            if (module.Claims != null && module.Claims.Any())
-            {
-                TempData["Error"] = "Cannot delete module with associated claims. Please deactivate it instead.";
+                if (module == null)
+                {
+                    TempData["Error"] = "Module not found.";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                if (module.Claims != null && module.Claims.Any())
+                {
+                    module.IsActive = false;
+                    module.LastModified = DateTime.Now;
+
+                    _context.Entry(module).State = EntityState.Modified;
+                    await _context.SaveChangesAsync();
+
+                    TempData["Warning"] = $"Module '{module.ModuleCode}' has {module.Claims.Count} associated claim(s) and has been deactivated instead of deleted. To permanently delete, remove all claims first.";
+                    _logger.LogInformation("Module {ModuleId} deactivated due to existing claims", id);
+
+                    return RedirectToAction(nameof(Index));
+                }
+
+                _context.Modules.Remove(module);
+                await _context.SaveChangesAsync();
+
+                TempData["Success"] = $"Module '{module.ModuleCode}' deleted successfully!";
+                _logger.LogInformation("Module {ModuleId} deleted", id);
+
                 return RedirectToAction(nameof(Index));
             }
+            catch (DbUpdateException ex)
+            {
+                _logger.LogError(ex, "Database error deleting module {ModuleId}", id);
+                TempData["Error"] = "Cannot delete module due to database constraints. The module has been deactivated instead.";
 
-            _context.Modules.Remove(module);
-            await _context.SaveChangesAsync();
+                var module = await _context.Modules.FindAsync(id);
+                if (module != null)
+                {
+                    module.IsActive = false;
+                    module.LastModified = DateTime.Now;
+                    _context.Entry(module).State = EntityState.Modified;
+                    await _context.SaveChangesAsync();
+                }
 
-            TempData["Success"] = "Module deleted successfully!";
-            return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting module {ModuleId}", id);
+                TempData["Error"] = "An error occurred while deleting the module.";
+                return RedirectToAction(nameof(Index));
+            }
         }
 
-        // POST: Modules/ToggleActive/5
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ToggleActive(int id)
         {
-            var module = await _context.Modules.FindAsync(id);
-            if (module == null)
+            try
             {
-                return NotFound();
+                var module = await _context.Modules.FindAsync(id);
+                if (module == null)
+                {
+                    TempData["Error"] = "Module not found.";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                module.IsActive = !module.IsActive;
+                module.LastModified = DateTime.Now;
+
+                _context.Entry(module).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+
+                TempData["Success"] = $"Module '{module.ModuleCode}' {(module.IsActive ? "activated" : "deactivated")} successfully!";
+                _logger.LogInformation("Module {ModuleId} {Action}", id, module.IsActive ? "activated" : "deactivated");
+
+                return RedirectToAction(nameof(Index));
             }
-
-            module.IsActive = !module.IsActive;
-            module.LastModified = DateTime.Now;
-            await _context.SaveChangesAsync();
-
-            TempData["Success"] = $"Module {(module.IsActive ? "activated" : "deactivated")} successfully!";
-            return RedirectToAction(nameof(Index));
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error toggling module {ModuleId} active status", id);
+                TempData["Error"] = "An error occurred while updating the module status.";
+                return RedirectToAction(nameof(Index));
+            }
         }
 
         private bool ModuleExists(int id)
@@ -215,3 +257,4 @@ namespace CMCS.Controllers
         }
     }
 }
+//--------------------------End Of File--------------------------//

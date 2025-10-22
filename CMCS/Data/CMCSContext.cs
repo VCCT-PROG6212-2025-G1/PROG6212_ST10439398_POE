@@ -1,6 +1,6 @@
+//--------------------------Start Of File--------------------------//
 using Microsoft.EntityFrameworkCore;
 using CMCS.Models;
-using CMCS.Models.CMCS.Models;
 
 namespace CMCS.Data
 {
@@ -99,6 +99,8 @@ namespace CMCS.Data
 
         private void SeedData(ModelBuilder modelBuilder)
         {
+            var baseDate = new DateTime(2024, 10, 1, 9, 0, 0);
+
             // Seed Users
             modelBuilder.Entity<User>().HasData(
                 new User
@@ -110,7 +112,7 @@ namespace CMCS.Data
                     PhoneNumber = "+27 11 123 4567",
                     UserRole = UserRole.Lecturer,
                     IsActive = true,
-                    CreatedDate = DateTime.Now
+                    CreatedDate = baseDate
                 },
                 new User
                 {
@@ -121,7 +123,7 @@ namespace CMCS.Data
                     PhoneNumber = "+27 11 234 5678",
                     UserRole = UserRole.Coordinator,
                     IsActive = true,
-                    CreatedDate = DateTime.Now
+                    CreatedDate = baseDate
                 },
                 new User
                 {
@@ -132,7 +134,7 @@ namespace CMCS.Data
                     PhoneNumber = "+27 11 345 6789",
                     UserRole = UserRole.Manager,
                     IsActive = true,
-                    CreatedDate = DateTime.Now
+                    CreatedDate = baseDate
                 },
                 new User
                 {
@@ -143,7 +145,7 @@ namespace CMCS.Data
                     PhoneNumber = "+27 11 456 7890",
                     UserRole = UserRole.Lecturer,
                     IsActive = true,
-                    CreatedDate = DateTime.Now
+                    CreatedDate = baseDate
                 },
                 new User
                 {
@@ -154,7 +156,7 @@ namespace CMCS.Data
                     PhoneNumber = "+27 11 567 8901",
                     UserRole = UserRole.HR,
                     IsActive = true,
-                    CreatedDate = DateTime.Now
+                    CreatedDate = baseDate
                 }
             );
 
@@ -168,7 +170,7 @@ namespace CMCS.Data
                     Description = "Advanced programming concepts in C# and .NET development",
                     StandardHourlyRate = 450.00m,
                     IsActive = true,
-                    CreatedDate = DateTime.Now
+                    CreatedDate = baseDate
                 },
                 new Module
                 {
@@ -178,7 +180,7 @@ namespace CMCS.Data
                     Description = "User interface design and usability principles",
                     StandardHourlyRate = 420.00m,
                     IsActive = true,
-                    CreatedDate = DateTime.Now
+                    CreatedDate = baseDate
                 },
                 new Module
                 {
@@ -188,7 +190,7 @@ namespace CMCS.Data
                     Description = "Introduction to programming fundamentals and logic",
                     StandardHourlyRate = 400.00m,
                     IsActive = true,
-                    CreatedDate = DateTime.Now
+                    CreatedDate = baseDate
                 },
                 new Module
                 {
@@ -198,11 +200,11 @@ namespace CMCS.Data
                     Description = "Modern web development with HTML, CSS, and JavaScript",
                     StandardHourlyRate = 430.00m,
                     IsActive = true,
-                    CreatedDate = DateTime.Now
+                    CreatedDate = baseDate
                 }
             );
 
-            // Seed Some Sample Claims (Optional - for demo purposes)
+            // Seed Claims
             modelBuilder.Entity<Claim>().HasData(
                 new Claim
                 {
@@ -214,7 +216,7 @@ namespace CMCS.Data
                     TotalAmount = 11475.00m,
                     ClaimPeriod = "2024-10",
                     CurrentStatus = ClaimStatus.Submitted,
-                    SubmissionDate = DateTime.Now.AddDays(-6),
+                    SubmissionDate = baseDate.AddDays(-6),
                     AdditionalNotes = "October 2024 teaching hours for Programming 2B"
                 },
                 new Claim
@@ -227,23 +229,9 @@ namespace CMCS.Data
                     TotalAmount = 7560.00m,
                     ClaimPeriod = "2024-10",
                     CurrentStatus = ClaimStatus.Approved,
-                    SubmissionDate = DateTime.Now.AddDays(-13),
-                    LastModified = DateTime.Now.AddDays(-5),
+                    SubmissionDate = baseDate.AddDays(-13),
+                    LastModified = baseDate.AddDays(-5),
                     AdditionalNotes = "October 2024 teaching hours for HCI"
-                },
-                new Claim
-                {
-                    ClaimId = 3,
-                    UserId = 4,
-                    ModuleId = 3,
-                    HoursWorked = 22.5m,
-                    HourlyRate = 400.00m,
-                    TotalAmount = 9000.00m,
-                    ClaimPeriod = "2024-10",
-                    CurrentStatus = ClaimStatus.Approved,
-                    SubmissionDate = DateTime.Now.AddDays(-20),
-                    LastModified = DateTime.Now.AddDays(-12),
-                    AdditionalNotes = "October 2024 teaching hours for Programming 1B"
                 }
             );
 
@@ -256,7 +244,7 @@ namespace CMCS.Data
                     ChangedBy = 1,
                     PreviousStatus = ClaimStatus.Draft,
                     NewStatus = ClaimStatus.Submitted,
-                    ChangeDate = DateTime.Now.AddDays(-6),
+                    ChangeDate = baseDate.AddDays(-6),
                     Comments = "Claim submitted by lecturer"
                 },
                 new ClaimStatusHistory
@@ -266,7 +254,7 @@ namespace CMCS.Data
                     ChangedBy = 1,
                     PreviousStatus = ClaimStatus.Draft,
                     NewStatus = ClaimStatus.Submitted,
-                    ChangeDate = DateTime.Now.AddDays(-13),
+                    ChangeDate = baseDate.AddDays(-13),
                     Comments = "Claim submitted by lecturer"
                 },
                 new ClaimStatusHistory
@@ -276,30 +264,11 @@ namespace CMCS.Data
                     ChangedBy = 2,
                     PreviousStatus = ClaimStatus.Submitted,
                     NewStatus = ClaimStatus.Approved,
-                    ChangeDate = DateTime.Now.AddDays(-5),
-                    Comments = "Claim approved by Programme Coordinator"
-                },
-                new ClaimStatusHistory
-                {
-                    StatusId = 4,
-                    ClaimId = 3,
-                    ChangedBy = 4,
-                    PreviousStatus = ClaimStatus.Draft,
-                    NewStatus = ClaimStatus.Submitted,
-                    ChangeDate = DateTime.Now.AddDays(-20),
-                    Comments = "Claim submitted by lecturer"
-                },
-                new ClaimStatusHistory
-                {
-                    StatusId = 5,
-                    ClaimId = 3,
-                    ChangedBy = 2,
-                    PreviousStatus = ClaimStatus.Submitted,
-                    NewStatus = ClaimStatus.Approved,
-                    ChangeDate = DateTime.Now.AddDays(-12),
+                    ChangeDate = baseDate.AddDays(-5),
                     Comments = "Claim approved by Programme Coordinator"
                 }
             );
         }
     }
 }
+//--------------------------End Of File--------------------------//

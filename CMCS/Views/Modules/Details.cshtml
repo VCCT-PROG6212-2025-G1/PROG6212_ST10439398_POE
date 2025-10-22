@@ -1,56 +1,274 @@
+﻿<!--------------------- Start of File ------------------------->
 @model CMCS.Models.Module
 @{
     ViewData["Title"] = "Module Details";
+    Layout = "_Layout";
 }
 
-<div class="container">
-    <div class="card">
-        <div class="header">
-            <h1>Module Details</h1>
-            <p>View complete module information</p>
-        </div>
+<style>
+    .details-container {
+        max-width: 900px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
 
-        <dl style="display: grid; grid-template-columns: 200px 1fr; gap: 15px;">
-            <dt style="font-weight: 600; color: #374151;">Module Code:</dt>
-            <dd>@Model.ModuleCode</dd>
+    .details-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
 
-            <dt style="font-weight: 600; color: #374151;">Module Name:</dt>
-            <dd>@Model.ModuleName</dd>
+    .card-header {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        padding: 30px 40px;
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
 
-            <dt style="font-weight: 600; color: #374151;">Hourly Rate:</dt>
-            <dd>R @Model.StandardHourlyRate.ToString("N2")</dd>
+    .header-content h2 {
+        margin: 0 0 8px 0;
+        font-size: 1.8rem;
+        font-weight: 700;
+    }
 
-            <dt style="font-weight: 600; color: #374151;">Description:</dt>
-            <dd>@(string.IsNullOrEmpty(Model.Description) ? "No description provided" : Model.Description)</dd>
+    .header-content p {
+        margin: 0;
+        opacity: 0.9;
+    }
 
-            <dt style="font-weight: 600; color: #374151;">Status:</dt>
-            <dd>
-                @if (Model.IsActive)
-                {
-                <span class="status status-approved">Active</span>
-                }
-                else
-                {
-                <span class="status status-rejected">Inactive</span>
-                }
-            </dd>
+    .status-badge {
+        padding: 8px 20px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
 
-            <dt style="font-weight: 600; color: #374151;">Created Date:</dt>
-            <dd>@Model.CreatedDate.ToString("dd MMMM yyyy")</dd>
+    .status-active {
+        background: #d1fae5;
+        color: #065f46;
+    }
 
-            @if (Model.LastModified.HasValue)
-            {
-            <dt style="font-weight: 600; color: #374151;">Last Modified:</dt>
-            <dd>@Model.LastModified.Value.ToString("dd MMMM yyyy")</dd>
+    .status-inactive {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .card-body {
+        padding: 40px;
+    }
+
+    .details-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 25px;
+        margin-bottom: 30px;
+    }
+
+    .detail-item {
+        background: #f9fafb;
+        padding: 20px;
+        border-radius: 12px;
+        border-left: 4px solid #3b82f6;
+    }
+
+    .detail-label {
+        font-size: 0.85rem;
+        color: #6b7280;
+        margin-bottom: 8px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .detail-value {
+        font-size: 1.3rem;
+        color: #1f2937;
+        font-weight: 700;
+    }
+
+        .detail-value.currency {
+            color: #10b981;
+        }
+
+            .detail-value.currency::before {
+                content: 'R ';
             }
 
-            <dt style="font-weight: 600; color: #374151;">Associated Claims:</dt>
-            <dd>@(Model.Claims?.Count ?? 0) claims</dd>
-        </dl>
+    .section-title {
+        font-size: 1.2rem;
+        color: #1f2937;
+        font-weight: 700;
+        margin: 30px 0 20px 0;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #e5e7eb;
+    }
 
-        <div style="margin-top: 30px; display: flex; gap: 10px;">
-            <a asp-action="Edit" asp-route-id="@Model.ModuleId" class="btn btn-primary">Edit</a>
-            <a asp-action="Index" class="btn" style="background: #6b7280; color: white;">Back to List</a>
+    .description-box {
+        background: #f9fafb;
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 30px;
+        border-left: 4px solid #3b82f6;
+    }
+
+    .description-text {
+        color: #374151;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    .no-data {
+        text-align: center;
+        padding: 40px;
+        color: #9ca3af;
+        font-style: italic;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 12px;
+        padding-top: 30px;
+        border-top: 1px solid #e5e7eb;
+    }
+
+    .btn {
+        padding: 12px 30px;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.3s;
+        display: inline-block;
+    }
+
+    .btn-edit {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        color: white;
+    }
+
+        .btn-edit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(245, 158, 11, 0.4);
+            color: white;
+        }
+
+    .btn-delete {
+        background: #ef4444;
+        color: white;
+    }
+
+        .btn-delete:hover {
+            background: #dc2626;
+            color: white;
+        }
+
+    .btn-secondary {
+        background: #6b7280;
+        color: white;
+    }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+            color: white;
+        }
+</style>
+
+<div class="details-container">
+    <div class="details-card">
+        <div class="card-header">
+            <div class="header-content">
+                <h2>📚 @Model.ModuleName</h2>
+                <p>Module Code: <strong>@Model.ModuleCode</strong></p>
+            </div>
+            <span class="status-badge @(Model.IsActive ? "status-active" : "status-inactive")">
+                @(Model.IsActive ? "✓ Active" : "✗ Inactive")
+            </span>
+        </div>
+
+        <div class="card-body">
+            <div class="details-grid">
+                <div class="detail-item">
+                    <div class="detail-label">Module Code</div>
+                    <div class="detail-value">@Model.ModuleCode</div>
+                </div>
+
+                <div class="detail-item">
+                    <div class="detail-label">Module Name</div>
+                    <div class="detail-value">@Model.ModuleName</div>
+                </div>
+
+                <div class="detail-item">
+                    <div class="detail-label">Hourly Rate</div>
+                    <div class="detail-value currency">@Model.StandardHourlyRate.ToString("N2")</div>
+                </div>
+
+                <div class="detail-item">
+                    <div class="detail-label">Status</div>
+                    <div class="detail-value">@(Model.IsActive ? "Active" : "Inactive")</div>
+                </div>
+
+                <div class="detail-item">
+                    <div class="detail-label">Created Date</div>
+                    <div class="detail-value">@Model.CreatedDate.ToString("dd MMM yyyy")</div>
+                </div>
+
+                @if (Model.LastModified.HasValue)
+                {
+                    <div class="detail-item">
+                        <div class="detail-label">Last Modified</div>
+                        <div class="detail-value">@Model.LastModified.Value.ToString("dd MMM yyyy")</div>
+                    </div>
+                }
+            </div>
+
+            <h3 class="section-title">📝 Description</h3>
+            <div class="description-box">
+                <p class="description-text">@Model.Description</p>
+            </div>
+
+            <h3 class="section-title">📊 Claims Statistics</h3>
+            @if (Model.Claims != null && Model.Claims.Any())
+            {
+                <div class="details-grid">
+                    <div class="detail-item">
+                        <div class="detail-label">Total Claims</div>
+                        <div class="detail-value">@Model.Claims.Count</div>
+                    </div>
+
+                    <div class="detail-item">
+                        <div class="detail-label">Pending Claims</div>
+                        <div class="detail-value">@Model.Claims.Count(c => c.CurrentStatus == CMCS.Models.ClaimStatus.Submitted || c.CurrentStatus == CMCS.Models.ClaimStatus.UnderReview)</div>
+                    </div>
+
+                    <div class="detail-item">
+                        <div class="detail-label">Approved Claims</div>
+                        <div class="detail-value">@Model.Claims.Count(c => c.CurrentStatus == CMCS.Models.ClaimStatus.Approved)</div>
+                    </div>
+
+                    <div class="detail-item">
+                        <div class="detail-label">Total Value</div>
+                        <div class="detail-value currency">@Model.Claims.Sum(c => c.TotalAmount).ToString("N2")</div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="no-data">
+                    No claims have been submitted for this module yet
+                </div>
+            }
+
+            <div class="action-buttons">
+                <a asp-action="Edit" asp-route-id="@Model.ModuleId" class="btn btn-edit">✏️ Edit Module</a>
+                <a asp-action="Delete" asp-route-id="@Model.ModuleId" class="btn btn-delete">🗑️ Delete</a>
+                <a asp-action="Index" class="btn btn-secondary">← Back to List</a>
+            </div>
         </div>
     </div>
 </div>
+<!--------------------- End of File ------------------------->

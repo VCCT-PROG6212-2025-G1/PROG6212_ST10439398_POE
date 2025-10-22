@@ -1,59 +1,245 @@
+﻿<!--------------------- Start of File ------------------------->
 @model CMCS.Models.Module
 @{
     ViewData["Title"] = "Edit Module";
+    Layout = "_Layout";
 }
 
-<div class="container">
-    <div class="card">
-        <div class="header">
-            <h1>Edit Module</h1>
-            <p>Update module information</p>
+<style>
+    .edit-container {
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+
+    .edit-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .card-header {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        padding: 30px 40px;
+        color: white;
+    }
+
+        .card-header h2 {
+            margin: 0 0 8px 0;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .card-header p {
+            margin: 0;
+            opacity: 0.9;
+        }
+
+    .card-body {
+        padding: 40px;
+    }
+
+    .form-group {
+        margin-bottom: 25px;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #374151;
+        font-size: 0.95rem;
+    }
+
+        .form-label .required {
+            color: #ef4444;
+            margin-left: 4px;
+        }
+
+    .form-control {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.3s;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        box-sizing: border-box;
+    }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+        }
+
+        .form-control:disabled {
+            background: #f9fafb;
+            cursor: not-allowed;
+        }
+
+    textarea.form-control {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    .text-danger {
+        color: #ef4444;
+        font-size: 0.875rem;
+        margin-top: 4px;
+        display: block;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 30px;
+        padding-top: 30px;
+        border-top: 1px solid #e5e7eb;
+    }
+
+    .btn {
+        padding: 12px 30px;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.3s;
+        display: inline-block;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        color: white;
+    }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(245, 158, 11, 0.4);
+        }
+
+    .btn-secondary {
+        background: #6b7280;
+        color: white;
+    }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+            color: white;
+        }
+
+    .input-prefix {
+        position: relative;
+    }
+
+        .input-prefix::before {
+            content: 'R';
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6b7280;
+            font-weight: 600;
+            z-index: 1;
+        }
+
+        .input-prefix .form-control {
+            padding-left: 35px;
+        }
+
+    .helper-text {
+        font-size: 0.875rem;
+        color: #6b7280;
+        margin-top: 4px;
+    }
+
+    .info-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        background: #dbeafe;
+        color: #1e40af;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        margin-left: 10px;
+    }
+</style>
+
+<div class="edit-container">
+    <div class="edit-card">
+        <div class="card-header">
+            <h2>✏️ Edit Module</h2>
+            <p>Update module information and rates</p>
         </div>
 
-        <form asp-action="Edit" method="post">
-            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+        <div class="card-body">
+            <form asp-action="Edit" method="post">
+                <input type="hidden" asp-for="ModuleId" />
+                <input type="hidden" asp-for="CreatedDate" />
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-            <input type="hidden" asp-for="ModuleId" />
-            <input type="hidden" asp-for="CreatedDate" />
+                <div class="form-group">
+                    <label asp-for="ModuleCode" class="form-label">
+                        Module Code<span class="required">*</span>
+                        <span class="info-badge">Read-only</span>
+                    </label>
+                    <input asp-for="ModuleCode" class="form-control" readonly />
+                    <span asp-validation-for="ModuleCode" class="text-danger"></span>
+                    <small class="helper-text">Module codes cannot be changed after creation</small>
+                </div>
 
-            <div class="form-group">
-                <label asp-for="ModuleCode"></label>
-                <input asp-for="ModuleCode" class="form-control" />
-                <span asp-validation-for="ModuleCode" class="text-danger"></span>
-            </div>
+                <div class="form-group">
+                    <label asp-for="ModuleName" class="form-label">
+                        Module Name<span class="required">*</span>
+                    </label>
+                    <input asp-for="ModuleName" class="form-control" placeholder="e.g., Programming 2B" />
+                    <span asp-validation-for="ModuleName" class="text-danger"></span>
+                    <small class="helper-text">Update the full name of the module if needed</small>
+                </div>
 
-            <div class="form-group">
-                <label asp-for="ModuleName"></label>
-                <input asp-for="ModuleName" class="form-control" />
-                <span asp-validation-for="ModuleName" class="text-danger"></span>
-            </div>
+                <div class="form-group">
+                    <label asp-for="Description" class="form-label">
+                        Description<span class="required">*</span>
+                    </label>
+                    <textarea asp-for="Description" class="form-control" placeholder="Enter module description..."></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                    <small class="helper-text">Update the module description</small>
+                </div>
 
-            <div class="form-group">
-                <label asp-for="StandardHourlyRate"></label>
-                <input asp-for="StandardHourlyRate" type="number" step="0.01" class="form-control" />
-                <span asp-validation-for="StandardHourlyRate" class="text-danger"></span>
-            </div>
+                <div class="form-group">
+                    <label asp-for="StandardHourlyRate" class="form-label">
+                        Standard Hourly Rate<span class="required">*</span>
+                    </label>
+                    <div class="input-prefix">
+                        <input asp-for="StandardHourlyRate" class="form-control" type="number" step="0.01" min="0.01" />
+                    </div>
+                    <span asp-validation-for="StandardHourlyRate" class="text-danger"></span>
+                    <small class="helper-text">Update the hourly rate in Rands (e.g., 450.00)</small>
+                </div>
 
-            <div class="form-group">
-                <label asp-for="Description"></label>
-                <textarea asp-for="Description" class="form-control" rows="3"></textarea>
-                <span asp-validation-for="Description" class="text-danger"></span>
-            </div>
+                <div class="form-group">
+                    <label class="form-label">
+                        <input asp-for="IsActive" type="checkbox" style="margin-right: 8px;" />
+                        Module is Active
+                    </label>
+                    <small class="helper-text">Inactive modules cannot be selected for new claims</small>
+                </div>
 
-            <div class="form-group">
-                <label>
-                    <input asp-for="IsActive" type="checkbox" /> @Html.DisplayNameFor(model => model.IsActive)
-                </label>
-            </div>
-
-            <div style="display: flex; gap: 10px;">
-                <button type="submit" class="btn btn-primary">Save Changes</button>
-                <a asp-action="Index" class="btn" style="background: #6b7280; color: white;">Cancel</a>
-            </div>
-        </form>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">💾 Save Changes</button>
+                    <a asp-action="Index" class="btn btn-secondary">← Back to List</a>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }
+<!--------------------- End of File ------------------------->

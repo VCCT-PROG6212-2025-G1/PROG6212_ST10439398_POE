@@ -1,34 +1,23 @@
-// ViewModels/ClaimSubmissionViewModel.cs
-using System.Collections.Generic;
+//--------------------------Start Of File--------------------------//
 using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace CMCS.ViewModels
 {
     public class ClaimSubmissionViewModel
     {
-        [Required]
-        [Display(Name = "Module/Course")]
+        [Required(ErrorMessage = "Module is required")]
         public int ModuleId { get; set; }
 
-        [Required]
-        [Display(Name = "Claim Period")]
-        public string ClaimPeriod { get; set; }
-
-        [Required]
-        [Range(0, 999.99)]
-        [Display(Name = "Hours Worked")]
+        [Required(ErrorMessage = "Hours worked is required")]
+        [Range(0.5, 1000, ErrorMessage = "Hours must be between 0.5 and 1000")]
         public decimal HoursWorked { get; set; }
 
-        [Display(Name = "Additional Notes")]
-        public string AdditionalNotes { get; set; }
+        [Required(ErrorMessage = "Claim period is required")]
+        public string ClaimPeriod { get; set; }
+      
+        public string? AdditionalNotes { get; set; }
 
-        [Display(Name = "Supporting Documents")]
-        public List<IFormFile> Documents { get; set; }
-
-        public SelectList AvailableModules { get; set; }
-        public decimal HourlyRate { get; set; }
-        public decimal TotalAmount { get; set; }
+        public List<IFormFile>? SupportingDocuments { get; set; }
     }
 }
+//--------------------------End Of File--------------------------//

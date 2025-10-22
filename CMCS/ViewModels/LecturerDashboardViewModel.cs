@@ -1,4 +1,4 @@
-// ViewModels/LecturerDashboardViewModel.cs
+//--------------------------Start Of File--------------------------//
 using System.Collections.Generic;
 using CMCS.Models;
 
@@ -13,3 +13,4 @@ namespace CMCS.ViewModels
         public List<Claim> RecentClaims { get; set; }
     }
 }
+//--------------------------End Of File--------------------------//

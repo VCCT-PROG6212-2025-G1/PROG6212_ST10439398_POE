@@ -1,5 +1,4 @@
-using CMCS.Models.CMCS.Models;
-using System;
+//--------------------------Start Of File--------------------------//
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -33,3 +32,4 @@ namespace CMCS.Models
         public virtual User User { get; set; }
     }
 }
+//--------------------------End Of File--------------------------//

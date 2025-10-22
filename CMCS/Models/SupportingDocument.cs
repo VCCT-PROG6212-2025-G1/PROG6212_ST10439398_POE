@@ -1,3 +1,4 @@
+//--------------------------Start Of File--------------------------//
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -14,29 +15,25 @@ namespace CMCS.Models
 
         [Required]
         [StringLength(255)]
-        [Display(Name = "File Name")]
         public string FileName { get; set; }
 
         [Required]
-        [Display(Name = "File Path")]
+        [StringLength(500)]
         public string FilePath { get; set; }
 
-        [Display(Name = "File Size (bytes)")]
+        [Required]
         public long FileSize { get; set; }
 
-        [StringLength(50)]
-        [Display(Name = "File Type")]
+        [Required]
+        [StringLength(10)]
         public string FileType { get; set; }
 
-        [Display(Name = "Upload Date")]
-        public DateTime UploadDate { get; set; } = DateTime.Now;
-
-        [Display(Name = "Description")]
         [StringLength(500)]
-        public string Description { get; set; }
+        public string Description { get; set; } = string.Empty;
 
         // Navigation property
         [ForeignKey("ClaimId")]
         public virtual Claim Claim { get; set; }
     }
 }
+//--------------------------End Of File--------------------------//

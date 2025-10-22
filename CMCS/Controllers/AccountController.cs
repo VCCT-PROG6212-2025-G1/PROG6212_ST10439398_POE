@@ -1,3 +1,4 @@
+//--------------------------Start Of File--------------------------//
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -76,7 +77,7 @@ namespace CMCS.Controllers
                 var authProperties = new AuthenticationProperties
                 {
                     IsPersistent = true,
-                    ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(60)
+                    ExpiresUtc = DateTimeOffset.UtcNow.AddHours(8)
                 };
 
                 await HttpContext.SignInAsync(
@@ -92,7 +93,7 @@ namespace CMCS.Controllers
                     UserRole.Lecturer => RedirectToAction("Dashboard", "Lecturer"),
                     UserRole.Coordinator => RedirectToAction("Dashboard", "Coordinator"),
                     UserRole.Manager => RedirectToAction("Dashboard", "Coordinator"),
-                    UserRole.HR => RedirectToAction("Dashboard", "Home"),
+                    UserRole.HR => RedirectToAction("Index", "Home"),
                     _ => RedirectToAction("Index", "Home")
                 };
             }
@@ -135,9 +136,10 @@ namespace CMCS.Controllers
             if (User.IsInRole("Coordinator") || User.IsInRole("Manager"))
                 return RedirectToAction("Dashboard", "Coordinator");
             if (User.IsInRole("HR"))
-                return RedirectToAction("Dashboard", "Home");
+                return RedirectToAction("Index", "Home");
 
             return RedirectToAction("Index", "Home");
         }
     }
 }
+//--------------------------End Of File--------------------------//

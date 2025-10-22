@@ -1,17 +1,10 @@
+//--------------------------Start Of File--------------------------//
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using System.IO;
-using Microsoft.AspNetCore.Http;
 using CMCS.Models;
 using CMCS.Data;
 using CMCS.ViewModels;
-using Claim = CMCS.Models.Claim;
-using CMCS.Models.CMCS.Models;
 
 namespace CMCS.Controllers
 {
@@ -33,17 +26,19 @@ namespace CMCS.Controllers
         {
             try
             {
-                var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+                var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
 
                 var viewModel = new LecturerDashboardViewModel
                 {
                     PendingClaims = await _context.Claims
-                        .Where(c => c.UserId == userId && c.CurrentStatus == ClaimStatus.Submitted)
+                        .Where(c => c.UserId == userId &&
+                               (c.CurrentStatus == ClaimStatus.Submitted || c.CurrentStatus == ClaimStatus.UnderReview))
                         .CountAsync(),
 
                     MonthlyTotal = await _context.Claims
                         .Where(c => c.UserId == userId &&
                                c.SubmissionDate.Month == DateTime.Now.Month &&
+                               c.SubmissionDate.Year == DateTime.Now.Year &&
                                c.CurrentStatus == ClaimStatus.Approved)
                         .SumAsync(c => (decimal?)c.TotalAmount) ?? 0,
 
@@ -55,7 +50,8 @@ namespace CMCS.Controllers
 
                     ClaimsThisMonth = await _context.Claims
                         .Where(c => c.UserId == userId &&
-                               c.SubmissionDate.Month == DateTime.Now.Month)
+                               c.SubmissionDate.Month == DateTime.Now.Month &&
+                               c.SubmissionDate.Year == DateTime.Now.Year)
                         .CountAsync(),
 
                     RecentClaims = await _context.Claims
@@ -86,13 +82,10 @@ namespace CMCS.Controllers
                     .OrderBy(m => m.ModuleCode)
                     .ToListAsync();
 
-                var viewModel = new ClaimSubmissionViewModel
-                {
-                    AvailableModules = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(
-                        modules, "ModuleId", "ModuleName")
-                };
+                ViewBag.Modules = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(
+                    modules, "ModuleId", "ModuleName");
 
-                return View(viewModel);
+                return View(new ClaimSubmissionViewModel());
             }
             catch (Exception ex)
             {
@@ -104,20 +97,20 @@ namespace CMCS.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SubmitClaim(ClaimSubmissionViewModel model, bool saveAsDraft = false)
+        public async Task<IActionResult> SubmitClaim(ClaimSubmissionViewModel model, List<IFormFile> SupportingDocuments)
         {
             try
             {
                 if (!ModelState.IsValid)
                 {
                     var modules = await _context.Modules.Where(m => m.IsActive).ToListAsync();
-                    model.AvailableModules = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(
+                    ViewBag.Modules = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(
                         modules, "ModuleId", "ModuleName");
                     TempData["Error"] = "Please correct the errors in the form.";
                     return View(model);
                 }
 
-                var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+                var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
                 var module = await _context.Modules.FindAsync(model.ModuleId);
 
                 if (module == null)
@@ -135,21 +128,27 @@ namespace CMCS.Controllers
                     TotalAmount = model.HoursWorked * module.StandardHourlyRate,
                     ClaimPeriod = model.ClaimPeriod,
                     AdditionalNotes = model.AdditionalNotes,
-                    CurrentStatus = saveAsDraft ? ClaimStatus.Draft : ClaimStatus.Submitted,
+                    CurrentStatus = ClaimStatus.Submitted,
                     SubmissionDate = DateTime.Now
                 };
 
                 _context.Claims.Add(claim);
                 await _context.SaveChangesAsync();
 
-                // Handle file uploads
-                if (model.Documents != null && model.Documents.Any())
+                _logger.LogInformation("Claim {ClaimId} created for user {UserId}", claim.ClaimId, userId);
+
+                // Handle file uploads AFTER claim is saved
+                if (SupportingDocuments != null && SupportingDocuments.Any())
                 {
-                    var uploadResult = await HandleFileUploads(model.Documents, claim.ClaimId);
+                    var uploadResult = await HandleFileUploads(SupportingDocuments, claim.ClaimId);
                     if (!uploadResult.Success)
                     {
+                        _logger.LogWarning("File upload failed for claim {ClaimId}: {Message}", claim.ClaimId, uploadResult.Message);
                         TempData["Warning"] = $"Claim submitted but some files failed to upload: {uploadResult.Message}";
-                        return RedirectToAction(nameof(Dashboard));
+                    }
+                    else
+                    {
+                        _logger.LogInformation("Files uploaded successfully for claim {ClaimId}", claim.ClaimId);
                     }
                 }
 
@@ -159,33 +158,33 @@ namespace CMCS.Controllers
                     ClaimId = claim.ClaimId,
                     ChangedBy = userId,
                     PreviousStatus = ClaimStatus.Draft,
-                    NewStatus = claim.CurrentStatus,
-                    Comments = saveAsDraft ? "Claim saved as draft" : "Claim submitted by lecturer"
+                    NewStatus = ClaimStatus.Submitted,
+                    Comments = "Claim submitted by lecturer"
                 };
 
                 _context.ClaimStatusHistories.Add(statusHistory);
                 await _context.SaveChangesAsync();
 
-                TempData["Success"] = saveAsDraft ? "Claim saved as draft!" : "Claim submitted successfully!";
+                TempData["Success"] = "Claim submitted successfully!";
                 return RedirectToAction(nameof(Dashboard));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error submitting claim");
                 TempData["Error"] = "An error occurred submitting your claim. Please try again.";
-                return RedirectToAction(nameof(SubmitClaim));
+
+                var modules = await _context.Modules.Where(m => m.IsActive).ToListAsync();
+                ViewBag.Modules = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(
+                    modules, "ModuleId", "ModuleName");
+                return View(model);
             }
         }
-      
-        public IActionResult UploadDocuments()
-        {
-            return View();
-        }
+
         public async Task<IActionResult> ViewClaim(int id)
         {
             try
             {
-                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+                var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
 
                 var claim = await _context.Claims
                     .Include(c => c.Module)
@@ -230,18 +229,16 @@ namespace CMCS.Controllers
             }
         }
 
-       
-        
-
         [HttpGet]
         public async Task<IActionResult> ClaimHistory()
         {
             try
             {
-                var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+                var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
 
                 var claims = await _context.Claims
                     .Include(c => c.Module)
+                    .Include(c => c.StatusHistory)
                     .Where(c => c.UserId == userId)
                     .OrderByDescending(c => c.SubmissionDate)
                     .ToListAsync();
@@ -260,58 +257,117 @@ namespace CMCS.Controllers
         {
             try
             {
+                if (files == null || !files.Any())
+                {
+                    return (true, "No files to upload");
+                }
+
                 var uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads");
-                Directory.CreateDirectory(uploadsFolder);
+
+                // Ensure directory exists
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                    _logger.LogInformation("Created uploads directory: {Path}", uploadsFolder);
+                }
 
                 var allowedExtensions = new[] { ".pdf", ".doc", ".docx", ".xls", ".xlsx" };
                 var maxFileSize = 10 * 1024 * 1024; // 10MB
+                var uploadedCount = 0;
 
                 foreach (var file in files)
                 {
-                    if (file.Length == 0)
-                        continue;
-
-                    // Validate file extension
-                    var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
-                    if (!allowedExtensions.Contains(extension))
+                    if (file == null || file.Length == 0)
                     {
-                        return (false, $"File type {extension} is not allowed. Only PDF, DOC, DOCX, XLS, XLSX are permitted.");
+                        _logger.LogWarning("Skipping empty file");
+                        continue;
                     }
 
-                    // Validate file size
+                    var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+
+                    if (string.IsNullOrEmpty(extension))
+                    {
+                        _logger.LogWarning("File {FileName} has no extension", file.FileName);
+                        continue;
+                    }
+
+                    if (!allowedExtensions.Contains(extension))
+                    {
+                        return (false, $"File type {extension} is not allowed. Only PDF, DOC, DOCX, XLS, XLSX are supported.");
+                    }
+
                     if (file.Length > maxFileSize)
                     {
                         return (false, $"File {file.FileName} exceeds maximum size of 10MB.");
                     }
 
-                    var fileName = $"{claimId}_{Guid.NewGuid()}{extension}";
-                    var filePath = Path.Combine(uploadsFolder, fileName);
+                    // Generate unique filename
+                    var uniqueFileName = $"{claimId}_{Guid.NewGuid()}{extension}";
+                    var filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
-                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    try
                     {
-                        await file.CopyToAsync(stream);
+                        // Save file to disk
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await file.CopyToAsync(stream);
+                            await stream.FlushAsync();
+                        }
+
+                        // Verify file was saved
+                        if (!System.IO.File.Exists(filePath))
+                        {
+                            _logger.LogError("File was not saved to disk: {FilePath}", filePath);
+                            return (false, "Failed to save file to disk");
+                        }
+
+                        var fileInfo = new FileInfo(filePath);
+                        _logger.LogInformation("File saved to disk: {FileName} ({Size} bytes)", uniqueFileName, fileInfo.Length);
+
+                        // Create database record
+                        var document = new SupportingDocument
+                        {
+                            ClaimId = claimId,
+                            FileName = file.FileName,
+                            FilePath = $"/uploads/{uniqueFileName}",
+                            FileSize = file.Length,
+                            FileType = extension,
+                            Description = $"Uploaded document: {file.FileName}" 
+                        };
+
+                        _context.SupportingDocuments.Add(document);
+                        uploadedCount++;
+
+                        _logger.LogInformation("Document record created for: {FileName} -> {FilePath}", file.FileName, document.FilePath);
                     }
-
-                    var document = new SupportingDocument
+                    catch (Exception ex)
                     {
-                        ClaimId = claimId,
-                        FileName = file.FileName,
-                        FilePath = filePath,
-                        FileSize = file.Length,
-                        FileType = extension
-                    };
-
-                    _context.SupportingDocuments.Add(document);
+                        _logger.LogError(ex, "Error saving file {FileName}", file.FileName);
+                        return (false, $"Error saving file {file.FileName}: {ex.Message}");
+                    }
                 }
 
-                await _context.SaveChangesAsync();
-                return (true, "All files uploaded successfully");
+                // Save all document records to database
+                if (uploadedCount > 0)
+                {
+                    var savedCount = await _context.SaveChangesAsync();
+                    _logger.LogInformation("Saved {Count} document records to database for claim {ClaimId}", savedCount, claimId);
+
+                    if (savedCount == 0)
+                    {
+                        _logger.LogError("SaveChanges returned 0 for {Count} documents", uploadedCount);
+                        return (false, "Documents uploaded but failed to save to database");
+                    }
+                }
+
+                return (true, $"Successfully uploaded {uploadedCount} file(s)");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error uploading files for claim {ClaimId}", claimId);
-                return (false, "An error occurred uploading files");
+                _logger.LogError(ex, "Error in HandleFileUploads for claim {ClaimId}", claimId);
+                return (false, $"An error occurred uploading files: {ex.Message}");
             }
         }
     }
 }
+//--------------------------End Of File--------------------------//

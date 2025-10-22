@@ -1,3 +1,4 @@
+//--------------------------Start Of File--------------------------//
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -44,3 +45,4 @@ namespace CMCS.Models
         public virtual ICollection<Module> Modules { get; set; }
     }
 }
+//--------------------------End Of File--------------------------//

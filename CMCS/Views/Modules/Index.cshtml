@@ -1,70 +1,259 @@
+﻿<!--------------------- Start of File ------------------------->
 @model IEnumerable<CMCS.Models.Module>
-    @{
-    ViewData["Title"] = "Modules Management";
+@{
+    ViewData["Title"] = "Module Management";
+    Layout = "_Layout";
+}
+
+<style>
+    .modules-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
     }
 
-    <div class="container">
-        <div class="card">
-            <div class="header">
-                <h1>Modules Management</h1>
-                <p>Manage course modules and hourly rates</p>
-            </div>
+    .modules-header {
+        background: white;
+        padding: 30px 40px;
+        border-radius: 16px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
 
-            <div style="margin-bottom: 20px;">
-                <a asp-action="Create" class="btn btn-primary">
-                    <i class="icon">+</i> Create New Module
-                </a>
-            </div>
+    .header-content h1 {
+        color: #1e3a8a;
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0 0 8px 0;
+    }
 
-            <table>
+    .header-content p {
+        color: #6b7280;
+        margin: 0;
+        font-size: 1rem;
+    }
+
+    .btn-create {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        padding: 12px 30px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s;
+        display: inline-block;
+    }
+
+        .btn-create:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+            color: white;
+        }
+
+    .modules-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .modules-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .modules-table thead {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+        }
+
+        .modules-table th {
+            padding: 20px;
+            text-align: left;
+            font-weight: 600;
+            color: white;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .modules-table td {
+            padding: 20px;
+            border-bottom: 1px solid #e5e7eb;
+            color: #374151;
+        }
+
+        .modules-table tbody tr {
+            transition: background 0.2s;
+        }
+
+            .modules-table tbody tr:hover {
+                background: #f9fafb;
+            }
+
+    .status-badge {
+        display: inline-block;
+        padding: 6px 14px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .status-active {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .status-inactive {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .btn-action {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.3s;
+        display: inline-block;
+    }
+
+    .btn-details {
+        background: #3b82f6;
+        color: white;
+    }
+
+        .btn-details:hover {
+            background: #2563eb;
+            color: white;
+        }
+
+    .btn-edit {
+        background: #f59e0b;
+        color: white;
+    }
+
+        .btn-edit:hover {
+            background: #d97706;
+            color: white;
+        }
+
+    .btn-toggle {
+        background: #6b7280;
+        color: white;
+    }
+
+        .btn-toggle:hover {
+            background: #4b5563;
+        }
+
+    .btn-delete {
+        background: #ef4444;
+        color: white;
+    }
+
+        .btn-delete:hover {
+            background: #dc2626;
+            color: white;
+        }
+
+    .no-modules {
+        text-align: center;
+        padding: 60px 20px;
+    }
+
+    .no-modules-icon {
+        font-size: 4rem;
+        margin-bottom: 20px;
+    }
+
+    .no-modules h3 {
+        color: #6b7280;
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+    }
+
+    .no-modules p {
+        color: #9ca3af;
+    }
+</style>
+
+<div class="modules-container">
+    <div class="modules-header">
+        <div class="header-content">
+            <h1>📚 Module Management</h1>
+            <p>Manage course modules and their hourly rates</p>
+        </div>
+        <a asp-action="Create" class="btn-create">+ Create New Module</a>
+    </div>
+
+    <div class="modules-card">
+        @if (Model != null && Model.Any())
+        {
+            <table class="modules-table">
                 <thead>
                     <tr>
                         <th>Module Code</th>
                         <th>Module Name</th>
+                        <th>Description</th>
                         <th>Hourly Rate</th>
                         <th>Status</th>
-                        <th>Created Date</th>
+                        <th>Created</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var item in Model)
-                {
-                    <tr>
-                        <td>@item.ModuleCode</td>
-                        <td>@item.ModuleName</td>
-                        <td>R @item.StandardHourlyRate.ToString("N2")</td>
-                        <td>
-                            @if (item.IsActive)
-                            {
-                            <span class="status status-approved">Active</span>
-                            }
-                            else
-                            {
-                            <span class="status status-rejected">Inactive</span>
-                            }
-                        </td>
-                        <td>@item.CreatedDate.ToString("dd MMM yyyy")</td>
-                        <td>
-                            <a asp-action="Details" asp-route-id="@item.ModuleId" class="btn btn-sm" style="background: #6b7280; color: white; padding: 6px 12px; margin-right: 5px;">Details</a>
-                            <a asp-action="Edit" asp-route-id="@item.ModuleId" class="btn btn-sm btn-primary" style="padding: 6px 12px; margin-right: 5px;">Edit</a>
-                            <form asp-action="ToggleActive" asp-route-id="@item.ModuleId" method="post" style="display: inline;">
-                                <button type="submit" class="btn btn-sm @(item.IsActive ? "btn-danger" : "btn-success")" style="padding: 6px 12px; margin-right: 5px;">
-                                    @(item.IsActive ? "Deactivate" : "Activate")
-                                </button>
-                            </form>
-                            <a asp-action="Delete" asp-route-id="@item.ModuleId" class="btn btn-sm btn-danger" style="padding: 6px 12px;">Delete</a>
-                        </td>
-                    </tr>
-                }
+                    @foreach (var module in Model)
+                    {
+                        <tr>
+                            <td><strong>@module.ModuleCode</strong></td>
+                            <td>@module.ModuleName</td>
+                            <td>@(module.Description?.Length > 50 ? module.Description.Substring(0, 50) + "..." : module.Description)</td>
+                            <td><strong style="color: #10b981;">R @module.StandardHourlyRate.ToString("N2")</strong></td>
+                            <td>
+                                <span class="status-badge @(module.IsActive ? "status-active" : "status-inactive")">
+                                    @(module.IsActive ? "✓ Active" : "✗ Inactive")
+                                </span>
+                            </td>
+                            <td>@module.CreatedDate.ToString("dd MMM yyyy")</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <a asp-action="Details" asp-route-id="@module.ModuleId" class="btn-action btn-details">View</a>
+                                    <a asp-action="Edit" asp-route-id="@module.ModuleId" class="btn-action btn-edit">Edit</a>
+                                    <form asp-action="ToggleActive" asp-route-id="@module.ModuleId" method="post" style="display: inline;">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn-action btn-toggle">
+                                            @(module.IsActive ? "Deactivate" : "Activate")
+                                        </button>
+                                    </form>
+                                    <a asp-action="Delete" asp-route-id="@module.ModuleId" class="btn-action btn-delete">Delete</a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
                 </tbody>
             </table>
-
-            @if (!Model.Any())
+        }
+        else
         {
-            <div style="text-align: center; padding: 40px; color: #6b7280;">
-                <p>No modules found. Create your first module to get started.</p>
+            <div class="no-modules">
+                <div class="no-modules-icon">📚</div>
+                <h3>No Modules Found</h3>
+                <p>Get started by creating your first module</p>
+                <a asp-action="Create" class="btn-create" style="margin-top: 20px;">+ Create First Module</a>
             </div>
         }
-        </div>
     </div>
+</div>
+<!--------------------- End of File ------------------------->

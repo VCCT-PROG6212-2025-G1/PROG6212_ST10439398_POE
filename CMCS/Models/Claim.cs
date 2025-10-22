@@ -1,23 +1,18 @@
-using CMCS.Models.CMCS.Models;
-using System;
-using System.Collections.Generic;
+//--------------------------Start Of File--------------------------//
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CMCS.Models
 {
-    namespace CMCS.Models
+    public enum ClaimStatus
     {
-        public enum ClaimStatus
-        {
-            Submitted = 0,
-            UnderReview = 1,
-            Approved = 2,
-            Rejected = 3,
-            PaymentProcessing = 4,  
-            Paid = 5,
-            Draft = 6
-        }
+        Draft = 0,
+        Submitted = 1,
+        UnderReview = 2,
+        Approved = 3,
+        Rejected = 4,
+        PaymentProcessing = 5,
+        Paid = 6
     }
 
     public class Claim
@@ -65,3 +60,4 @@ namespace CMCS.Models
         public virtual ICollection<ClaimStatusHistory> StatusHistory { get; set; }
     }
 }
+//--------------------------End Of File--------------------------//

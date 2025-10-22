@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿//--------------------------Start Of File--------------------------//
+using System.ComponentModel.DataAnnotations;
 
 namespace CMCS.ViewModels
 {
@@ -15,3 +16,4 @@ namespace CMCS.ViewModels
         public string UserType { get; set; }
     }
 }
+//--------------------------End Of File--------------------------//

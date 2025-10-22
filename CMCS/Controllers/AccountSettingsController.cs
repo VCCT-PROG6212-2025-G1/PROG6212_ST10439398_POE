@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿//--------------------------Start Of File--------------------------//
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CMCS.Data;
+using CMCS.Models;
 using System.Security.Claims;
 
 namespace CMCS.Controllers
@@ -43,7 +45,7 @@ namespace CMCS.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateProfile(CMCS.Models.User model)
+        public async Task<IActionResult> UpdateProfile(User model)
         {
             try
             {
@@ -56,19 +58,31 @@ namespace CMCS.Controllers
                     return RedirectToAction(nameof(Index));
                 }
 
-                // Update only allowed fields
+                // Only update allowed fields
                 user.FirstName = model.FirstName;
                 user.LastName = model.LastName;
                 user.PhoneNumber = model.PhoneNumber;
 
+                // Mark entity as modified
+                _context.Entry(user).State = EntityState.Modified;
+
                 await _context.SaveChangesAsync();
+
                 TempData["Success"] = "Profile updated successfully!";
+                _logger.LogInformation("User {UserId} updated profile", userId);
+
+                return RedirectToAction(nameof(Index));
+            }
+            catch (DbUpdateException ex)
+            {
+                _logger.LogError(ex, "Database error updating profile for user {UserId}", User.FindFirstValue(ClaimTypes.NameIdentifier));
+                TempData["Error"] = "Database error updating profile. Please try again.";
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error updating profile");
-                TempData["Error"] = "Error updating profile.";
+                TempData["Error"] = "Error updating profile. Please try again.";
                 return RedirectToAction(nameof(Index));
             }
         }
@@ -77,8 +91,9 @@ namespace CMCS.Controllers
         {
             if (User.IsInRole("Lecturer")) return "Lecturer";
             if (User.IsInRole("Coordinator")) return "Coordinator";
-            if (User.IsInRole("Manager")) return "Manager";
+            if (User.IsInRole("Manager")) return "Coordinator";
             return "Home";
         }
     }
 }
+//--------------------------End Of File--------------------------//
