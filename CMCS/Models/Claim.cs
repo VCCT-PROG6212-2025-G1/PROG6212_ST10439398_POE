@@ -1,3 +1,4 @@
+using CMCS.Models.CMCS.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -5,14 +6,18 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CMCS.Models
 {
-    public enum ClaimStatus
+    namespace CMCS.Models
     {
-        Draft,
-        Submitted,
-        UnderReview,
-        Approved,
-        Rejected,
-        Paid
+        public enum ClaimStatus
+        {
+            Submitted = 0,
+            UnderReview = 1,
+            Approved = 2,
+            Rejected = 3,
+            PaymentProcessing = 4,  
+            Paid = 5,
+            Draft = 6
+        }
     }
 
     public class Claim

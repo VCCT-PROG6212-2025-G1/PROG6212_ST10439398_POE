@@ -1,3 +1,4 @@
+using CMCS.Models.CMCS.Models;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;

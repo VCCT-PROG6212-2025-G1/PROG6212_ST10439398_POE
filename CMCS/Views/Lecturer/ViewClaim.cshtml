@@ -1,205 +1,364 @@
-﻿@model CMCS.Models.Claim
+﻿@using CMCS.Models.CMCS.Models
+@model CMCS.Models.Claim
 @{
-    ViewData["Title"] = "My Claim Details";
+    ViewData["Title"] = "Claim Status Tracking";
+    Layout = "_Layout";
 }
 
-<div class="container">
-    <div class="card">
-        <div class="header">
-            <h1>Claim Status Tracking</h1>
-            <p>Track your claim progress transparently from submission to payment</p>
-        </div>
+<style>
+    .tracking-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
 
-        <div style="background: #f9fafb; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                    <h2 style="color: #1e3a8a; margin-bottom: 5px;">Claim #CLC-@Model.ClaimId.ToString("D4")</h2>
-                    <p style="color: #6b7280; margin: 0;">Submitted on @Model.SubmissionDate.ToString("dd MMMM yyyy")</p>
-                </div>
-                <div>
-                    @switch (Model.CurrentStatus)
-                    {
-                        case CMCS.Models.ClaimStatus.Draft:
-                    <span class="status status-pending" style="font-size: 1.1rem; padding: 10px 20px;">DRAFT</span>
-                            break;
-                        case CMCS.Models.ClaimStatus.Submitted:
-                        case CMCS.Models.ClaimStatus.UnderReview:
-                    <span class="status status-submitted" style="font-size: 1.1rem; padding: 10px 20px;">UNDER REVIEW</span>
-                            break;
-                        case CMCS.Models.ClaimStatus.Approved:
-                    <span class="status status-approved" style="font-size: 1.1rem; padding: 10px 20px;">APPROVED</span>
-                            break;
-                        case CMCS.Models.ClaimStatus.Rejected:
-                    <span class="status status-rejected" style="font-size: 1.1rem; padding: 10px 20px;">REJECTED</span>
-                            break;
-                        case CMCS.Models.ClaimStatus.Paid:
-                    <span class="status status-approved" style="font-size: 1.1rem; padding: 10px 20px;">PAID</span>
-                            break;
-                    }
-                </div>
+    .tracking-header {
+        background: white;
+        padding: 30px;
+        border-radius: 16px;
+        margin-bottom: 20px;
+        text-align: center;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+        .tracking-header h1 {
+            color: #1e3a8a;
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0 0 8px 0;
+        }
+
+        .tracking-header p {
+            color: #6b7280;
+            margin: 0;
+        }
+
+    .claim-info-card {
+        background: white;
+        padding: 30px;
+        border-radius: 16px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .claim-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #e5e7eb;
+    }
+
+    .claim-title {
+        color: #1e3a8a;
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .claim-subtitle {
+        color: #6b7280;
+        font-size: 0.9rem;
+        margin-top: 5px;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 8px 16px;
+        border-radius: 12px;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .status-submitted {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .status-review {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .status-approved {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .status-rejected {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+
+    .info-box {
+        background: #f9fafb;
+        padding: 20px;
+        border-radius: 12px;
+        border-left: 4px solid #3b82f6;
+    }
+
+    .info-label {
+        color: #6b7280;
+        font-size: 0.85rem;
+        margin-bottom: 5px;
+        font-weight: 500;
+    }
+
+    .info-value {
+        color: #1e3a8a;
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+
+    .timeline-section {
+        background: white;
+        padding: 30px;
+        border-radius: 16px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .timeline-title {
+        color: #1e3a8a;
+        font-size: 1.5rem;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .timeline {
+        display: flex;
+        justify-content: space-between;
+        position: relative;
+        padding: 20px 0;
+    }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 45px;
+            left: 10%;
+            right: 10%;
+            height: 4px;
+            background: #e5e7eb;
+            z-index: 0;
+        }
+
+    .timeline-step {
+        flex: 1;
+        text-align: center;
+        position: relative;
+        z-index: 1;
+    }
+
+    .timeline-circle {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        margin: 0 auto 15px auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: white;
+        background: #d1d5db;
+        border: 4px solid white;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .timeline-step.completed .timeline-circle {
+        background: #10b981;
+    }
+
+    .timeline-step.active .timeline-circle {
+        background: #3b82f6;
+        box-shadow: 0 0 0 8px rgba(59, 130, 246, 0.2);
+    }
+
+    .timeline-label {
+        color: #1e3a8a;
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+
+    .timeline-date {
+        color: #6b7280;
+        font-size: 0.85rem;
+    }
+
+    .back-button {
+        display: inline-block;
+        margin-top: 20px;
+        padding: 12px 30px;
+        background: #3b82f6;
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+
+        .back-button:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+            color: white;
+        }
+</style>
+
+<div class="tracking-container">
+    <div class="tracking-header">
+        <h1>Claim Status Tracking</h1>
+        <p>Track your claim progress transparently from submission to payment</p>
+    </div>
+
+    <div class="claim-info-card">
+        <div class="claim-header">
+            <div>
+                <h2 class="claim-title">Claim #CLC-@Model.ClaimId.ToString("D4")</h2>
+                <p class="claim-subtitle">Submitted on @Model.SubmissionDate.ToString("dd MMMM yyyy")</p>
             </div>
-        </div>
-
-        <!-- Claim Progress Timeline -->
-        <div style="background: white; padding: 30px; border-radius: 8px; margin-bottom: 30px;">
-            <h3 style="color: #1e3a8a; text-align: center; margin-bottom: 30px;">Claim Progress Timeline</h3>
-
-            <div style="display: flex; justify-content: space-between; align-items: center; position: relative; margin: 0 50px;">
-                <!-- Progress Line -->
-                <div style="position: absolute; top: 20px; left: 0; right: 0; height: 4px; background: #e5e7eb; z-index: 0;"></div>
-
+            <div>
                 @{
-                    var statusValue = (int)Model.CurrentStatus;
-                    var progressWidth = statusValue >= 6 ? "100%" : $"{(statusValue - 1) * 25}%";
-                }
-                <div style="position: absolute; top: 20px; left: 0; height: 4px; background: #3b82f6; z-index: 0; width: @progressWidth; transition: width 0.5s ease;"></div>
+                    var statusClass = "status-submitted";
+                    var statusText = "SUBMITTED";
 
-                <!-- Step 1: Submitted -->
-                <div style="display: flex; flex-direction: column; align-items: center; z-index: 1;">
-                    <div style="width: 40px; height: 40px; border-radius: 50%; background: @(statusValue >= 2 ? "#10b981" : "#e5e7eb"); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; border: 4px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                        @if (statusValue >= 2) { <span>✓</span> } else { <span>1</span> }
-                    </div>
-                    <p style="margin-top: 10px; font-weight: 600; color: @(statusValue >= 2 ? "#10b981" : "#6b7280");">Submitted</p>
-                    <p style="font-size: 0.85rem; color: #6b7280;">@Model.SubmissionDate.ToString("dd MMM yyyy")</p>
-                </div>
-
-                <!-- Step 2: Under Review -->
-                <div style="display: flex; flex-direction: column; align-items: center; z-index: 1;">
-                    <div style="width: 40px; height: 40px; border-radius: 50%; background: @(statusValue >= 3 ? "#10b981" : statusValue == 2 ? "#3b82f6" : "#e5e7eb"); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; border: 4px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                        @if (statusValue >= 3) { <span>✓</span> } else { <span>2</span> }
-                    </div>
-                    <p style="margin-top: 10px; font-weight: 600; color: @(statusValue >= 3 ? "#10b981" : statusValue == 2 ? "#3b82f6" : "#6b7280");">Under Review</p>
-                    <p style="font-size: 0.85rem; color: #6b7280;">@(statusValue >= 2 ? "In Progress" : "Pending")</p>
-                </div>
-
-                <!-- Step 3: Approved -->
-                <div style="display: flex; flex-direction: column; align-items: center; z-index: 1;">
-                    <div style="width: 40px; height: 40px; border-radius: 50%; background: @(statusValue >= 4 ? "#10b981" : Model.CurrentStatus == CMCS.Models.ClaimStatus.Rejected ? "#ef4444" : "#e5e7eb"); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; border: 4px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                        @if (statusValue >= 4) { <span>✓</span> } else if (Model.CurrentStatus == CMCS.Models.ClaimStatus.Rejected) { <span>✕</span> } else { <span>3</span> }
-                    </div>
-                    <p style="margin-top: 10px; font-weight: 600; color: @(statusValue >= 4 ? "#10b981" : Model.CurrentStatus == CMCS.Models.ClaimStatus.Rejected ? "#ef4444" : "#6b7280");">
-                        @(Model.CurrentStatus == CMCS.Models.ClaimStatus.Rejected ? "Rejected" : "Approved")
-                    </p>
-                    <p style="font-size: 0.85rem; color: #6b7280;">
-                        @if (Model.LastModified.HasValue && statusValue >= 4)
-                        {
-                        @Model.LastModified.Value.ToString("dd MMM yyyy")
-                        }
-                        else
-                        {
-                        <span>Pending</span>
-                        }
-                    </p>
-                </div>
-
-                <!-- Step 4: Payment Processing -->
-                <div style="display: flex; flex-direction: column; align-items: center; z-index: 1;">
-                    <div style="width: 40px; height: 40px; border-radius: 50%; background: @(statusValue >= 5 ? "#10b981" : "#e5e7eb"); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; border: 4px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                        @if (statusValue >= 5) { <span>✓</span> } else { <span>4</span> }
-                    </div>
-                    <p style="margin-top: 10px; font-weight: 600; color: @(statusValue >= 5 ? "#10b981" : "#6b7280");">Processing</p>
-                    <p style="font-size: 0.85rem; color: #6b7280;">Pending</p>
-                </div>
-
-                <!-- Step 5: Paid -->
-                <div style="display: flex; flex-direction: column; align-items: center; z-index: 1;">
-                    <div style="width: 40px; height: 40px; border-radius: 50%; background: @(statusValue >= 6 ? "#10b981" : "#e5e7eb"); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; border: 4px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                        @if (statusValue >= 6) { <span>✓</span> } else { <span>5</span> }
-                    </div>
-                    <p style="margin-top: 10px; font-weight: 600; color: @(statusValue >= 6 ? "#10b981" : "#6b7280");">Paid</p>
-                    <p style="font-size: 0.85rem; color: #6b7280;">Pending</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Claim Information Grid -->
-        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 30px;">
-            <div style="background: #eff6ff; padding: 20px; border-radius: 8px; border-left: 4px solid #3b82f6;">
-                <p style="color: #6b7280; margin-bottom: 5px;">Lecturer</p>
-                <p style="font-weight: 600; font-size: 1.1rem;">@Model.User.FirstName @Model.User.LastName</p>
-            </div>
-
-            <div style="background: #eff6ff; padding: 20px; border-radius: 8px; border-left: 4px solid #3b82f6;">
-                <p style="color: #6b7280; margin-bottom: 5px;">Module</p>
-                <p style="font-weight: 600; font-size: 1.1rem;">@Model.Module.ModuleCode - @Model.Module.ModuleName</p>
-            </div>
-
-            <div style="background: #eff6ff; padding: 20px; border-radius: 8px; border-left: 4px solid #3b82f6;">
-                <p style="color: #6b7280; margin-bottom: 5px;">Hours Worked</p>
-                <p style="font-weight: 600; font-size: 1.1rem;">@Model.HoursWorked hours</p>
-            </div>
-
-            <div style="background: #d1fae5; padding: 20px; border-radius: 8px; border-left: 4px solid #10b981;">
-                <p style="color: #6b7280; margin-bottom: 5px;">Total Amount</p>
-                <p style="font-weight: 600; font-size: 1.3rem; color: #10b981;">R@Model.TotalAmount.ToString("N2")</p>
-            </div>
-
-            <div style="background: #eff6ff; padding: 20px; border-radius: 8px; border-left: 4px solid #3b82f6;">
-                <p style="color: #6b7280; margin-bottom: 5px;">Submission Date</p>
-                <p style="font-weight: 600; font-size: 1.1rem;">@Model.SubmissionDate.ToString("dd MMMM yyyy")</p>
-            </div>
-
-            @if (Model.LastModified.HasValue)
-            {
-            <div style="background: #eff6ff; padding: 20px; border-radius: 8px; border-left: 4px solid #3b82f6;">
-                <p style="color: #6b7280; margin-bottom: 5px;">Last Updated</p>
-                <p style="font-weight: 600; font-size: 1.1rem;">@Model.LastModified.Value.ToString("dd MMMM yyyy")</p>
-            </div>
-            }
-        </div>
-
-        @if (!string.IsNullOrWhiteSpace(Model.AdditionalNotes))
-        {
-        <div style="margin-bottom: 30px;">
-            <h3 style="color: #1e3a8a; margin-bottom: 15px;">Additional Notes</h3>
-            <div style="background: #f9fafb; padding: 15px; border-radius: 8px; border: 1px solid #e5e7eb;">
-                <p style="margin: 0; white-space: pre-wrap;">@Model.AdditionalNotes</p>
-            </div>
-        </div>
-        }
-
-        @if (Model.SupportingDocuments != null && Model.SupportingDocuments.Any())
-        {
-        <div style="margin-bottom: 30px;">
-            <h3 style="color: #1e3a8a; margin-bottom: 15px;">Supporting Documents</h3>
-            <div style="display: grid; gap: 10px;">
-                @foreach (var doc in Model.SupportingDocuments)
+                    if (Model.CurrentStatus == CMCS.Models.CMCS.Models.ClaimStatus.UnderReview)
                     {
-                <div style="background: #f9fafb; padding: 15px; border-radius: 8px; border: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <strong>@doc.FileName</strong><br />
-                        <small style="color: #6b7280;">@((doc.FileSize / 1024.0 / 1024.0).ToString("F2")) MB</small>
-                    </div>
-                    <a href="@doc.FilePath" target="_blank" class="btn btn-primary" style="padding: 8px 16px;">Download</a>
-                </div>
+                        statusClass = "status-review";
+                        statusText = "UNDER REVIEW";
                     }
-            </div>
-        </div>
-        }
-
-        @if (Model.StatusHistory != null && Model.StatusHistory.Any())
-        {
-        <div style="margin-bottom: 30px;">
-            <h3 style="color: #1e3a8a; margin-bottom: 15px;">Status History</h3>
-            @foreach (var history in Model.StatusHistory.OrderByDescending(h => h.ChangeDate))
-                {
-            <div style="background: #f9fafb; padding: 15px; border-radius: 8px; border: 1px solid #e5e7eb; margin-bottom: 10px;">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                    <strong>@history.PreviousStatus → @history.NewStatus</strong>
-                    <span style="color: #6b7280; font-size: 0.9rem;">@history.ChangeDate.ToString("dd MMM yyyy HH:mm")</span>
-                </div>
-                @if (!string.IsNullOrWhiteSpace(history.Comments))
-                        {
-                <p style="margin: 10px 0 0 0; font-style: italic; color: #6b7280;">"@history.Comments"</p>
-                        }
-            </div>
+                    else if (Model.CurrentStatus == CMCS.Models.CMCS.Models.ClaimStatus.Approved)
+                    {
+                        statusClass = "status-approved";
+                        statusText = "APPROVED";
+                    }
+                    else if (Model.CurrentStatus == CMCS.Models.CMCS.Models.ClaimStatus.Rejected)
+                    {
+                        statusClass = "status-rejected";
+                        statusText = "REJECTED";
+                    }
                 }
+                <span class="status-badge @statusClass">@statusText</span>
+            </div>
         </div>
+
+        <div class="info-grid">
+            <div class="info-box">
+                <div class="info-label">Lecturer</div>
+                <div class="info-value">@Model.User.FirstName @Model.User.LastName</div>
+            </div>
+            <div class="info-box">
+                <div class="info-label">Module</div>
+                <div class="info-value">@Model.Module.ModuleCode - @Model.Module.ModuleName</div>
+            </div>
+            <div class="info-box">
+                <div class="info-label">Hours Worked</div>
+                <div class="info-value">@Model.HoursWorked.ToString("0.0") hours</div>
+            </div>
+            <div class="info-box">
+                <div class="info-label">Total Amount</div>
+                <div class="info-value">R@Model.TotalAmount.ToString("N2")</div>
+            </div>
+            <div class="info-box">
+                <div class="info-label">Submission Date</div>
+                <div class="info-value">@Model.SubmissionDate.ToString("dd MMM yyyy")</div>
+            </div>
+            <div class="info-box">
+                <div class="info-label">Current Reviewer</div>
+                <div class="info-value">
+                    @{
+                        var reviewer = "-";
+                        if (Model.CurrentStatus == ClaimStatus.UnderReview)
+                        {
+                            reviewer = "Programme Coordinator";
+                        }
+                        else if (Model.CurrentStatus == ClaimStatus.Approved)
+                        {
+                            reviewer = "Academic Manager";
+                        }
+                    }
+                    @reviewer
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="timeline-section">
+        <h2 class="timeline-title">Claim Progress Timeline</h2>
+
+        <div class="timeline">
+            <div class="timeline-step completed">
+                <div class="timeline-circle">1</div>
+                <div class="timeline-label">Submitted</div>
+                <div class="timeline-date">@Model.SubmissionDate.ToString("dd MMM yyyy")</div>
+            </div>
+
+            @{
+                var step2Class = Model.CurrentStatus >= ClaimStatus.UnderReview ? "active" : "";
+                var step2Date = "Pending";
+                if (Model.CurrentStatus >= ClaimStatus.UnderReview)
+                {
+                    var reviewHistory = Model.StatusHistory?.FirstOrDefault(sh => sh.NewStatus == ClaimStatus.UnderReview);
+                    step2Date = reviewHistory?.ChangeDate.ToString("dd MMM yyyy") ?? "Pending";
+                }
+            }
+            <div class="timeline-step @step2Class">
+                <div class="timeline-circle">2</div>
+                <div class="timeline-label">Under Review</div>
+                <div class="timeline-date">@step2Date</div>
+            </div>
+
+            @{
+                var step3Class = Model.CurrentStatus >= ClaimStatus.Approved ? "completed" : "";
+                var step3Date = "Pending";
+                if (Model.CurrentStatus >= ClaimStatus.Approved)
+                {
+                    var approvalHistory = Model.StatusHistory?.FirstOrDefault(sh => sh.NewStatus == ClaimStatus.Approved);
+                    step3Date = approvalHistory?.ChangeDate.ToString("dd MMM yyyy") ?? "Pending";
+                }
+            }
+            <div class="timeline-step @step3Class">
+                <div class="timeline-circle">3</div>
+                <div class="timeline-label">Approved</div>
+                <div class="timeline-date">@step3Date</div>
+            </div>
+
+            @{
+                var step4Class = Model.CurrentStatus == ClaimStatus.PaymentProcessing ? "active" : "";
+            }
+            <div class="timeline-step @step4Class">
+                <div class="timeline-circle">4</div>
+                <div class="timeline-label">Payment Processing</div>
+                <div class="timeline-date">Pending</div>
+            </div>
+
+            @{
+                var step5Class = Model.CurrentStatus == ClaimStatus.Paid ? "completed" : "";
+            }
+            <div class="timeline-step @step5Class">
+                <div class="timeline-circle">5</div>
+                <div class="timeline-label">Paid</div>
+                <div class="timeline-date">Pending</div>
+            </div>
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.AdditionalNotes))
+        {
+            <div style="margin-top: 40px; padding: 20px; background: #f9fafb; border-radius: 12px; border-left: 4px solid #3b82f6;">
+                <h3 style="color: #1e3a8a; margin-bottom: 10px;">Additional Notes</h3>
+                <p style="color: #374151; margin: 0;">@Model.AdditionalNotes</p>
+            </div>
         }
 
-        <div style="display: flex; gap: 10px;">
-            <a asp-action="Dashboard" class="btn btn-primary">Back to Dashboard</a>
-            <a asp-action="ClaimHistory" class="btn" style="background: #6b7280; color: white;">View All Claims</a>
+        <div style="text-align: center;">
+            <a asp-action="ClaimHistory" class="back-button">← Back to Claim History</a>
         </div>
     </div>
 </div>

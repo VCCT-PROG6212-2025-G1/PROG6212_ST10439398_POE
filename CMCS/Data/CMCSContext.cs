@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using CMCS.Models;
+using CMCS.Models.CMCS.Models;
 
 namespace CMCS.Data
 {

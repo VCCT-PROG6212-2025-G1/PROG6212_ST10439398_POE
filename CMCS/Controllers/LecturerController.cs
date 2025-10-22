@@ -11,6 +11,7 @@ using CMCS.Models;
 using CMCS.Data;
 using CMCS.ViewModels;
 using Claim = CMCS.Models.Claim;
+using CMCS.Models.CMCS.Models;
 
 namespace CMCS.Controllers
 {
@@ -175,6 +176,39 @@ namespace CMCS.Controllers
                 return RedirectToAction(nameof(SubmitClaim));
             }
         }
+      
+        public IActionResult UploadDocuments()
+        {
+            return View();
+        }
+        public async Task<IActionResult> ViewClaim(int id)
+        {
+            try
+            {
+                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+
+                var claim = await _context.Claims
+                    .Include(c => c.Module)
+                    .Include(c => c.User)
+                    .Include(c => c.StatusHistory.OrderBy(sh => sh.ChangeDate))
+                    .Include(c => c.SupportingDocuments)
+                    .FirstOrDefaultAsync(c => c.ClaimId == id && c.UserId == userId);
+
+                if (claim == null)
+                {
+                    TempData["Error"] = "Claim not found.";
+                    return RedirectToAction(nameof(ClaimHistory));
+                }
+
+                return View(claim);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error viewing claim {ClaimId}", id);
+                TempData["Error"] = "Error loading claim details.";
+                return RedirectToAction(nameof(ClaimHistory));
+            }
+        }
 
         [HttpGet]
         public async Task<IActionResult> GetHourlyRate(int moduleId)
@@ -196,36 +230,8 @@ namespace CMCS.Controllers
             }
         }
 
-        [HttpGet]
-        public async Task<IActionResult> ViewClaim(int id)
-        {
-            try
-            {
-                var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
-
-                var claim = await _context.Claims
-                    .Include(c => c.Module)
-                    .Include(c => c.User)
-                    .Include(c => c.SupportingDocuments)
-                    .Include(c => c.StatusHistory)
-                        .ThenInclude(sh => sh.User)
-                    .FirstOrDefaultAsync(c => c.ClaimId == id && c.UserId == userId);
-
-                if (claim == null)
-                {
-                    TempData["Error"] = "Claim not found.";
-                    return RedirectToAction(nameof(Dashboard));
-                }
-
-                return View(claim);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error viewing claim {ClaimId}", id);
-                TempData["Error"] = "An error occurred loading the claim details.";
-                return RedirectToAction(nameof(Dashboard));
-            }
-        }
+       
+        
 
         [HttpGet]
         public async Task<IActionResult> ClaimHistory()

@@ -4,90 +4,206 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - CMCS</title>
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .navbar-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar-brand {
+            color: #1e3a8a;
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .navbar-center {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .navbar-right {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .navbar-link {
+            color: #374151;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+            .navbar-link:hover {
+                background: #f3f4f6;
+                color: #1e3a8a;
+            }
+
+        .navbar-user {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .btn-logout {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+            .btn-logout:hover {
+                background: #dc2626;
+                transform: translateY(-1px);
+            }
+
+        .alert {
+            max-width: 1400px;
+            margin: 0 auto 20px auto;
+            padding: 15px 20px;
+            border-radius: 8px;
+            animation: slideDown 0.3s ease;
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            border-left: 4px solid #10b981;
+        }
+
+        .alert-danger {
+            background: #fee2e2;
+            color: #991b1b;
+            border-left: 4px solid #ef4444;
+        }
+
+        .alert-warning {
+            background: #fef3c7;
+            color: #92400e;
+            border-left: 4px solid #f59e0b;
+        }
+
+  
+
+        {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        .footer {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            text-align: center;
+            margin-top: 40px;
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+            .footer span {
+                color: #6b7280;
+                font-size: 0.9rem;
+            }
+    </style>
 </head>
 <body>
     @if (User.Identity.IsAuthenticated)
     {
-    <nav class="navbar">
-        <div class="container">
-            <div class="navbar-brand">
-                <h2>CMCS</h2>
-            </div>
-            <div class="navbar-menu">
-                @if (User.IsInRole("Lecturer"))
+        <nav class="navbar">
+            <div class="navbar-content">
+                <a href="/" class="navbar-brand">CMCS</a>
+
+                <div class="navbar-center">
+                    @if (User.IsInRole("Lecturer"))
                     {
-                <a asp-controller="Lecturer" asp-action="Dashboard" class="navbar-link">Dashboard</a>
-                <a asp-controller="Lecturer" asp-action="SubmitClaim" class="navbar-link">Submit Claim</a>
-                <a asp-controller="Lecturer" asp-action="ClaimHistory" class="navbar-link">Claim History</a>
+                        <a asp-controller="Lecturer" asp-action="Dashboard" class="navbar-link">Dashboard</a>
+                        <a asp-controller="Lecturer" asp-action="SubmitClaim" class="navbar-link">Submit Claim</a>
+                        <a asp-controller="Lecturer" asp-action="ClaimHistory" class="navbar-link">Claim History</a>
                     }
-                @if (User.IsInRole("Coordinator") || User.IsInRole("Manager"))
+                    @if (User.IsInRole("Coordinator") || User.IsInRole("Manager"))
                     {
-                <a asp-controller="Coordinator" asp-action="Dashboard" class="navbar-link">Dashboard</a>
-                <a asp-controller="Modules" asp-action="Index" class="navbar-link">Modules</a>
+                        <a asp-controller="Coordinator" asp-action="Dashboard" class="navbar-link">Dashboard</a>
+                        <a asp-controller="Modules" asp-action="Index" class="navbar-link">Modules</a>
                     }
-                <span class="navbar-user">Welcome, @User.Identity.Name</span>
-                <form asp-controller="Account" asp-action="Logout" method="post" class="navbar-form">
-                    <button type="submit" class="btn btn-link">Logout</button>
-                </form>
+                </div>
+
+                <a asp-controller="AccountSettings" asp-action="Index" class="action-card">
+                    <div class="action-icon">⚙️</div>
+                    <h3>Account Settings</h3>
+                    <p>Update your profile and preferences</p>
+                </a>
+
+                <div class="navbar-right">
+                    <span class="navbar-user">Welcome, @User.Identity.Name</span>
+                    <form asp-controller="Account" asp-action="Logout" method="post" style="margin: 0;">
+                        <button type="submit" class="btn-logout">Logout</button>
+                    </form>
+                </div>
             </div>
-        </div>
-    </nav>
+        </nav>
     }
 
-    <main role="main" class="main-content">
+    <main>
         @if (TempData["Success"] != null)
         {
-        <div class="container">
             <div class="alert alert-success">
                 ✅ @TempData["Success"]
             </div>
-        </div>
         }
         @if (TempData["Error"] != null)
         {
-        <div class="container">
             <div class="alert alert-danger">
                 ❌ @TempData["Error"]
             </div>
-        </div>
         }
         @if (TempData["Warning"] != null)
         {
-        <div class="container">
-            <div class="alert" style="background: #fef3c7; color: #92400e; border-left: 4px solid #f59e0b;">
+            <div class="alert alert-warning">
                 ⚠️ @TempData["Warning"]
             </div>
-        </div>
         }
         @RenderBody()
     </main>
 
     <footer class="footer">
-        <div class="container">
-            <span>&copy; 2024 - Contract Monthly Claim System - Independent Institute of Education</span>
-        </div>
+        <span>&copy; 2024 - Contract Monthly Claim System - Independent Institute of Education</span>
     </footer>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
-
-<style>
-    .navbar-link {
-        color: #374151;
-        text-decoration: none;
-        padding: 8px 16px;
-        border-radius: 6px;
-        transition: background 0.3s;
-    }
-
-        .navbar-link:hover {
-            background: #f3f4f6;
-        }
-
-    .main-content {
-        padding-bottom: 60px;
-    }
-</style>

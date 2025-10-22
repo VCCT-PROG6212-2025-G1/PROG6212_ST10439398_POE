@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using CMCS.Models;
 using CMCS.Data;
 using CMCS.ViewModels;
+using CMCS.Models.CMCS.Models;
 
 namespace CMCS.Controllers
 {
