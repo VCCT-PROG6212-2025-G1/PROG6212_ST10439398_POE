@@ -654,3 +654,14 @@ C:\Users\morgt\source\repos\VCCT-PROG6212-2025-G1\PROG6212_ST10439398_POE\CMCS.T
 C:\Users\morgt\source\repos\VCCT-PROG6212-2025-G1\PROG6212_ST10439398_POE\CMCS.Tests\obj\Debug\net8.0\CMCS.Tests.pdb
 C:\Users\morgt\source\repos\VCCT-PROG6212-2025-G1\PROG6212_ST10439398_POE\CMCS.Tests\obj\Debug\net8.0\CMCS.Tests.genruntimeconfig.cache
 C:\Users\morgt\source\repos\VCCT-PROG6212-2025-G1\PROG6212_ST10439398_POE\CMCS.Tests\obj\Debug\net8.0\ref\CMCS.Tests.dll
+C:\Users\morgt\Desktop\PROG6212_ST10439398_POE\PROG6212_ST10439398_POE\CMCS.Tests\bin\Debug\net8.0\.msCoverageSourceRootsMapping_CMCS.Tests
+C:\Users\morgt\Desktop\PROG6212_ST10439398_POE\PROG6212_ST10439398_POE\CMCS.Tests\obj\Debug\net8.0\CMCS.Tests.csproj.AssemblyReference.cache
+C:\Users\morgt\Desktop\PROG6212_ST10439398_POE\PROG6212_ST10439398_POE\CMCS.Tests\obj\Debug\net8.0\MvcTestingAppManifest.json
+C:\Users\morgt\Desktop\PROG6212_ST10439398_POE\PROG6212_ST10439398_POE\CMCS.Tests\obj\Debug\net8.0\CMCS.Tests.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\morgt\Desktop\PROG6212_ST10439398_POE\PROG6212_ST10439398_POE\CMCS.Tests\obj\Debug\net8.0\CMCS.Tests.AssemblyInfoInputs.cache
+C:\Users\morgt\Desktop\PROG6212_ST10439398_POE\PROG6212_ST10439398_POE\CMCS.Tests\obj\Debug\net8.0\CMCS.Tests.AssemblyInfo.cs
+C:\Users\morgt\Desktop\PROG6212_ST10439398_POE\PROG6212_ST10439398_POE\CMCS.Tests\obj\Debug\net8.0\CMCS.Tests.csproj.CoreCompileInputs.cache
+C:\Users\morgt\Desktop\PROG6212_ST10439398_POE\PROG6212_ST10439398_POE\CMCS.Tests\obj\Debug\net8.0\CMCS.Tests.sourcelink.json
+C:\Users\morgt\Desktop\PROG6212_ST10439398_POE\PROG6212_ST10439398_POE\CMCS.Tests\obj\Debug\net8.0\CMCS.Tests.dll
+C:\Users\morgt\Desktop\PROG6212_ST10439398_POE\PROG6212_ST10439398_POE\CMCS.Tests\obj\Debug\net8.0\refint\CMCS.Tests.dll
+C:\Users\morgt\Desktop\PROG6212_ST10439398_POE\PROG6212_ST10439398_POE\CMCS.Tests\obj\Debug\net8.0\CMCS.Tests.pdb
