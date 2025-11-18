@@ -305,7 +305,6 @@
         margin-bottom: 20px;
     }
 
-    /* Modal Styles */
     .modal {
         display: none;
         position: fixed;
@@ -344,6 +343,7 @@
         min-height: 100px;
         font-family: inherit;
         resize: vertical;
+        box-sizing: border-box;
     }
 
     .modal-footer {
@@ -394,19 +394,16 @@
             <div class="stat-value">@Model.PendingReview</div>
             <div class="stat-description">Claims awaiting your review</div>
         </div>
-
         <div class="stat-card green">
             <div class="stat-label">Approved Today</div>
             <div class="stat-value">@Model.ApprovedToday</div>
             <div class="stat-description">By Academic Manager</div>
         </div>
-
         <div class="stat-card red">
             <div class="stat-label">Urgent Claims</div>
             <div class="stat-value">@Model.UrgentClaims</div>
             <div class="stat-description">Over 5 days old</div>
         </div>
-
         <div class="stat-card blue">
             <div class="stat-label">Total This Week</div>
             <div class="stat-value">R@(Model.TotalThisWeek.ToString("N0"))</div>
@@ -431,69 +428,64 @@
 
         @if (Model.ClaimsForReview != null && Model.ClaimsForReview.Any())
         {
-            <form id="bulkActionForm">
-                <table class="claims-table">
-                    <thead>
+            <table class="claims-table">
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" id="selectAll" class="claim-checkbox" /></th>
+                        <th>Claim ID</th>
+                        <th>Lecturer</th>
+                        <th>Module</th>
+                        <th>Hours</th>
+                        <th>Amount</th>
+                        <th>Submitted</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var claim in Model.ClaimsForReview)
+                    {
+                        var isUrgent = (DateTime.Now - claim.SubmissionDate).Days > 5;
                         <tr>
-                            <th><input type="checkbox" id="selectAll" class="claim-checkbox" /></th>
-                            <th>Claim ID</th>
-                            <th>Lecturer</th>
-                            <th>Module</th>
-                            <th>Hours</th>
-                            <th>Amount</th>
-                            <th>Submitted</th>
-                            <th>Status</th>
-                            <th>Actions</th>
+                            <td><input type="checkbox" name="claimIds" value="@claim.ClaimId" class="claim-checkbox claim-select" /></td>
+                            <td><strong>#CLC-@claim.ClaimId.ToString("D4")</strong></td>
+                            <td>
+                                <div class="lecturer-info">
+                                    <span class="lecturer-name">@claim.User.FirstName @claim.User.LastName</span>
+                                    <span class="lecturer-email">@claim.User.Email</span>
+                                </div>
+                            </td>
+                            <td>@claim.Module.ModuleCode</td>
+                            <td>@claim.HoursWorked.ToString("0.0") hrs</td>
+                            <td>R@(claim.TotalAmount.ToString("N2"))</td>
+                            <td>@claim.SubmissionDate.ToString("dd MMM yyyy")</td>
+                            <td>
+                                @if (isUrgent)
+                                {
+                                    <span class="status-badge status-urgent">Urgent</span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge status-submitted">Submitted</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="action-buttons">
+                                    <a asp-action="ViewClaim" asp-route-id="@claim.ClaimId" class="btn-view">View</a>
+                                    <button type="button" class="btn-verify" onclick="verifySingle(@claim.ClaimId)">✓ Verify</button>
+                                    <button type="button" class="btn-reject" onclick="showRejectModal(@claim.ClaimId)">✗ Reject</button>
+                                </div>
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var claim in Model.ClaimsForReview)
-                        {
-                            var isUrgent = (DateTime.Now - claim.SubmissionDate).Days > 5;
-                            <tr>
-                                <td><input type="checkbox" name="claimIds" value="@claim.ClaimId" class="claim-checkbox claim-select" /></td>
-                                <td><strong>#CLC-@claim.ClaimId.ToString("D4")</strong></td>
-                                <td>
-                                    <div class="lecturer-info">
-                                        <span class="lecturer-name">@claim.User.FirstName @claim.User.LastName</span>
-                                        <span class="lecturer-email">@claim.User.Email</span>
-                                    </div>
-                                </td>
-                                <td>@claim.Module.ModuleCode</td>
-                                <td>@claim.HoursWorked.ToString("0.0") hrs</td>
-                                <td>R@(claim.TotalAmount.ToString("N2"))</td>
-                                <td>@claim.SubmissionDate.ToString("dd MMM yyyy")</td>
-                                <td>
-                                    @if (isUrgent)
-                                    {
-                                        <span class="status-badge status-urgent">Urgent</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="status-badge status-submitted">Submitted</span>
-                                    }
-                                </td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <a asp-action="ViewClaim" asp-route-id="@claim.ClaimId" class="btn-view">View</a>
-                                        <form asp-action="VerifyClaim" asp-route-id="@claim.ClaimId" method="post" style="display:inline;">
-                                            @Html.AntiForgeryToken()
-                                            <button type="submit" class="btn-verify" title="Verify and send to Manager">✓ Verify</button>
-                                        </form>
-                                        <button type="button" class="btn-reject" onclick="showRejectModal(@claim.ClaimId)">✗ Reject</button>
-                                    </div>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
+                    }
+                </tbody>
+            </table>
 
-                <div class="bulk-actions">
-                    <span style="color: #6b7280;">With selected:</span>
-                    <button type="button" class="bulk-btn bulk-verify" onclick="bulkVerify()">✓ Verify All Selected</button>
-                    <button type="button" class="bulk-btn bulk-reject" onclick="showBulkRejectModal()">✗ Reject All Selected</button>
-                </div>
-            </form>
+            <div class="bulk-actions">
+                <span style="color: #6b7280;">With selected:</span>
+                <button type="button" class="bulk-btn bulk-verify" onclick="bulkVerify()">✓ Verify All Selected</button>
+                <button type="button" class="bulk-btn bulk-reject" onclick="showBulkRejectModal()">✗ Reject All Selected</button>
+            </div>
         }
         else
         {
@@ -541,6 +533,11 @@
 </div>
 
 <!-- Hidden forms for actions -->
+<form id="singleVerifyForm" asp-action="VerifyClaim" method="post" style="display:none;">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="id" id="verifyClaimId" />
+</form>
+
 <form id="singleRejectForm" asp-action="RejectClaim" method="post" style="display:none;">
     @Html.AntiForgeryToken()
     <input type="hidden" name="id" id="rejectClaimId" />
@@ -567,6 +564,14 @@
             const checkboxes = document.querySelectorAll('.claim-select');
             checkboxes.forEach(cb => cb.checked = this.checked);
         });
+
+        // Single verify
+        function verifySingle(claimId) {
+            if (confirm('Are you sure you want to verify this claim and send to Academic Manager?')) {
+                document.getElementById('verifyClaimId').value = claimId;
+                document.getElementById('singleVerifyForm').submit();
+            }
+        }
 
         // Single reject modal
         function showRejectModal(claimId) {

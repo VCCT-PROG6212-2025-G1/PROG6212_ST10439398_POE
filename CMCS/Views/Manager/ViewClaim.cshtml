@@ -1,4 +1,4 @@
-﻿<!--------------------- Start of File ------------------------->
+<!--------------------- Start of File ------------------------->
 @model CMCS.Models.Claim
 @{
     ViewData["Title"] = "Claim Details";
@@ -532,30 +532,30 @@
                                 <span class="document-icon">
                                     @if (doc.FileType == ".pdf")
                                     {
-                                        <text>📄</text>
+                                        <text>??</text>
                                     }
                                     else if (doc.FileType == ".doc" || doc.FileType == ".docx")
                                     {
-                                        <text>📝</text>
+                                        <text>??</text>
                                     }
                                     else if (doc.FileType == ".xls" || doc.FileType == ".xlsx")
                                     {
-                                        <text>📊</text>
+                                        <text>??</text>
                                     }
                                     else
                                     {
-                                        <text>📎</text>
+                                        <text>??</text>
                                     }
                                 </span>
                                 <div class="document-details">
                                     <span class="document-name">@doc.FileName</span>
                                     <span class="document-meta">
-                                        @doc.FileType.ToUpper() • @((doc.FileSize / 1024.0 / 1024.0).ToString("0.00")) MB
+                                        @doc.FileType.ToUpper() � @((doc.FileSize / 1024.0 / 1024.0).ToString("0.00")) MB
                                     </span>
                                 </div>
                             </div>
                             <a href="@doc.FilePath" target="_blank" class="btn-download" download="@doc.FileName">
-                                ⬇️ Download
+                                ?? Download
                             </a>
                         </div>
                     }
@@ -563,7 +563,7 @@
                 else
                 {
                     <div class="no-documents">
-                        <p>📂 No supporting documents uploaded</p>
+                        <p>?? No supporting documents uploaded</p>
                     </div>
                 }
             </div>
@@ -616,15 +616,14 @@
     }
 
    @{
-    
        var formattedTotal = Model.TotalAmount.ToString("N2");
    }
 
    <div class="action-buttons">
-        @if (Model.CurrentStatus == ClaimStatus.Submitted)
+        @if (Model.CurrentStatus == ClaimStatus.UnderReview)
         {
-            <button type="button" class="btn btn-approve" onclick="verifySingle(@Model.ClaimId)">
-                &#10003; Verify Claim
+            <button type="button" class="btn btn-approve" onclick="approveSingle(@Model.ClaimId)">
+                &#10003; Approve Claim
             </button>
 
             <button type="button" class="btn btn-reject" onclick="showRejectModal()">
@@ -632,7 +631,7 @@
             </button>
         }
 
-        <a asp-action="Dashboard" class="btn btn-back">← Back to Dashboard</a>
+        <a asp-action="Dashboard" class="btn btn-back">? Back to Dashboard</a>
     </div>
 </div>
 
@@ -657,17 +656,17 @@
     </div>
 </div>
 
-<!-- Hidden form for verify action -->
-<form id="singleVerifyForm" asp-action="VerifyClaim" method="post" style="display:none;">
+<!-- Hidden form for approve action -->
+<form id="singleApproveForm" asp-action="ApproveClaim" method="post" style="display:none;">
     @Html.AntiForgeryToken()
-    <input type="hidden" name="id" id="verifyClaimId" />
+    <input type="hidden" name="id" id="approveClaimId" />
 </form>
 
 <script>
-    function verifySingle(claimId) {
-        if (confirm('Are you sure you want to verify this claim and send to Academic Manager?')) {
-            document.getElementById('verifyClaimId').value = claimId;
-            document.getElementById('singleVerifyForm').submit();
+    function approveSingle(claimId) {
+        if (confirm('Are you sure you want to approve this claim?')) {
+            document.getElementById('approveClaimId').value = claimId;
+            document.getElementById('singleApproveForm').submit();
         }
     }
 

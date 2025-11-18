@@ -476,10 +476,7 @@
                                 <td>
                                     <div class="action-buttons">
                                         <a asp-action="ViewClaim" asp-route-id="@claim.ClaimId" class="btn-view">View</a>
-                                        <form asp-action="ApproveClaim" asp-route-id="@claim.ClaimId" method="post" style="display:inline;">
-                                            @Html.AntiForgeryToken()
-                                            <button type="submit" class="btn-verify" title="Approve and process payment">&#10003; Approve</button>
-                                        </form>
+                                        <button type="button" class="btn-verify" onclick="approveSingle(@claim.ClaimId)">&#10003; Approve</button>
                                         <button type="button" class="btn-reject" onclick="showRejectModal(@claim.ClaimId)">&#10007; Reject</button>
                                     </div>
                                 </td>
@@ -541,6 +538,11 @@
 </div>
 
 <!-- Hidden forms for actions -->
+<form id="singleApproveForm" asp-action="ApproveClaim" method="post" style="display:none;">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="id" id="approveClaimId" />
+</form>
+
 <form id="singleRejectForm" asp-action="RejectClaim" method="post" style="display:none;">
     @Html.AntiForgeryToken()
     <input type="hidden" name="id" id="rejectClaimId" />
@@ -567,6 +569,14 @@
             const checkboxes = document.querySelectorAll('.claim-select');
             checkboxes.forEach(cb => cb.checked = this.checked);
         });
+
+        // Single approve
+        function approveSingle(claimId) {
+            if (confirm('Are you sure you want to approve this claim?')) {
+                document.getElementById('approveClaimId').value = claimId;
+                document.getElementById('singleApproveForm').submit();
+            }
+        }
 
         // Single reject modal
         function showRejectModal(claimId) {
