@@ -1,41 +1,41 @@
-﻿<!--------------------- Start of File ------------------------->
+﻿@*--------------------- Start of File -------------------------*@
 @model CMCS.ViewModels.CoordinatorDashboardViewModel
 @{
-    ViewData["Title"] = User.IsInRole("Manager") ? "Manager Dashboard" : "Coordinator Dashboard";
+    ViewData["Title"] = "Coordinator Dashboard";
     Layout = "_Layout";
 }
 
 <style>
     .dashboard-container {
-        max-width: 1600px;
+        max-width: 1400px;
         margin: 0 auto;
-        padding: 20px;
+        padding: 0 20px;
     }
 
-    .dashboard-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    .welcome-section {
+        background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
         color: white;
-        padding: 40px 30px;
-        border-radius: 16px;
+        padding: 40px;
+        border-radius: 20px;
         margin-bottom: 30px;
-        box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+        box-shadow: 0 10px 30px rgba(30, 58, 138, 0.3);
     }
 
-    .header-content h1 {
-        font-size: 2.5rem;
-        font-weight: 800;
-        margin: 0 0 10px 0;
-    }
+        .welcome-section h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0 0 10px 0;
+        }
 
-    .header-content p {
-        font-size: 1.1rem;
-        opacity: 0.9;
-        margin: 0;
-    }
+        .welcome-section p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin: 0;
+        }
 
     .stats-grid {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
         gap: 20px;
         margin-bottom: 30px;
     }
@@ -45,57 +45,50 @@
         padding: 30px;
         border-radius: 16px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        transition: transform 0.3s, box-shadow 0.3s;
-        border-left: 5px solid;
+        transition: all 0.3s ease;
+        border-left: 4px solid #3b82f6;
     }
 
         .stat-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
         }
 
         .stat-card.orange {
-            border-color: #f59e0b;
+            border-left-color: #f59e0b;
         }
 
         .stat-card.green {
-            border-color: #10b981;
+            border-left-color: #10b981;
         }
 
         .stat-card.red {
-            border-color: #ef4444;
+            border-left-color: #ef4444;
         }
 
         .stat-card.blue {
-            border-color: #3b82f6;
+            border-left-color: #3b82f6;
         }
-
-    .stat-value {
-        font-size: 2.5rem;
-        font-weight: 800;
-        margin-bottom: 8px;
-    }
-
-    .stat-card.orange .stat-value {
-        color: #f59e0b;
-    }
-
-    .stat-card.green .stat-value {
-        color: #10b981;
-    }
-
-    .stat-card.red .stat-value {
-        color: #ef4444;
-    }
-
-    .stat-card.blue .stat-value {
-        color: #3b82f6;
-    }
 
     .stat-label {
         color: #6b7280;
-        font-size: 0.95rem;
-        font-weight: 600;
+        font-size: 0.9rem;
+        font-weight: 500;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 5px;
+    }
+
+    .stat-description {
+        color: #9ca3af;
+        font-size: 0.85rem;
     }
 
     .claims-section {
@@ -109,17 +102,15 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 25px;
-        padding-bottom: 15px;
-        border-bottom: 2px solid #e5e7eb;
+        margin-bottom: 20px;
     }
 
-    .section-title {
-        color: #1e3a8a;
-        font-size: 1.8rem;
-        font-weight: 700;
-        margin: 0;
-    }
+        .section-header h2 {
+            color: #1f2937;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0;
+        }
 
     .filter-buttons {
         display: flex;
@@ -127,70 +118,23 @@
     }
 
     .filter-btn {
-        padding: 10px 20px;
+        padding: 8px 16px;
         border: 2px solid #e5e7eb;
         background: white;
         border-radius: 8px;
-        font-weight: 600;
         cursor: pointer;
-        transition: all 0.3s;
+        font-size: 0.85rem;
+        font-weight: 500;
+        transition: all 0.2s;
         text-decoration: none;
         color: #374151;
     }
 
-        .filter-btn:hover {
+        .filter-btn:hover, .filter-btn.active {
             border-color: #3b82f6;
-            color: #3b82f6;
             background: #eff6ff;
+            color: #1e40af;
         }
-
-        .filter-btn.active {
-            background: #3b82f6;
-            color: white;
-            border-color: #3b82f6;
-        }
-
-    .bulk-actions {
-        display: flex;
-        gap: 15px;
-        margin-bottom: 20px;
-    }
-
-    .btn-bulk {
-        padding: 12px 24px;
-        border: none;
-        border-radius: 8px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s;
-        font-size: 0.95rem;
-    }
-
-    .btn-approve {
-        background: #10b981;
-        color: white;
-    }
-
-        .btn-approve:hover {
-            background: #059669;
-            transform: translateY(-2px);
-        }
-
-    .btn-reject {
-        background: #ef4444;
-        color: white;
-    }
-
-        .btn-reject:hover {
-            background: #dc2626;
-            transform: translateY(-2px);
-        }
-
-    .claims-count {
-        color: #6b7280;
-        font-size: 0.95rem;
-        margin-bottom: 20px;
-    }
 
     .claims-table {
         width: 100%;
@@ -204,7 +148,7 @@
         .claims-table th {
             padding: 15px;
             text-align: left;
-            font-weight: 700;
+            font-weight: 600;
             color: #374151;
             border-bottom: 2px solid #e5e7eb;
         }
@@ -212,11 +156,18 @@
         .claims-table td {
             padding: 15px;
             border-bottom: 1px solid #e5e7eb;
+            vertical-align: middle;
         }
 
-        .claims-table tr:hover {
+        .claims-table tbody tr:hover {
             background: #f9fafb;
         }
+
+    .claim-checkbox {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+    }
 
     .lecturer-info {
         display: flex;
@@ -225,40 +176,25 @@
 
     .lecturer-name {
         font-weight: 600;
-        color: #1e3a8a;
+        color: #1f2937;
     }
 
     .lecturer-email {
-        font-size: 0.85rem;
-        color: #6b7280;
-    }
-
-    .module-info {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .module-code {
-        font-weight: 600;
-        color: #374151;
-    }
-
-    .module-name {
-        font-size: 0.85rem;
+        font-size: 0.8rem;
         color: #6b7280;
     }
 
     .status-badge {
         display: inline-block;
-        padding: 6px 12px;
-        border-radius: 20px;
-        font-size: 0.85rem;
+        padding: 5px 12px;
+        border-radius: 12px;
+        font-size: 0.8rem;
         font-weight: 600;
     }
 
-    .status-pending {
-        background: #fef3c7;
-        color: #92400e;
+    .status-submitted {
+        background: #dbeafe;
+        color: #1e40af;
     }
 
     .status-urgent {
@@ -271,21 +207,49 @@
         gap: 8px;
     }
 
-    .btn-action {
-        padding: 8px 16px;
+    .btn-verify {
+        background: #10b981;
+        color: white;
+        padding: 6px 12px;
         border: none;
         border-radius: 6px;
-        font-weight: 600;
         cursor: pointer;
+        font-size: 0.8rem;
+        font-weight: 500;
         transition: all 0.2s;
-        font-size: 0.85rem;
-        text-decoration: none;
-        display: inline-block;
     }
+
+        .btn-verify:hover {
+            background: #059669;
+        }
+
+    .btn-reject {
+        background: #ef4444;
+        color: white;
+        padding: 6px 12px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.8rem;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+
+        .btn-reject:hover {
+            background: #dc2626;
+        }
 
     .btn-view {
         background: #3b82f6;
         color: white;
+        padding: 6px 12px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.8rem;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.2s;
     }
 
         .btn-view:hover {
@@ -293,28 +257,47 @@
             color: white;
         }
 
-    .btn-approve-single {
+    .bulk-actions {
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 2px solid #e5e7eb;
+        display: flex;
+        gap: 15px;
+        align-items: center;
+    }
+
+    .bulk-btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+
+    .bulk-verify {
         background: #10b981;
         color: white;
     }
 
-        .btn-approve-single:hover {
+        .bulk-verify:hover {
             background: #059669;
         }
 
-    .btn-reject-single {
+    .bulk-reject {
         background: #ef4444;
         color: white;
     }
 
-        .btn-reject-single:hover {
+        .bulk-reject:hover {
             background: #dc2626;
         }
 
     .no-claims {
         text-align: center;
         padding: 60px 20px;
-        color: #6b7280;
+        color: #9ca3af;
     }
 
     .no-claims-icon {
@@ -322,375 +305,364 @@
         margin-bottom: 20px;
     }
 
-    .modal-backdrop {
+    /* Modal Styles */
+    .modal {
         display: none;
         position: fixed;
-        top: 0;
+        z-index: 1000;
         left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0,0,0,0.5);
-        z-index: 9999;
-        align-items: center;
-        justify-content: center;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
     }
 
     .modal-content {
-        background: white;
+        background-color: white;
+        margin: 15% auto;
         padding: 30px;
-        border-radius: 12px;
-        max-width: 500px;
+        border-radius: 16px;
         width: 90%;
+        max-width: 500px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
     }
 
-    .modal-title {
-        color: #1e3a8a;
-        margin-bottom: 15px;
-    }
-
-    .modal-text {
-        color: #6b7280;
+    .modal-header {
         margin-bottom: 20px;
     }
 
-    .modal-textarea {
+        .modal-header h3 {
+            margin: 0;
+            color: #1f2937;
+        }
+
+    .modal-body textarea {
         width: 100%;
-        min-height: 100px;
         padding: 12px;
         border: 2px solid #e5e7eb;
         border-radius: 8px;
+        min-height: 100px;
         font-family: inherit;
-        margin-bottom: 20px;
-        box-sizing: border-box;
+        resize: vertical;
     }
 
-    .modal-buttons {
+    .modal-footer {
+        margin-top: 20px;
         display: flex;
+        justify-content: flex-end;
         gap: 10px;
     }
 
     .modal-btn {
-        flex: 1;
-        padding: 12px;
+        padding: 10px 20px;
         border: none;
         border-radius: 8px;
-        font-weight: 600;
         cursor: pointer;
+        font-weight: 600;
     }
 
-    .modal-btn-cancel {
-        background: #6b7280;
-        color: white;
+    .modal-cancel {
+        background: #e5e7eb;
+        color: #374151;
     }
 
-    .modal-btn-confirm {
+    .modal-confirm {
         background: #ef4444;
         color: white;
     }
 
-    @@media (max-width: 1200px) {
-        .stats-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
-
-    @@media (max-width: 768px) {
-        .stats-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .filter-buttons {
-            flex-wrap: wrap;
-        }
+    .info-banner {
+        background: #dbeafe;
+        border: 1px solid #93c5fd;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+        color: #1e40af;
+        font-size: 0.9rem;
     }
 </style>
 
 <div class="dashboard-container">
-    <div class="dashboard-header">
-        <div class="header-content">
-            @if (User.IsInRole("Manager"))
-            {
-                <h1>Academic Manager Dashboard</h1>
-                <p>Review and approve monthly claims efficiently</p>
-            }
-            else
-            {
-                <h1>Programme Coordinator Dashboard</h1>
-                <p>Review and approve monthly claims efficiently</p>
-            }
-        </div>
+    <div class="welcome-section">
+        <h1>Programme Coordinator Dashboard 📋</h1>
+        <p>Review and verify submitted claims before sending to Academic Manager for approval</p>
     </div>
 
     <div class="stats-grid">
         <div class="stat-card orange">
+            <div class="stat-label">Pending Verification</div>
             <div class="stat-value">@Model.PendingReview</div>
-            <div class="stat-label">Pending Review</div>
+            <div class="stat-description">Claims awaiting your review</div>
         </div>
 
         <div class="stat-card green">
-            <div class="stat-value">@Model.ApprovedToday</div>
             <div class="stat-label">Approved Today</div>
+            <div class="stat-value">@Model.ApprovedToday</div>
+            <div class="stat-description">By Academic Manager</div>
         </div>
 
         <div class="stat-card red">
+            <div class="stat-label">Urgent Claims</div>
             <div class="stat-value">@Model.UrgentClaims</div>
-            <div class="stat-label">Urgent (>5 days)</div>
+            <div class="stat-description">Over 5 days old</div>
         </div>
 
         <div class="stat-card blue">
-            <div class="stat-value">R@(Model.TotalThisWeek.ToString("N0"))</div>
             <div class="stat-label">Total This Week</div>
+            <div class="stat-value">R@(Model.TotalThisWeek.ToString("N0"))</div>
+            <div class="stat-description">Approved amount</div>
         </div>
     </div>
 
     <div class="claims-section">
         <div class="section-header">
-            <h2 class="section-title">Claims Awaiting Review</h2>
+            <h2>Claims Pending Verification</h2>
             <div class="filter-buttons">
-                <a href="@Url.Action("Dashboard", new { filter = "all" })"
-                   class="filter-btn @(ViewBag.CurrentFilter == "all" ? "active" : "")">
-                    All Claims
-                </a>
-                <a href="@Url.Action("Dashboard", new { filter = "urgent" })"
-                   class="filter-btn @(ViewBag.CurrentFilter == "urgent" ? "active" : "")">
-                    Urgent
-                </a>
-                <a href="@Url.Action("Dashboard", new { filter = "thisweek" })"
-                   class="filter-btn @(ViewBag.CurrentFilter == "thisweek" ? "active" : "")">
-                    This Week
-                </a>
-                <a href="@Url.Action("Dashboard", new { filter = "bymodule" })"
-                   class="filter-btn @(ViewBag.CurrentFilter == "bymodule" ? "active" : "")">
-                    By Module
-                </a>
+                <a asp-action="Dashboard" asp-route-filter="all" class="filter-btn @(ViewBag.CurrentFilter == "all" ? "active" : "")">All</a>
+                <a asp-action="Dashboard" asp-route-filter="urgent" class="filter-btn @(ViewBag.CurrentFilter == "urgent" ? "active" : "")">Urgent</a>
+                <a asp-action="Dashboard" asp-route-filter="thisweek" class="filter-btn @(ViewBag.CurrentFilter == "thisweek" ? "active" : "")">This Week</a>
+                <a asp-action="Dashboard" asp-route-filter="bymodule" class="filter-btn @(ViewBag.CurrentFilter == "bymodule" ? "active" : "")">By Module</a>
             </div>
         </div>
 
-        @if (Model.ClaimsForReview.Any())
+        <div class="info-banner">
+            ℹ️ <strong>Your Role:</strong> Verify claims and send to Academic Manager for final approval, or reject claims with a reason.
+        </div>
+
+        @if (Model.ClaimsForReview != null && Model.ClaimsForReview.Any())
         {
-            <div class="bulk-actions">
-                <button type="button" class="btn-bulk btn-approve" onclick="bulkApprove()">
-                    Approve Selected
-                </button>
-                <button type="button" class="btn-bulk btn-reject" onclick="showBulkRejectModal()">
-                    Reject Selected
-                </button>
-            </div>
-
-            <div class="claims-count">
-                <strong>@Model.ClaimsForReview.Count</strong> claims pending review
-            </div>
-
-            <table class="claims-table">
-                <thead>
-                    <tr>
-                        <th><input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)"></th>
-                        <th>Lecturer</th>
-                        <th>Module</th>
-                        <th>Hours</th>
-                        <th>Amount</th>
-                        <th>Submitted</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                <tbody>
-                    @foreach (var claim in Model.ClaimsForReview)
-                    {
-                        var daysAgo = (DateTime.Now - claim.SubmissionDate).Days;
-                        var isUrgent = daysAgo > 5;
+            <form id="bulkActionForm">
+                <table class="claims-table">
+                    <thead>
                         <tr>
-                            <td>
-                                <input type="checkbox" class="claim-checkbox" value="@claim.ClaimId">
-                            </td>
-                            <td>
-                                <div class="lecturer-info">
-                                    <span class="lecturer-name">@claim.User.FirstName @claim.User.LastName</span>
-                                    <span class="lecturer-email">@claim.User.Email</span>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="module-info">
-                                    <span class="module-code">@claim.Module.ModuleCode</span>
-                                    <span class="module-name">@claim.Module.ModuleName</span>
-                                </div>
-                            </td>
-                            <td>@claim.HoursWorked.ToString("0.0") hrs</td>
-                            <td><strong>R@(claim.TotalAmount.ToString("N0"))</strong></td>
-                            <td>@daysAgo days ago</td>
-                            <td>
-                                <span class="status-badge @(isUrgent ? "status-urgent" : "status-pending")">
-                                    @(isUrgent ? "URGENT" : "PENDING")
-                                </span>
-                            </td>
-                            <td>
-                                <div class="action-buttons">
-                                    <a href="@Url.Action("ViewClaim", new { id = claim.ClaimId })" class="btn-action btn-view">
-                                        View
-                                    </a>
-                                    <form asp-action="ApproveClaim" method="post" style="display: inline;">
-                                        <input type="hidden" name="id" value="@claim.ClaimId" />
-                                        <button type="submit" class="btn-action btn-approve-single"
-                                                onclick="return confirm('Approve claim for R@(claim.TotalAmount.ToString("N2"))?');">
-                                            Approve
-                                        </button>
-                                    </form>
-                                    <button type="button" class="btn-action btn-reject-single"
-                                            onclick="showRejectModal(@claim.ClaimId)">
-                                        Reject
-                                    </button>
-                                </div>
-                            </td>
+                            <th><input type="checkbox" id="selectAll" class="claim-checkbox" /></th>
+                            <th>Claim ID</th>
+                            <th>Lecturer</th>
+                            <th>Module</th>
+                            <th>Hours</th>
+                            <th>Amount</th>
+                            <th>Submitted</th>
+                            <th>Status</th>
+                            <th>Actions</th>
                         </tr>
-                    }
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach (var claim in Model.ClaimsForReview)
+                        {
+                            var isUrgent = (DateTime.Now - claim.SubmissionDate).Days > 5;
+                            <tr>
+                                <td><input type="checkbox" name="claimIds" value="@claim.ClaimId" class="claim-checkbox claim-select" /></td>
+                                <td><strong>#CLC-@claim.ClaimId.ToString("D4")</strong></td>
+                                <td>
+                                    <div class="lecturer-info">
+                                        <span class="lecturer-name">@claim.User.FirstName @claim.User.LastName</span>
+                                        <span class="lecturer-email">@claim.User.Email</span>
+                                    </div>
+                                </td>
+                                <td>@claim.Module.ModuleCode</td>
+                                <td>@claim.HoursWorked.ToString("0.0") hrs</td>
+                                <td>R@(claim.TotalAmount.ToString("N2"))</td>
+                                <td>@claim.SubmissionDate.ToString("dd MMM yyyy")</td>
+                                <td>
+                                    @if (isUrgent)
+                                    {
+                                        <span class="status-badge status-urgent">Urgent</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="status-badge status-submitted">Submitted</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <a asp-action="ViewClaim" asp-route-id="@claim.ClaimId" class="btn-view">View</a>
+                                        <form asp-action="VerifyClaim" asp-route-id="@claim.ClaimId" method="post" style="display:inline;">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn-verify" title="Verify and send to Manager">✓ Verify</button>
+                                        </form>
+                                        <button type="button" class="btn-reject" onclick="showRejectModal(@claim.ClaimId)">✗ Reject</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+                <div class="bulk-actions">
+                    <span style="color: #6b7280;">With selected:</span>
+                    <button type="button" class="bulk-btn bulk-verify" onclick="bulkVerify()">✓ Verify All Selected</button>
+                    <button type="button" class="bulk-btn bulk-reject" onclick="showBulkRejectModal()">✗ Reject All Selected</button>
+                </div>
+            </form>
         }
         else
         {
             <div class="no-claims">
-                <div class="no-claims-icon">📋</div>
-                <h3>No Claims Pending Review</h3>
-                <p>All claims have been processed. Great work!</p>
+                <div class="no-claims-icon">✅</div>
+                <h3>No Claims Pending Verification</h3>
+                <p>All submitted claims have been reviewed. Check back later for new submissions.</p>
             </div>
         }
     </div>
 </div>
 
-<div id="rejectModal" class="modal-backdrop">
+<!-- Single Reject Modal -->
+<div id="rejectModal" class="modal">
     <div class="modal-content">
-        <h3 class="modal-title">Reject Claim</h3>
-        <p class="modal-text">Please provide a reason for rejecting this claim:</p>
-
-        <form asp-action="RejectClaim" method="post" id="rejectForm">
-            <input type="hidden" name="id" id="rejectClaimId" />
-            <textarea name="reason" id="rejectReason" required class="modal-textarea" placeholder="Enter rejection reason..."></textarea>
-
-            <div class="modal-buttons">
-                <button type="button" onclick="hideRejectModal()" class="modal-btn modal-btn-cancel">
-                    Cancel
-                </button>
-                <button type="submit" class="modal-btn modal-btn-confirm">
-                    Confirm Rejection
-                </button>
-            </div>
-        </form>
+        <div class="modal-header">
+            <h3>Reject Claim</h3>
+        </div>
+        <div class="modal-body">
+            <p>Please provide a reason for rejecting this claim:</p>
+            <textarea id="rejectReason" placeholder="Enter rejection reason..."></textarea>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn modal-cancel" onclick="closeRejectModal()">Cancel</button>
+            <button class="modal-btn modal-confirm" onclick="submitReject()">Reject Claim</button>
+        </div>
     </div>
 </div>
 
-<div id="bulkRejectModal" class="modal-backdrop">
+<!-- Bulk Reject Modal -->
+<div id="bulkRejectModal" class="modal">
     <div class="modal-content">
-        <h3 class="modal-title">Bulk Reject Claims</h3>
-        <p class="modal-text">Please provide a reason for rejecting the selected claims:</p>
-
-        <form asp-action="BulkReject" method="post" id="bulkRejectForm">
-            <div id="bulkRejectClaimIds"></div>
-            <textarea name="Reason" id="bulkRejectReason" required class="modal-textarea" placeholder="Enter rejection reason..."></textarea>
-
-            <div class="modal-buttons">
-                <button type="button" onclick="hideBulkRejectModal()" class="modal-btn modal-btn-cancel">
-                    Cancel
-                </button>
-                <button type="submit" class="modal-btn modal-btn-confirm">
-                    Confirm Rejection
-                </button>
-            </div>
-        </form>
+        <div class="modal-header">
+            <h3>Reject Selected Claims</h3>
+        </div>
+        <div class="modal-body">
+            <p>Please provide a reason for rejecting the selected claims:</p>
+            <textarea id="bulkRejectReason" placeholder="Enter rejection reason..."></textarea>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn modal-cancel" onclick="closeBulkRejectModal()">Cancel</button>
+            <button class="modal-btn modal-confirm" onclick="submitBulkReject()">Reject Claims</button>
+        </div>
     </div>
 </div>
 
-<script>
-    function toggleSelectAll(checkbox) {
-        const checkboxes = document.querySelectorAll('.claim-checkbox');
-        checkboxes.forEach(function(cb) { cb.checked = checkbox.checked; });
-    }
+<!-- Hidden forms for actions -->
+<form id="singleRejectForm" asp-action="RejectClaim" method="post" style="display:none;">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="id" id="rejectClaimId" />
+    <input type="hidden" name="reason" id="rejectReasonInput" />
+</form>
 
-    function getSelectedClaimIds() {
-        const checkboxes = document.querySelectorAll('.claim-checkbox:checked');
-        return Array.from(checkboxes).map(function(cb) { return cb.value; });
-    }
+<form id="bulkVerifyForm" asp-action="BulkVerify" method="post" style="display:none;">
+    @Html.AntiForgeryToken()
+    <div id="bulkVerifyClaimIds"></div>
+</form>
 
-    function bulkApprove() {
-        const claimIds = getSelectedClaimIds();
+<form id="bulkRejectForm" asp-action="BulkReject" method="post" style="display:none;">
+    @Html.AntiForgeryToken()
+    <div id="bulkRejectClaimIds"></div>
+    <input type="hidden" name="Reason" id="bulkRejectReasonInput" />
+</form>
 
-        if (claimIds.length === 0) {
-            alert('Please select at least one claim to approve.');
-            return;
-        }
+@section Scripts {
+    <script>
+        let currentRejectClaimId = null;
 
-        if (!confirm('Are you sure you want to approve ' + claimIds.length + ' claim(s)?')) {
-            return;
-        }
-
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = '@Url.Action("BulkApprove")';
-
-        claimIds.forEach(function(id) {
-            const input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = 'claimIds';
-            input.value = id;
-            form.appendChild(input);
+        // Select all checkbox
+        document.getElementById('selectAll')?.addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.claim-select');
+            checkboxes.forEach(cb => cb.checked = this.checked);
         });
 
-        document.body.appendChild(form);
-        form.submit();
-    }
-
-    function showBulkRejectModal() {
-        const claimIds = getSelectedClaimIds();
-
-        if (claimIds.length === 0) {
-            alert('Please select at least one claim to reject.');
-            return;
+        // Single reject modal
+        function showRejectModal(claimId) {
+            currentRejectClaimId = claimId;
+            document.getElementById('rejectModal').style.display = 'block';
+            document.getElementById('rejectReason').value = '';
+            document.getElementById('rejectReason').focus();
         }
 
-        const container = document.getElementById('bulkRejectClaimIds');
-        container.innerHTML = '';
-
-        claimIds.forEach(function(id) {
-            const input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = 'ClaimIds';
-            input.value = id;
-            container.appendChild(input);
-        });
-
-        document.getElementById('bulkRejectModal').style.display = 'flex';
-        document.getElementById('bulkRejectReason').focus();
-    }
-
-    function hideBulkRejectModal() {
-        document.getElementById('bulkRejectModal').style.display = 'none';
-        document.getElementById('bulkRejectReason').value = '';
-    }
-
-    function showRejectModal(claimId) {
-        document.getElementById('rejectClaimId').value = claimId;
-        document.getElementById('rejectModal').style.display = 'flex';
-        document.getElementById('rejectReason').focus();
-    }
-
-    function hideRejectModal() {
-        document.getElementById('rejectModal').style.display = 'none';
-        document.getElementById('rejectReason').value = '';
-    }
-
-    document.getElementById('rejectModal').addEventListener('click', function(e) {
-        if (e.target === this) hideRejectModal();
-    });
-
-    document.getElementById('bulkRejectModal').addEventListener('click', function(e) {
-        if (e.target === this) hideBulkRejectModal();
-    });
-
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            hideRejectModal();
-            hideBulkRejectModal();
+        function closeRejectModal() {
+            document.getElementById('rejectModal').style.display = 'none';
+            currentRejectClaimId = null;
         }
-    });
-</script>
-<!--------------------- End of File ------------------------->
+
+        function submitReject() {
+            const reason = document.getElementById('rejectReason').value.trim();
+            if (!reason) {
+                alert('Please provide a rejection reason.');
+                return;
+            }
+
+            document.getElementById('rejectClaimId').value = currentRejectClaimId;
+            document.getElementById('rejectReasonInput').value = reason;
+            document.getElementById('singleRejectForm').submit();
+        }
+
+        // Bulk verify
+        function bulkVerify() {
+            const selected = document.querySelectorAll('.claim-select:checked');
+            if (selected.length === 0) {
+                alert('Please select at least one claim to verify.');
+                return;
+            }
+
+            if (!confirm(`Are you sure you want to verify ${selected.length} claim(s) and send to Academic Manager?`)) {
+                return;
+            }
+
+            const container = document.getElementById('bulkVerifyClaimIds');
+            container.innerHTML = '';
+            selected.forEach(cb => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'claimIds';
+                input.value = cb.value;
+                container.appendChild(input);
+            });
+
+            document.getElementById('bulkVerifyForm').submit();
+        }
+
+        // Bulk reject modal
+        function showBulkRejectModal() {
+            const selected = document.querySelectorAll('.claim-select:checked');
+            if (selected.length === 0) {
+                alert('Please select at least one claim to reject.');
+                return;
+            }
+
+            document.getElementById('bulkRejectModal').style.display = 'block';
+            document.getElementById('bulkRejectReason').value = '';
+            document.getElementById('bulkRejectReason').focus();
+        }
+
+        function closeBulkRejectModal() {
+            document.getElementById('bulkRejectModal').style.display = 'none';
+        }
+
+        function submitBulkReject() {
+            const reason = document.getElementById('bulkRejectReason').value.trim();
+            if (!reason) {
+                alert('Please provide a rejection reason.');
+                return;
+            }
+
+            const selected = document.querySelectorAll('.claim-select:checked');
+            const container = document.getElementById('bulkRejectClaimIds');
+            container.innerHTML = '';
+            selected.forEach(cb => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'ClaimIds';
+                input.value = cb.value;
+                container.appendChild(input);
+            });
+
+            document.getElementById('bulkRejectReasonInput').value = reason;
+            document.getElementById('bulkRejectForm').submit();
+        }
+
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        }
+    </script>
+}
+@*--------------------- End of File -------------------------*@
