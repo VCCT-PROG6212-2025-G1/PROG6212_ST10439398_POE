@@ -87,13 +87,13 @@ namespace CMCS.Controllers
 
                 TempData["Success"] = $"Welcome back, {user.FirstName}!";
 
-                // Redirect based on role
+                // Redirect based on role - Manager now goes to ManagerController
                 return user.UserRole switch
                 {
                     UserRole.Lecturer => RedirectToAction("Dashboard", "Lecturer"),
                     UserRole.Coordinator => RedirectToAction("Dashboard", "Coordinator"),
-                    UserRole.Manager => RedirectToAction("Dashboard", "Coordinator"),
-                    UserRole.HR => RedirectToAction("Index", "Home"),
+                    UserRole.Manager => RedirectToAction("Dashboard", "Manager"),
+                    UserRole.HR => RedirectToAction("Dashboard", "HR"),
                     _ => RedirectToAction("Index", "Home")
                 };
             }
@@ -133,10 +133,12 @@ namespace CMCS.Controllers
         {
             if (User.IsInRole("Lecturer"))
                 return RedirectToAction("Dashboard", "Lecturer");
-            if (User.IsInRole("Coordinator") || User.IsInRole("Manager"))
+            if (User.IsInRole("Coordinator"))
                 return RedirectToAction("Dashboard", "Coordinator");
+            if (User.IsInRole("Manager"))
+                return RedirectToAction("Dashboard", "Manager");
             if (User.IsInRole("HR"))
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("Dashboard", "HR");
 
             return RedirectToAction("Index", "Home");
         }
