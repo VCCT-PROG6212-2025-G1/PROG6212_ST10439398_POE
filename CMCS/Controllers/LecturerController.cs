@@ -14,12 +14,14 @@ namespace CMCS.Controllers
         private readonly CMCSContext _context;
         private readonly IWebHostEnvironment _environment;
         private readonly ILogger<LecturerController> _logger;
+        private readonly IFileEncryptionService _encryptionService;
 
-        public LecturerController(CMCSContext context, IWebHostEnvironment environment, ILogger<LecturerController> logger)
+        public LecturerController(CMCSContext context, IWebHostEnvironment environment, ILogger<LecturerController> logger, IFileEncryptionService encryptionService)
         {
             _context = context;
             _environment = environment;
             _logger = logger;
+            _encryptionService = encryptionService;
         }
 
         public async Task<IActionResult> Dashboard()
@@ -301,18 +303,17 @@ namespace CMCS.Controllers
                         return (false, $"File {file.FileName} exceeds maximum size of 10MB.");
                     }
 
-                    // Generate unique filename
-                    var uniqueFileName = $"{claimId}_{Guid.NewGuid()}{extension}";
-                    var filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
                     try
                     {
-                        // Save file to disk
-                        using (var stream = new FileStream(filePath, FileMode.Create))
-                        {
-                            await file.CopyToAsync(stream);
-                            await stream.FlushAsync();
-                        }
+                        // Encrypt the file
+                        byte[] encryptedData = await _encryptionService.EncryptFileAsync(file);
+
+                        // Generate unique filename for encrypted file (always .enc)
+                        var uniqueFileName = $"{claimId}_{Guid.NewGuid()}.enc";
+                        var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                        // Save encrypted file to disk
+                        await System.IO.File.WriteAllBytesAsync(filePath, encryptedData);
 
                         // Verify file was saved
                         if (!System.IO.File.Exists(filePath))
@@ -322,27 +323,27 @@ namespace CMCS.Controllers
                         }
 
                         var fileInfo = new FileInfo(filePath);
-                        _logger.LogInformation("File saved to disk: {FileName} ({Size} bytes)", uniqueFileName, fileInfo.Length);
+                        _logger.LogInformation("Encrypted file saved to disk: {FileName} ({Size} bytes)", uniqueFileName, fileInfo.Length);
 
-                        // Create database record
+                        // Create database record with original filename and extension
                         var document = new SupportingDocument
                         {
                             ClaimId = claimId,
                             FileName = file.FileName,
                             FilePath = $"/uploads/{uniqueFileName}",
-                            FileSize = file.Length,
+                            FileSize = file.Length, // Store original file size
                             FileType = extension,
-                            Description = $"Uploaded document: {file.FileName}" 
+                            Description = $"Uploaded document: {file.FileName}"
                         };
 
                         _context.SupportingDocuments.Add(document);
                         uploadedCount++;
 
-                        _logger.LogInformation("Document record created for: {FileName} -> {FilePath}", file.FileName, document.FilePath);
+                        _logger.LogInformation("Encrypted document record created for: {FileName} -> {FilePath}", file.FileName, document.FilePath);
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError(ex, "Error saving file {FileName}", file.FileName);
+                        _logger.LogError(ex, "Error encrypting and saving file {FileName}", file.FileName);
                         return (false, $"Error saving file {file.FileName}: {ex.Message}");
                     }
                 }
@@ -351,7 +352,7 @@ namespace CMCS.Controllers
                 if (uploadedCount > 0)
                 {
                     var savedCount = await _context.SaveChangesAsync();
-                    _logger.LogInformation("Saved {Count} document records to database for claim {ClaimId}", savedCount, claimId);
+                    _logger.LogInformation("Saved {Count} encrypted document records to database for claim {ClaimId}", savedCount, claimId);
 
                     if (savedCount == 0)
                     {
@@ -360,7 +361,7 @@ namespace CMCS.Controllers
                     }
                 }
 
-                return (true, $"Successfully uploaded {uploadedCount} file(s)");
+                return (true, $"Successfully uploaded and encrypted {uploadedCount} file(s)");
             }
             catch (Exception ex)
             {
@@ -368,6 +369,61 @@ namespace CMCS.Controllers
                 return (false, $"An error occurred uploading files: {ex.Message}");
             }
         }
+
+        [HttpGet]
+        public async Task<IActionResult> DownloadDocument(int documentId)
+        {
+            try
+            {
+                var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
+
+                // Get document and verify ownership
+                var document = await _context.SupportingDocuments
+                    .Include(d => d.Claim)
+                    .FirstOrDefaultAsync(d => d.DocumentId == documentId && d.Claim.UserId == userId);
+
+                if (document == null)
+                {
+                    TempData["Error"] = "Document not found or access denied.";
+                    return RedirectToAction(nameof(ClaimHistory));
+                }
+
+                var filePath = Path.Combine(_environment.WebRootPath, document.FilePath.TrimStart('/'));
+
+                if (!System.IO.File.Exists(filePath))
+                {
+                    _logger.LogError("File not found: {FilePath}", filePath);
+                    TempData["Error"] = "File not found on server.";
+                    return RedirectToAction(nameof(ViewClaim), new { id = document.ClaimId });
+                }
+
+                try
+                {
+                    // Read encrypted file from disk
+                    byte[] encryptedData = await System.IO.File.ReadAllBytesAsync(filePath);
+
+                    // Decrypt the file
+                    byte[] decryptedData = _encryptionService.DecryptFile(encryptedData);
+
+                    _logger.LogInformation("Document {DocumentId} decrypted and downloaded by user {UserId}", documentId, userId);
+
+                    // Return decrypted file
+                    return File(decryptedData, "application/octet-stream", document.FileName);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error decrypting document {DocumentId}", documentId);
+                    TempData["Error"] = "Error decrypting file. File may be corrupted.";
+                    return RedirectToAction(nameof(ViewClaim), new { id = document.ClaimId });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error downloading document {DocumentId}", documentId);
+                TempData["Error"] = "An error occurred downloading the file.";
+                return RedirectToAction(nameof(ClaimHistory));
+            }
+        }
     }
 }
-//--------------------------End Of File--------------------------//
+//--------------------------End Of File--------------------------////--------------------------End Of File--------------------------//

@@ -13,11 +13,15 @@ namespace CMCS.Controllers
     {
         private readonly CMCSContext _context;
         private readonly ILogger<ManagerController> _logger;
+        private readonly IFileEncryptionService _encryptionService;
+        private readonly IWebHostEnvironment _environment;
 
-        public ManagerController(CMCSContext context, ILogger<ManagerController> logger)
+        public ManagerController(CMCSContext context, ILogger<ManagerController> logger, IFileEncryptionService encryptionService, IWebHostEnvironment environment)
         {
             _context = context;
             _logger = logger;
+            _encryptionService = encryptionService;
+            _environment = environment;
         }
 
         public async Task<IActionResult> Dashboard(string filter = "all")
@@ -399,6 +403,61 @@ namespace CMCS.Controllers
             {
                 _logger.LogError(ex, "Error viewing claim {ClaimId}", id);
                 TempData["Error"] = "An error occurred loading claim details.";
+                return RedirectToAction(nameof(Dashboard));
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> DownloadDocument(int documentId)
+        {
+            try
+            {
+                var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
+
+                // Get document (manager sees all)
+                var document = await _context.SupportingDocuments
+                    .Include(d => d.Claim)
+                    .FirstOrDefaultAsync(d => d.DocumentId == documentId);
+
+                if (document == null)
+                {
+                    TempData["Error"] = "Document not found.";
+                    return RedirectToAction(nameof(Dashboard));
+                }
+
+                var filePath = Path.Combine(_environment.WebRootPath, document.FilePath.TrimStart('/'));
+
+                if (!System.IO.File.Exists(filePath))
+                {
+                    _logger.LogError("File not found: {FilePath}", filePath);
+                    TempData["Error"] = "File not found on server.";
+                    return RedirectToAction(nameof(ViewClaim), new { id = document.ClaimId });
+                }
+
+                try
+                {
+                    // Read encrypted file from disk
+                    byte[] encryptedData = await System.IO.File.ReadAllBytesAsync(filePath);
+
+                    // Decrypt the file
+                    byte[] decryptedData = _encryptionService.DecryptFile(encryptedData);
+
+                    _logger.LogInformation("Document {DocumentId} decrypted and downloaded by manager {UserId}", documentId, userId);
+
+                    // Return decrypted file
+                    return File(decryptedData, "application/octet-stream", document.FileName);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error decrypting document {DocumentId}", documentId);
+                    TempData["Error"] = "Error decrypting file. File may be corrupted.";
+                    return RedirectToAction(nameof(ViewClaim), new { id = document.ClaimId });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error downloading document {DocumentId}", documentId);
+                TempData["Error"] = "An error occurred downloading the file.";
                 return RedirectToAction(nameof(Dashboard));
             }
         }
