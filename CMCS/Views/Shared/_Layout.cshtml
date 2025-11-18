@@ -24,11 +24,24 @@
                                 <a asp-controller="Lecturer" asp-action="ClaimHistory" class="nav-link">Claim History</a>
                             </div>
                         }
-                        else if (User.IsInRole("Coordinator") || User.IsInRole("Manager"))
+                        else if (User.IsInRole("Coordinator"))
                         {
                             <div class="nav-links">
                                 <a asp-controller="Coordinator" asp-action="Dashboard" class="nav-link">Dashboard</a>
                                 <a asp-controller="Modules" asp-action="Index" class="nav-link">Modules</a>
+                            </div>
+                        }
+                        else if (User.IsInRole("Manager"))
+                        {
+                            <div class="nav-links">
+                                <a asp-controller="Manager" asp-action="Dashboard" class="nav-link">Dashboard</a>
+                                <a asp-controller="Modules" asp-action="Index" class="nav-link">Modules</a>
+                            </div>
+                        }
+                        else if (User.IsInRole("HR"))
+                        {
+                            <div class="nav-links">
+                                <a asp-controller="HR" asp-action="Dashboard" class="nav-link">Dashboard</a>
                             </div>
                         }
                     }

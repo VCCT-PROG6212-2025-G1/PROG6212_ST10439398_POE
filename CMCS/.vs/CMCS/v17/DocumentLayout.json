@@ -3,6 +3,10 @@
   "WorkspaceRootPath": "C:\\Users\\morgt\\Desktop\\PROG6212_ST10439398_POE\\PROG6212_ST10439398_POE\\CMCS\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{FF7C943B-9BEE-9A0B-4039-4B4F73648500}|CMCS.csproj|c:\\users\\morgt\\desktop\\prog6212_st10439398_poe\\prog6212_st10439398_poe\\cmcs\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{FF7C943B-9BEE-9A0B-4039-4B4F73648500}|CMCS.csproj|solutionrelative:views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{FF7C943B-9BEE-9A0B-4039-4B4F73648500}|CMCS.csproj|c:\\users\\morgt\\desktop\\prog6212_st10439398_poe\\prog6212_st10439398_poe\\cmcs\\views\\coordinator\\dashboard.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{FF7C943B-9BEE-9A0B-4039-4B4F73648500}|CMCS.csproj|solutionrelative:views\\coordinator\\dashboard.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
@@ -20,10 +24,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{FF7C943B-9BEE-9A0B-4039-4B4F73648500}|CMCS.csproj|c:\\users\\morgt\\desktop\\prog6212_st10439398_poe\\prog6212_st10439398_poe\\cmcs\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
       "RelativeMoniker": "D:0:0:{FF7C943B-9BEE-9A0B-4039-4B4F73648500}|CMCS.csproj|solutionrelative:appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{FF7C943B-9BEE-9A0B-4039-4B4F73648500}|CMCS.csproj|c:\\users\\morgt\\desktop\\prog6212_st10439398_poe\\prog6212_st10439398_poe\\cmcs\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{FF7C943B-9BEE-9A0B-4039-4B4F73648500}|CMCS.csproj|solutionrelative:views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{FF7C943B-9BEE-9A0B-4039-4B4F73648500}|CMCS.csproj|c:\\users\\morgt\\desktop\\prog6212_st10439398_poe\\prog6212_st10439398_poe\\cmcs\\views\\_viewstart.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
@@ -203,7 +203,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 11,
+          "SelectedChildIndex": 5,
           "Children": [
             {
               "$type": "Bookmark",
@@ -245,20 +245,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 0,
               "Title": "_Layout.cshtml",
               "DocumentMoniker": "C:\\Users\\morgt\\Desktop\\PROG6212_ST10439398_POE\\PROG6212_ST10439398_POE\\CMCS\\Views\\Shared\\_Layout.cshtml",
               "RelativeDocumentMoniker": "Views\\Shared\\_Layout.cshtml",
               "ToolTip": "C:\\Users\\morgt\\Desktop\\PROG6212_ST10439398_POE\\PROG6212_ST10439398_POE\\CMCS\\Views\\Shared\\_Layout.cshtml",
               "RelativeToolTip": "Views\\Shared\\_Layout.cshtml",
-              "ViewState": "AgIAAFoAAAAAAAAAAAAAAFsAAAA+AAAAAAAAAA==",
+              "ViewState": "AgIAADgAAAAAAAAAAAAwwGgAAAA+AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
               "WhenOpened": "2025-10-22T06:53:04.758Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 5,
               "Title": "appsettings.json",
               "DocumentMoniker": "C:\\Users\\morgt\\Desktop\\PROG6212_ST10439398_POE\\PROG6212_ST10439398_POE\\CMCS\\appsettings.json",
               "RelativeDocumentMoniker": "appsettings.json",
@@ -271,7 +271,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 4,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Users\\morgt\\Desktop\\PROG6212_ST10439398_POE\\PROG6212_ST10439398_POE\\CMCS\\Program.cs",
               "RelativeDocumentMoniker": "Program.cs",
@@ -284,7 +284,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "Dashboard.cshtml",
               "DocumentMoniker": "C:\\Users\\morgt\\Desktop\\PROG6212_ST10439398_POE\\PROG6212_ST10439398_POE\\CMCS\\Views\\Manager\\Dashboard.cshtml",
               "RelativeDocumentMoniker": "Views\\Manager\\Dashboard.cshtml",
@@ -297,7 +297,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "Dashboard (1).cshtml",
               "DocumentMoniker": "C:\\Users\\morgt\\Downloads\\Dashboard (1).cshtml",
               "RelativeDocumentMoniker": "..\\..\\..\\..\\Downloads\\Dashboard (1).cshtml",
@@ -323,7 +323,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "Dashboard.cshtml",
               "DocumentMoniker": "C:\\Users\\morgt\\Desktop\\PROG6212_ST10439398_POE\\PROG6212_ST10439398_POE\\CMCS\\Views\\Coordinator\\Dashboard.cshtml",
               "RelativeDocumentMoniker": "Views\\Coordinator\\Dashboard.cshtml",
@@ -336,7 +336,7 @@
             },
             {
               "$type": "Bookmark",
-              "Name": "ST:0:0:{1c64b9c2-e352-428e-a56d-0ace190b99a6}"
+              "Name": "ST:0:0:{40ea2e6b-2121-4bb8-a43e-c83c04b51041}"
             },
             {
               "$type": "Bookmark",
@@ -344,7 +344,7 @@
             },
             {
               "$type": "Bookmark",
-              "Name": "ST:0:0:{40ea2e6b-2121-4bb8-a43e-c83c04b51041}"
+              "Name": "ST:0:0:{1c64b9c2-e352-428e-a56d-0ace190b99a6}"
             },
             {
               "$type": "Document",
