@@ -4,6 +4,7 @@ using CMCS.Controllers;
 using CMCS.Data;
 using CMCS.ViewModels;
 using CMCS.Models;
+using CMCS.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -70,7 +71,9 @@ namespace CMCS.Tests
         private CoordinatorController GetController(CMCSContext context)
         {
             var mockLogger = new Mock<ILogger<CoordinatorController>>();
-            var controller = new CoordinatorController(context, mockLogger.Object);
+            var mockEncryptionService = new Mock<IFileEncryptionService>();
+            var mockEnvironment = new Mock<Microsoft.AspNetCore.Hosting.IWebHostEnvironment>();
+            var controller = new CoordinatorController(context, mockLogger.Object, mockEncryptionService.Object, mockEnvironment.Object);
 
             var claims = new List<SecurityClaim>
             {

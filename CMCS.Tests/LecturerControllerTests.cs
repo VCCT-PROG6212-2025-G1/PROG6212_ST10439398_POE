@@ -4,6 +4,7 @@ using CMCS.Controllers;
 using CMCS.Data;
 using CMCS.ViewModels;
 using CMCS.Models;
+using CMCS.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -62,11 +63,12 @@ namespace CMCS.Tests
         {
             var mockLogger = new Mock<ILogger<LecturerController>>();
             var mockEnv = new Mock<IWebHostEnvironment>();
+            var mockEncryptionService = new Mock<IFileEncryptionService>();
 
             mockEnv.Setup(e => e.WebRootPath).Returns(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"));
             mockEnv.Setup(e => e.ContentRootPath).Returns(Directory.GetCurrentDirectory());
 
-            var controller = new LecturerController(context, mockEnv.Object, mockLogger.Object);
+            var controller = new LecturerController(context, mockEnv.Object, mockLogger.Object, mockEncryptionService.Object);
 
             var claims = new List<SecurityClaim>
             {
