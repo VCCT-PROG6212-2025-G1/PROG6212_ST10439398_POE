@@ -3,6 +3,10 @@
   "WorkspaceRootPath": "C:\\Users\\morgt\\source\\repos\\VCCT-PROG6212-2025-G1\\PROG6212_ST10439398_POE\\CMCS\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{FF7C943B-9BEE-9A0B-4039-4B4F73648500}|CMCS.csproj|c:\\users\\morgt\\source\\repos\\vcct-prog6212-2025-g1\\prog6212_st10439398_poe\\cmcs\\controllers\\coordinatorcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FF7C943B-9BEE-9A0B-4039-4B4F73648500}|CMCS.csproj|solutionrelative:controllers\\coordinatorcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{CA9B740D-DB54-46F6-8EE1-ABFB0B37FEA1}|..\\CMCS.Tests\\CMCS.Tests.csproj|c:\\users\\morgt\\source\\repos\\vcct-prog6212-2025-g1\\prog6212_st10439398_poe\\cmcs.tests\\cmcs.tests.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
     },
     {
@@ -142,10 +146,6 @@
       "RelativeMoniker": "D:0:0:{FF7C943B-9BEE-9A0B-4039-4B4F73648500}|CMCS.csproj|solutionrelative:controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{FF7C943B-9BEE-9A0B-4039-4B4F73648500}|CMCS.csproj|c:\\users\\morgt\\source\\repos\\vcct-prog6212-2025-g1\\prog6212_st10439398_poe\\cmcs\\controllers\\coordinatorcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{FF7C943B-9BEE-9A0B-4039-4B4F73648500}|CMCS.csproj|solutionrelative:controllers\\coordinatorcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{FF7C943B-9BEE-9A0B-4039-4B4F73648500}|CMCS.csproj|c:\\users\\morgt\\source\\repos\\vcct-prog6212-2025-g1\\prog6212_st10439398_poe\\cmcs\\controllers\\accountsettingscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{FF7C943B-9BEE-9A0B-4039-4B4F73648500}|CMCS.csproj|solutionrelative:controllers\\accountsettingscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -182,7 +182,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 11,
+          "SelectedChildIndex": 5,
           "Children": [
             {
               "$type": "Bookmark",
@@ -198,31 +198,45 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "_ValidationScriptsPartial.cshtml",
-              "DocumentMoniker": "C:\\Users\\morgt\\source\\repos\\VCCT-PROG6212-2025-G1\\PROG6212_ST10439398_POE\\CMCS\\Views\\Shared\\_ValidationScriptsPartial.cshtml",
-              "RelativeDocumentMoniker": "Views\\Shared\\_ValidationScriptsPartial.cshtml",
-              "ToolTip": "C:\\Users\\morgt\\source\\repos\\VCCT-PROG6212-2025-G1\\PROG6212_ST10439398_POE\\CMCS\\Views\\Shared\\_ValidationScriptsPartial.cshtml",
-              "RelativeToolTip": "Views\\Shared\\_ValidationScriptsPartial.cshtml",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAEAAABGAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-10-22T18:08:27.541Z"
+              "DocumentIndex": 27,
+              "Title": "User.cs",
+              "DocumentMoniker": "C:\\Users\\morgt\\source\\repos\\VCCT-PROG6212-2025-G1\\PROG6212_ST10439398_POE\\CMCS\\Models\\User.cs",
+              "RelativeDocumentMoniker": "Models\\User.cs",
+              "ToolTip": "C:\\Users\\morgt\\source\\repos\\VCCT-PROG6212-2025-G1\\PROG6212_ST10439398_POE\\CMCS\\Models\\User.cs",
+              "RelativeToolTip": "Models\\User.cs",
+              "ViewState": "AgIAAB0AAAAAAAAAAAAIwC8AAAAfAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-22T17:53:21.849Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 17,
-              "Title": "Index.cshtml",
-              "DocumentMoniker": "C:\\Users\\morgt\\source\\repos\\VCCT-PROG6212-2025-G1\\PROG6212_ST10439398_POE\\CMCS\\Views\\Home\\Index.cshtml",
-              "RelativeDocumentMoniker": "Views\\Home\\Index.cshtml",
-              "ToolTip": "C:\\Users\\morgt\\source\\repos\\VCCT-PROG6212-2025-G1\\PROG6212_ST10439398_POE\\CMCS\\Views\\Home\\Index.cshtml",
-              "RelativeToolTip": "Views\\Home\\Index.cshtml",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAbAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-10-22T17:58:33.788Z"
+              "DocumentIndex": 1,
+              "Title": "CMCS.Tests.csproj",
+              "DocumentMoniker": "C:\\Users\\morgt\\source\\repos\\VCCT-PROG6212-2025-G1\\PROG6212_ST10439398_POE\\CMCS.Tests\\CMCS.Tests.csproj",
+              "RelativeDocumentMoniker": "..\\CMCS.Tests\\CMCS.Tests.csproj",
+              "ToolTip": "C:\\Users\\morgt\\source\\repos\\VCCT-PROG6212-2025-G1\\PROG6212_ST10439398_POE\\CMCS.Tests\\CMCS.Tests.csproj",
+              "RelativeToolTip": "..\\CMCS.Tests\\CMCS.Tests.csproj",
+              "ViewState": "AgIAAAwAAAAAAAAAAAAuwB0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2025-10-22T17:14:09.472Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 23,
+              "DocumentIndex": 0,
+              "Title": "CoordinatorController.cs",
+              "DocumentMoniker": "C:\\Users\\morgt\\source\\repos\\VCCT-PROG6212-2025-G1\\PROG6212_ST10439398_POE\\CMCS\\Controllers\\CoordinatorController.cs",
+              "RelativeDocumentMoniker": "Controllers\\CoordinatorController.cs",
+              "ToolTip": "C:\\Users\\morgt\\source\\repos\\VCCT-PROG6212-2025-G1\\PROG6212_ST10439398_POE\\CMCS\\Controllers\\CoordinatorController.cs",
+              "RelativeToolTip": "Controllers\\CoordinatorController.cs",
+              "ViewState": "AgIAAGoBAAAAAAAAAAAwwJoBAABDAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-22T08:01:54.029Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 24,
               "Title": "LecturerDashboardViewModel.cs",
               "DocumentMoniker": "C:\\Users\\morgt\\source\\repos\\VCCT-PROG6212-2025-G1\\PROG6212_ST10439398_POE\\CMCS\\ViewModels\\LecturerDashboardViewModel.cs",
               "RelativeDocumentMoniker": "ViewModels\\LecturerDashboardViewModel.cs",
@@ -234,15 +248,27 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 26,
-              "Title": "User.cs",
-              "DocumentMoniker": "C:\\Users\\morgt\\source\\repos\\VCCT-PROG6212-2025-G1\\PROG6212_ST10439398_POE\\CMCS\\Models\\User.cs",
-              "RelativeDocumentMoniker": "Models\\User.cs",
-              "ToolTip": "C:\\Users\\morgt\\source\\repos\\VCCT-PROG6212-2025-G1\\PROG6212_ST10439398_POE\\CMCS\\Models\\User.cs",
-              "RelativeToolTip": "Models\\User.cs",
-              "ViewState": "AgIAAB0AAAAAAAAAAAAIwC8AAAAfAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-22T17:53:21.849Z"
+              "DocumentIndex": 18,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "C:\\Users\\morgt\\source\\repos\\VCCT-PROG6212-2025-G1\\PROG6212_ST10439398_POE\\CMCS\\Views\\Home\\Index.cshtml",
+              "RelativeDocumentMoniker": "Views\\Home\\Index.cshtml",
+              "ToolTip": "C:\\Users\\morgt\\source\\repos\\VCCT-PROG6212-2025-G1\\PROG6212_ST10439398_POE\\CMCS\\Views\\Home\\Index.cshtml",
+              "RelativeToolTip": "Views\\Home\\Index.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAbAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-10-22T17:58:33.788Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "_ValidationScriptsPartial.cshtml",
+              "DocumentMoniker": "C:\\Users\\morgt\\source\\repos\\VCCT-PROG6212-2025-G1\\PROG6212_ST10439398_POE\\CMCS\\Views\\Shared\\_ValidationScriptsPartial.cshtml",
+              "RelativeDocumentMoniker": "Views\\Shared\\_ValidationScriptsPartial.cshtml",
+              "ToolTip": "C:\\Users\\morgt\\source\\repos\\VCCT-PROG6212-2025-G1\\PROG6212_ST10439398_POE\\CMCS\\Views\\Shared\\_ValidationScriptsPartial.cshtml",
+              "RelativeToolTip": "Views\\Shared\\_ValidationScriptsPartial.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAEAAABGAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-10-22T18:08:27.541Z"
             },
             {
               "$type": "Document",
@@ -295,20 +321,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "CMCS.Tests.csproj",
-              "DocumentMoniker": "C:\\Users\\morgt\\source\\repos\\VCCT-PROG6212-2025-G1\\PROG6212_ST10439398_POE\\CMCS.Tests\\CMCS.Tests.csproj",
-              "RelativeDocumentMoniker": "..\\CMCS.Tests\\CMCS.Tests.csproj",
-              "ToolTip": "C:\\Users\\morgt\\source\\repos\\VCCT-PROG6212-2025-G1\\PROG6212_ST10439398_POE\\CMCS.Tests\\CMCS.Tests.csproj",
-              "RelativeToolTip": "..\\CMCS.Tests\\CMCS.Tests.csproj",
-              "ViewState": "AgIAAAwAAAAAAAAAAAAuwB0AAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2025-10-22T17:14:09.472Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 4,
               "Title": "appsettings.json",
               "DocumentMoniker": "C:\\Users\\morgt\\source\\repos\\VCCT-PROG6212-2025-G1\\PROG6212_ST10439398_POE\\CMCS\\appsettings.json",
               "RelativeDocumentMoniker": "appsettings.json",
@@ -320,7 +333,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Users\\morgt\\source\\repos\\VCCT-PROG6212-2025-G1\\PROG6212_ST10439398_POE\\CMCS\\Program.cs",
               "RelativeDocumentMoniker": "Program.cs",
@@ -332,7 +345,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "README.md",
               "DocumentMoniker": "C:\\Users\\morgt\\source\\repos\\VCCT-PROG6212-2025-G1\\PROG6212_ST10439398_POE\\CMCS\\README.md",
               "RelativeDocumentMoniker": "README.md",
@@ -356,7 +369,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 27,
+              "DocumentIndex": 28,
               "Title": "SupportingDocument.cs",
               "DocumentMoniker": "C:\\Users\\morgt\\source\\repos\\VCCT-PROG6212-2025-G1\\PROG6212_ST10439398_POE\\CMCS\\Models\\SupportingDocument.cs",
               "RelativeDocumentMoniker": "Models\\SupportingDocument.cs",
@@ -368,7 +381,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 32,
+              "DocumentIndex": 33,
               "Title": "ModulesController.cs",
               "DocumentMoniker": "C:\\Users\\morgt\\source\\repos\\VCCT-PROG6212-2025-G1\\PROG6212_ST10439398_POE\\CMCS\\Controllers\\ModulesController.cs",
               "RelativeDocumentMoniker": "Controllers\\ModulesController.cs",
@@ -380,7 +393,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 12,
               "Title": "Delete.cshtml",
               "DocumentMoniker": "C:\\Users\\morgt\\source\\repos\\VCCT-PROG6212-2025-G1\\PROG6212_ST10439398_POE\\CMCS\\Views\\Modules\\Delete.cshtml",
               "RelativeDocumentMoniker": "Views\\Modules\\Delete.cshtml",
@@ -392,7 +405,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 11,
               "Title": "Details.cshtml",
               "DocumentMoniker": "C:\\Users\\morgt\\source\\repos\\VCCT-PROG6212-2025-G1\\PROG6212_ST10439398_POE\\CMCS\\Views\\Modules\\Details.cshtml",
               "RelativeDocumentMoniker": "Views\\Modules\\Details.cshtml",
@@ -404,7 +417,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 10,
               "Title": "Edit.cshtml",
               "DocumentMoniker": "C:\\Users\\morgt\\source\\repos\\VCCT-PROG6212-2025-G1\\PROG6212_ST10439398_POE\\CMCS\\Views\\Modules\\Edit.cshtml",
               "RelativeDocumentMoniker": "Views\\Modules\\Edit.cshtml",
@@ -416,7 +429,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 13,
               "Title": "Create.cshtml",
               "DocumentMoniker": "C:\\Users\\morgt\\source\\repos\\VCCT-PROG6212-2025-G1\\PROG6212_ST10439398_POE\\CMCS\\Views\\Modules\\Create.cshtml",
               "RelativeDocumentMoniker": "Views\\Modules\\Create.cshtml",
@@ -428,7 +441,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 25,
+              "DocumentIndex": 26,
               "Title": "ClaimSubmissionViewModel.cs",
               "DocumentMoniker": "C:\\Users\\morgt\\source\\repos\\VCCT-PROG6212-2025-G1\\PROG6212_ST10439398_POE\\CMCS\\ViewModels\\ClaimSubmissionViewModel.cs",
               "RelativeDocumentMoniker": "ViewModels\\ClaimSubmissionViewModel.cs",
@@ -440,7 +453,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 34,
+              "DocumentIndex": 35,
               "Title": "HomeController.cs",
               "DocumentMoniker": "C:\\Users\\morgt\\source\\repos\\VCCT-PROG6212-2025-G1\\PROG6212_ST10439398_POE\\CMCS\\Controllers\\HomeController.cs",
               "RelativeDocumentMoniker": "Controllers\\HomeController.cs",
@@ -452,7 +465,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 5,
               "Title": "_ViewStart.cshtml",
               "DocumentMoniker": "C:\\Users\\morgt\\source\\repos\\VCCT-PROG6212-2025-G1\\PROG6212_ST10439398_POE\\CMCS\\Views\\_ViewStart.cshtml",
               "RelativeDocumentMoniker": "Views\\_ViewStart.cshtml",
@@ -464,7 +477,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 9,
               "Title": "Index.cshtml",
               "DocumentMoniker": "C:\\Users\\morgt\\source\\repos\\VCCT-PROG6212-2025-G1\\PROG6212_ST10439398_POE\\CMCS\\Views\\Modules\\Index.cshtml",
               "RelativeDocumentMoniker": "Views\\Modules\\Index.cshtml",
@@ -476,7 +489,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 24,
+              "DocumentIndex": 25,
               "Title": "CoordinatorDashboardViewModel.cs",
               "DocumentMoniker": "C:\\Users\\morgt\\source\\repos\\VCCT-PROG6212-2025-G1\\PROG6212_ST10439398_POE\\CMCS\\ViewModels\\CoordinatorDashboardViewModel.cs",
               "RelativeDocumentMoniker": "ViewModels\\CoordinatorDashboardViewModel.cs",
@@ -488,7 +501,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 18,
+              "DocumentIndex": 19,
               "Title": "Dashboard.cshtml",
               "DocumentMoniker": "C:\\Users\\morgt\\source\\repos\\VCCT-PROG6212-2025-G1\\PROG6212_ST10439398_POE\\CMCS\\Views\\Coordinator\\Dashboard.cshtml",
               "RelativeDocumentMoniker": "Views\\Coordinator\\Dashboard.cshtml",
@@ -512,7 +525,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 29,
+              "DocumentIndex": 30,
               "Title": "ClaimStatusHistory.cs",
               "DocumentMoniker": "C:\\Users\\morgt\\source\\repos\\VCCT-PROG6212-2025-G1\\PROG6212_ST10439398_POE\\CMCS\\Models\\ClaimStatusHistory.cs",
               "RelativeDocumentMoniker": "Models\\ClaimStatusHistory.cs",
@@ -524,19 +537,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 35,
-              "Title": "CoordinatorController.cs",
-              "DocumentMoniker": "C:\\Users\\morgt\\source\\repos\\VCCT-PROG6212-2025-G1\\PROG6212_ST10439398_POE\\CMCS\\Controllers\\CoordinatorController.cs",
-              "RelativeDocumentMoniker": "Controllers\\CoordinatorController.cs",
-              "ToolTip": "C:\\Users\\morgt\\source\\repos\\VCCT-PROG6212-2025-G1\\PROG6212_ST10439398_POE\\CMCS\\Controllers\\CoordinatorController.cs",
-              "RelativeToolTip": "Controllers\\CoordinatorController.cs",
-              "ViewState": "AgIAAHkBAAAAAAAAAAAUwAAAAABFAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-22T08:01:54.029Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 33,
+              "DocumentIndex": 34,
               "Title": "LecturerController.cs",
               "DocumentMoniker": "C:\\Users\\morgt\\source\\repos\\VCCT-PROG6212-2025-G1\\PROG6212_ST10439398_POE\\CMCS\\Controllers\\LecturerController.cs",
               "RelativeDocumentMoniker": "Controllers\\LecturerController.cs",
@@ -548,7 +549,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 30,
+              "DocumentIndex": 31,
               "Title": "Claim.cs",
               "DocumentMoniker": "C:\\Users\\morgt\\source\\repos\\VCCT-PROG6212-2025-G1\\PROG6212_ST10439398_POE\\CMCS\\Models\\Claim.cs",
               "RelativeDocumentMoniker": "Models\\Claim.cs",
@@ -560,7 +561,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 20,
+              "DocumentIndex": 21,
               "Title": "ViewClaim.cshtml",
               "DocumentMoniker": "C:\\Users\\morgt\\source\\repos\\VCCT-PROG6212-2025-G1\\PROG6212_ST10439398_POE\\CMCS\\Views\\Coordinator\\ViewClaim.cshtml",
               "RelativeDocumentMoniker": "Views\\Coordinator\\ViewClaim.cshtml",
@@ -572,7 +573,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 19,
+              "DocumentIndex": 20,
               "Title": "Index.cshtml",
               "DocumentMoniker": "C:\\Users\\morgt\\source\\repos\\VCCT-PROG6212-2025-G1\\PROG6212_ST10439398_POE\\CMCS\\Views\\AccountSettings\\Index.cshtml",
               "RelativeDocumentMoniker": "Views\\AccountSettings\\Index.cshtml",
@@ -584,7 +585,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 21,
+              "DocumentIndex": 22,
               "Title": "Login.cshtml",
               "DocumentMoniker": "C:\\Users\\morgt\\source\\repos\\VCCT-PROG6212-2025-G1\\PROG6212_ST10439398_POE\\CMCS\\Views\\Account\\Login.cshtml",
               "RelativeDocumentMoniker": "Views\\Account\\Login.cshtml",
@@ -596,7 +597,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 22,
+              "DocumentIndex": 23,
               "Title": "LoginViewModel.cs",
               "DocumentMoniker": "C:\\Users\\morgt\\source\\repos\\VCCT-PROG6212-2025-G1\\PROG6212_ST10439398_POE\\CMCS\\ViewModels\\LoginViewModel.cs",
               "RelativeDocumentMoniker": "ViewModels\\LoginViewModel.cs",
@@ -608,7 +609,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 28,
+              "DocumentIndex": 29,
               "Title": "Module.cs",
               "DocumentMoniker": "C:\\Users\\morgt\\source\\repos\\VCCT-PROG6212-2025-G1\\PROG6212_ST10439398_POE\\CMCS\\Models\\Module.cs",
               "RelativeDocumentMoniker": "Models\\Module.cs",
@@ -620,7 +621,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 31,
+              "DocumentIndex": 32,
               "Title": "CMCSContext.cs",
               "DocumentMoniker": "C:\\Users\\morgt\\source\\repos\\VCCT-PROG6212-2025-G1\\PROG6212_ST10439398_POE\\CMCS\\Data\\CMCSContext.cs",
               "RelativeDocumentMoniker": "Data\\CMCSContext.cs",
@@ -656,7 +657,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 14,
               "Title": "ViewClaim.cshtml",
               "DocumentMoniker": "C:\\Users\\morgt\\source\\repos\\VCCT-PROG6212-2025-G1\\PROG6212_ST10439398_POE\\CMCS\\Views\\Lecturer\\ViewClaim.cshtml",
               "RelativeDocumentMoniker": "Views\\Lecturer\\ViewClaim.cshtml",
@@ -668,7 +669,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 8,
               "Title": "_Layout.cshtml",
               "DocumentMoniker": "C:\\Users\\morgt\\source\\repos\\VCCT-PROG6212-2025-G1\\PROG6212_ST10439398_POE\\CMCS\\Views\\Shared\\_Layout.cshtml",
               "RelativeDocumentMoniker": "Views\\Shared\\_Layout.cshtml",
@@ -680,7 +681,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 6,
               "Title": "_ViewImports.cshtml",
               "DocumentMoniker": "C:\\Users\\morgt\\source\\repos\\VCCT-PROG6212-2025-G1\\PROG6212_ST10439398_POE\\CMCS\\Views\\_ViewImports.cshtml",
               "RelativeDocumentMoniker": "Views\\_ViewImports.cshtml",
@@ -692,7 +693,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 16,
+              "DocumentIndex": 17,
               "Title": "ClaimHistory.cshtml",
               "DocumentMoniker": "C:\\Users\\morgt\\source\\repos\\VCCT-PROG6212-2025-G1\\PROG6212_ST10439398_POE\\CMCS\\Views\\Lecturer\\ClaimHistory.cshtml",
               "RelativeDocumentMoniker": "Views\\Lecturer\\ClaimHistory.cshtml",
@@ -704,7 +705,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 15,
+              "DocumentIndex": 16,
               "Title": "Dashboard.cshtml",
               "DocumentMoniker": "C:\\Users\\morgt\\source\\repos\\VCCT-PROG6212-2025-G1\\PROG6212_ST10439398_POE\\CMCS\\Views\\Lecturer\\Dashboard.cshtml",
               "RelativeDocumentMoniker": "Views\\Lecturer\\Dashboard.cshtml",
@@ -716,7 +717,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 15,
               "Title": "SubmitClaim.cshtml",
               "DocumentMoniker": "C:\\Users\\morgt\\source\\repos\\VCCT-PROG6212-2025-G1\\PROG6212_ST10439398_POE\\CMCS\\Views\\Lecturer\\SubmitClaim.cshtml",
               "RelativeDocumentMoniker": "Views\\Lecturer\\SubmitClaim.cshtml",
