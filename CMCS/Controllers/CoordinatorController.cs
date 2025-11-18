@@ -8,7 +8,7 @@ using CMCS.ViewModels;
 
 namespace CMCS.Controllers
 {
-    [Authorize(Roles = "Coordinator,Manager")]
+    [Authorize(Roles = "Coordinator")]
     public class CoordinatorController : Controller
     {
         private readonly CMCSContext _context;
@@ -38,8 +38,9 @@ namespace CMCS.Controllers
 
                 try
                 {
+                    // Coordinator sees only Submitted claims (not yet verified)
                     viewModel.PendingReview = await _context.Claims
-                        .Where(c => c.CurrentStatus == ClaimStatus.Submitted || c.CurrentStatus == ClaimStatus.UnderReview)
+                        .Where(c => c.CurrentStatus == ClaimStatus.Submitted)
                         .CountAsync();
 
                     viewModel.ApprovedToday = await _context.Claims
@@ -50,7 +51,7 @@ namespace CMCS.Controllers
                         .CountAsync();
 
                     var allPendingClaims = await _context.Claims
-                        .Where(c => (c.CurrentStatus == ClaimStatus.Submitted || c.CurrentStatus == ClaimStatus.UnderReview))
+                        .Where(c => c.CurrentStatus == ClaimStatus.Submitted)
                         .ToListAsync();
                     viewModel.UrgentClaims = allPendingClaims.Count(c => (DateTime.Now - c.SubmissionDate).Days > 5);
 
@@ -62,11 +63,12 @@ namespace CMCS.Controllers
                                                             sh.ChangeDate <= DateTime.Now))
                         .SumAsync(c => (decimal?)c.TotalAmount) ?? 0;
 
+                    // Coordinator only sees Submitted claims (needs verification)
                     var query = _context.Claims
                         .Include(c => c.User)
                         .Include(c => c.Module)
                         .Include(c => c.StatusHistory)
-                        .Where(c => c.CurrentStatus == ClaimStatus.Submitted || c.CurrentStatus == ClaimStatus.UnderReview);
+                        .Where(c => c.CurrentStatus == ClaimStatus.Submitted);
 
                     switch (filter.ToLower())
                     {
@@ -119,9 +121,10 @@ namespace CMCS.Controllers
             }
         }
 
+        // Coordinator can VERIFY a claim (moves to UnderReview for Manager approval)
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ApproveClaim(int id)
+        public async Task<IActionResult> VerifyClaim(int id)
         {
             try
             {
@@ -136,10 +139,16 @@ namespace CMCS.Controllers
                     return RedirectToAction(nameof(Dashboard));
                 }
 
+                if (claim.CurrentStatus != ClaimStatus.Submitted)
+                {
+                    TempData["Error"] = "Only submitted claims can be verified.";
+                    return RedirectToAction(nameof(Dashboard));
+                }
+
                 var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
 
                 var previousStatus = claim.CurrentStatus;
-                claim.CurrentStatus = ClaimStatus.Approved;
+                claim.CurrentStatus = ClaimStatus.UnderReview;
                 claim.LastModified = DateTime.Now;
 
                 _context.Entry(claim).State = EntityState.Modified;
@@ -149,26 +158,27 @@ namespace CMCS.Controllers
                     ClaimId = claim.ClaimId,
                     ChangedBy = userId,
                     PreviousStatus = previousStatus,
-                    NewStatus = ClaimStatus.Approved,
-                    Comments = $"Claim approved by {(User.IsInRole("Manager") ? "Academic Manager" : "Programme Coordinator")}"
+                    NewStatus = ClaimStatus.UnderReview,
+                    Comments = "Claim verified by Programme Coordinator - Pending Manager approval"
                 };
 
                 _context.ClaimStatusHistories.Add(statusHistory);
                 await _context.SaveChangesAsync();
 
-                TempData["Success"] = $"Claim #CLC-{claim.ClaimId.ToString("D4")} for {claim.User.FirstName} {claim.User.LastName} has been approved successfully! Amount: R{claim.TotalAmount:N2}";
-                _logger.LogInformation("Claim {ClaimId} approved by user {UserId}", claim.ClaimId, userId);
+                TempData["Success"] = $"Claim #CLC-{claim.ClaimId.ToString("D4")} for {claim.User.FirstName} {claim.User.LastName} has been verified and sent to Academic Manager for approval.";
+                _logger.LogInformation("Claim {ClaimId} verified by coordinator {UserId}", claim.ClaimId, userId);
 
                 return RedirectToAction(nameof(Dashboard));
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error approving claim {ClaimId}", id);
-                TempData["Error"] = "An error occurred while approving the claim. Please try again.";
+                _logger.LogError(ex, "Error verifying claim {ClaimId}", id);
+                TempData["Error"] = "An error occurred while verifying the claim. Please try again.";
                 return RedirectToAction(nameof(Dashboard));
             }
         }
 
+        // Coordinator can REJECT a claim
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RejectClaim(int id, string reason)
@@ -183,6 +193,12 @@ namespace CMCS.Controllers
                 if (claim == null)
                 {
                     TempData["Error"] = "Claim not found.";
+                    return RedirectToAction(nameof(Dashboard));
+                }
+
+                if (claim.CurrentStatus != ClaimStatus.Submitted)
+                {
+                    TempData["Error"] = "Only submitted claims can be rejected by Coordinator.";
                     return RedirectToAction(nameof(Dashboard));
                 }
 
@@ -206,14 +222,14 @@ namespace CMCS.Controllers
                     ChangedBy = userId,
                     PreviousStatus = previousStatus,
                     NewStatus = ClaimStatus.Rejected,
-                    Comments = $"Rejected by {(User.IsInRole("Manager") ? "Academic Manager" : "Programme Coordinator")}: {reason}"
+                    Comments = $"Rejected by Programme Coordinator: {reason}"
                 };
 
                 _context.ClaimStatusHistories.Add(statusHistory);
                 await _context.SaveChangesAsync();
 
                 TempData["Success"] = $"Claim #CLC-{claim.ClaimId.ToString("D4")} for {claim.User.FirstName} {claim.User.LastName} has been rejected.";
-                _logger.LogInformation("Claim {ClaimId} rejected by user {UserId}. Reason: {Reason}", claim.ClaimId, userId, reason);
+                _logger.LogInformation("Claim {ClaimId} rejected by coordinator {UserId}. Reason: {Reason}", claim.ClaimId, userId, reason);
 
                 return RedirectToAction(nameof(Dashboard));
             }
@@ -225,9 +241,10 @@ namespace CMCS.Controllers
             }
         }
 
+        // Bulk verify claims
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> BulkApprove(List<int> claimIds)
+        public async Task<IActionResult> BulkVerify(List<int> claimIds)
         {
             try
             {
@@ -240,22 +257,21 @@ namespace CMCS.Controllers
                 var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
                 var claims = await _context.Claims
                     .Include(c => c.User)
-                    .Where(c => claimIds.Contains(c.ClaimId))
+                    .Where(c => claimIds.Contains(c.ClaimId) && c.CurrentStatus == ClaimStatus.Submitted)
                     .ToListAsync();
 
                 if (!claims.Any())
                 {
-                    TempData["Error"] = "No valid claims found.";
+                    TempData["Error"] = "No valid claims found for verification.";
                     return RedirectToAction(nameof(Dashboard));
                 }
 
-                var approvedCount = 0;
-                var totalAmount = 0m;
+                var verifiedCount = 0;
 
                 foreach (var claim in claims)
                 {
                     var previousStatus = claim.CurrentStatus;
-                    claim.CurrentStatus = ClaimStatus.Approved;
+                    claim.CurrentStatus = ClaimStatus.UnderReview;
                     claim.LastModified = DateTime.Now;
 
                     _context.Entry(claim).State = EntityState.Modified;
@@ -265,30 +281,30 @@ namespace CMCS.Controllers
                         ClaimId = claim.ClaimId,
                         ChangedBy = userId,
                         PreviousStatus = previousStatus,
-                        NewStatus = ClaimStatus.Approved,
-                        Comments = $"Bulk approved by {(User.IsInRole("Manager") ? "Academic Manager" : "Programme Coordinator")}"
+                        NewStatus = ClaimStatus.UnderReview,
+                        Comments = "Bulk verified by Programme Coordinator - Pending Manager approval"
                     };
                     _context.ClaimStatusHistories.Add(statusHistory);
 
-                    approvedCount++;
-                    totalAmount += claim.TotalAmount;
+                    verifiedCount++;
                 }
 
                 await _context.SaveChangesAsync();
 
-                TempData["Success"] = $"Successfully approved {approvedCount} claim(s) totaling R{totalAmount:N2}!";
-                _logger.LogInformation("{Count} claims bulk approved by user {UserId}", approvedCount, userId);
+                TempData["Success"] = $"Successfully verified {verifiedCount} claim(s) and sent to Academic Manager for approval.";
+                _logger.LogInformation("{Count} claims bulk verified by coordinator {UserId}", verifiedCount, userId);
 
                 return RedirectToAction(nameof(Dashboard));
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error bulk approving claims");
-                TempData["Error"] = "An error occurred while approving the claims. Please try again.";
+                _logger.LogError(ex, "Error bulk verifying claims");
+                TempData["Error"] = "An error occurred while verifying the claims. Please try again.";
                 return RedirectToAction(nameof(Dashboard));
             }
         }
 
+        // Bulk reject claims
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> BulkReject(BulkRejectModel model)
@@ -310,12 +326,12 @@ namespace CMCS.Controllers
                 var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
                 var claims = await _context.Claims
                     .Include(c => c.User)
-                    .Where(c => model.ClaimIds.Contains(c.ClaimId))
+                    .Where(c => model.ClaimIds.Contains(c.ClaimId) && c.CurrentStatus == ClaimStatus.Submitted)
                     .ToListAsync();
 
                 if (!claims.Any())
                 {
-                    TempData["Error"] = "No valid claims found.";
+                    TempData["Error"] = "No valid claims found for rejection.";
                     return RedirectToAction(nameof(Dashboard));
                 }
 
@@ -335,7 +351,7 @@ namespace CMCS.Controllers
                         ChangedBy = userId,
                         PreviousStatus = previousStatus,
                         NewStatus = ClaimStatus.Rejected,
-                        Comments = $"Bulk rejected by {(User.IsInRole("Manager") ? "Academic Manager" : "Programme Coordinator")}: {model.Reason}"
+                        Comments = $"Bulk rejected by Programme Coordinator: {model.Reason}"
                     };
                     _context.ClaimStatusHistories.Add(statusHistory);
 
@@ -345,7 +361,7 @@ namespace CMCS.Controllers
                 await _context.SaveChangesAsync();
 
                 TempData["Success"] = $"Successfully rejected {rejectedCount} claim(s).";
-                _logger.LogInformation("{Count} claims bulk rejected by user {UserId}. Reason: {Reason}", rejectedCount, userId, model.Reason);
+                _logger.LogInformation("{Count} claims bulk rejected by coordinator {UserId}. Reason: {Reason}", rejectedCount, userId, model.Reason);
 
                 return RedirectToAction(nameof(Dashboard));
             }
@@ -366,6 +382,7 @@ namespace CMCS.Controllers
                     .Include(c => c.Module)
                     .Include(c => c.SupportingDocuments)
                     .Include(c => c.StatusHistory)
+                        .ThenInclude(sh => sh.User)
                     .FirstOrDefaultAsync(c => c.ClaimId == id);
 
                 if (claim == null)
