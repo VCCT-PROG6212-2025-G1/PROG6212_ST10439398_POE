@@ -153,7 +153,11 @@
           "dependencies": {
             "Microsoft.AspNetCore.Authentication.Cookies": {
               "target": "Package",
-              "version": "[2.2.0, )"
+              "version": "[2.3.0, )"
+            },
+            "Microsoft.Build": {
+              "target": "Package",
+              "version": "[18.0.2, )"
             },
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",

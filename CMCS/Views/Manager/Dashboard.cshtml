@@ -1,7 +1,7 @@
 ﻿@*--------------------- Start of File -------------------------*@
-@model CMCS.ViewModels.CoordinatorDashboardViewModel
+@model CMCS.ViewModels.ManagerDashboardViewModel
 @{
-    ViewData["Title"] = "Coordinator Dashboard";
+    ViewData["Title"] = "Manager Dashboard";
     Layout = "_Layout";
 }
 
@@ -384,21 +384,21 @@
 
 <div class="dashboard-container">
     <div class="welcome-section">
-        <h1>Programme Coordinator Dashboard 📋</h1>
-        <p>Review and verify submitted claims before sending to Academic Manager for approval</p>
+        <h1>Academic Manager Dashboard 📋</h1>
+        <p>Review and approve claims that have been verified by Programme Coordinators</p>
     </div>
 
     <div class="stats-grid">
         <div class="stat-card orange">
-            <div class="stat-label">Pending Verification</div>
-            <div class="stat-value">@Model.PendingReview</div>
-            <div class="stat-description">Claims awaiting your review</div>
+            <div class="stat-label">Pending Approval</div>
+            <div class="stat-value">@Model.PendingApproval</div>
+            <div class="stat-description">Claims awaiting your approval</div>
         </div>
 
         <div class="stat-card green">
             <div class="stat-label">Approved Today</div>
             <div class="stat-value">@Model.ApprovedToday</div>
-            <div class="stat-description">By Academic Manager</div>
+            <div class="stat-description">Successfully approved</div>
         </div>
 
         <div class="stat-card red">
@@ -416,7 +416,7 @@
 
     <div class="claims-section">
         <div class="section-header">
-            <h2>Claims Pending Verification</h2>
+            <h2>Claims Pending Approval</h2>
             <div class="filter-buttons">
                 <a asp-action="Dashboard" asp-route-filter="all" class="filter-btn @(ViewBag.CurrentFilter == "all" ? "active" : "")">All</a>
                 <a asp-action="Dashboard" asp-route-filter="urgent" class="filter-btn @(ViewBag.CurrentFilter == "urgent" ? "active" : "")">Urgent</a>
@@ -426,10 +426,10 @@
         </div>
 
         <div class="info-banner">
-            ℹ️ <strong>Your Role:</strong> Verify claims and send to Academic Manager for final approval, or reject claims with a reason.
+            ℹ️ <strong>Your Role:</strong> Review verified claims from Coordinators and approve or reject with a reason.
         </div>
 
-        @if (Model.ClaimsForReview != null && Model.ClaimsForReview.Any())
+        @if (Model.ClaimsForApproval != null && Model.ClaimsForApproval.Any())
         {
             <form id="bulkActionForm">
                 <table class="claims-table">
@@ -447,7 +447,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var claim in Model.ClaimsForReview)
+                        @foreach (var claim in Model.ClaimsForApproval)
                         {
                             var isUrgent = (DateTime.Now - claim.SubmissionDate).Days > 5;
                             <tr>
@@ -470,17 +470,17 @@
                                     }
                                     else
                                     {
-                                        <span class="status-badge status-submitted">Submitted</span>
+                                        <span class="status-badge status-submitted">Under Review</span>
                                     }
                                 </td>
                                 <td>
                                     <div class="action-buttons">
                                         <a asp-action="ViewClaim" asp-route-id="@claim.ClaimId" class="btn-view">View</a>
-                                        <form asp-action="VerifyClaim" asp-route-id="@claim.ClaimId" method="post" style="display:inline;">
+                                        <form asp-action="ApproveClaim" asp-route-id="@claim.ClaimId" method="post" style="display:inline;">
                                             @Html.AntiForgeryToken()
-                                            <button type="submit" class="btn-verify" title="Verify and send to Manager">✓ Verify</button>
+                                            <button type="submit" class="btn-verify" title="Approve and process payment">&#10003; Approve</button>
                                         </form>
-                                        <button type="button" class="btn-reject" onclick="showRejectModal(@claim.ClaimId)">✗ Reject</button>
+                                        <button type="button" class="btn-reject" onclick="showRejectModal(@claim.ClaimId)">&#10007; Reject</button>
                                     </div>
                                 </td>
                             </tr>
@@ -490,8 +490,8 @@
 
                 <div class="bulk-actions">
                     <span style="color: #6b7280;">With selected:</span>
-                    <button type="button" class="bulk-btn bulk-verify" onclick="bulkVerify()">✓ Verify All Selected</button>
-                    <button type="button" class="bulk-btn bulk-reject" onclick="showBulkRejectModal()">✗ Reject All Selected</button>
+                    <button type="button" class="bulk-btn bulk-verify" onclick="bulkApprove()">&#10003; Approve All Selected</button>
+                    <button type="button" class="bulk-btn bulk-reject" onclick="showBulkRejectModal()">&#10007; Reject All Selected</button>
                 </div>
             </form>
         }
@@ -499,8 +499,8 @@
         {
             <div class="no-claims">
                 <div class="no-claims-icon">✅</div>
-                <h3>No Claims Pending Verification</h3>
-                <p>All submitted claims have been reviewed. Check back later for new submissions.</p>
+                <h3>No Claims Pending Approval</h3>
+                <p>All claims have been approved or rejected. Check back later for new verified submissions from Coordinators.</p>
             </div>
         }
     </div>
@@ -547,9 +547,9 @@
     <input type="hidden" name="reason" id="rejectReasonInput" />
 </form>
 
-<form id="bulkVerifyForm" asp-action="BulkVerify" method="post" style="display:none;">
+<form id="bulkApproveForm" asp-action="BulkApprove" method="post" style="display:none;">
     @Html.AntiForgeryToken()
-    <div id="bulkVerifyClaimIds"></div>
+    <div id="bulkApproveClaimIds"></div>
 </form>
 
 <form id="bulkRejectForm" asp-action="BulkReject" method="post" style="display:none;">
@@ -593,19 +593,19 @@
             document.getElementById('singleRejectForm').submit();
         }
 
-        // Bulk verify
-        function bulkVerify() {
+        // Bulk approve
+        function bulkApprove() {
             const selected = document.querySelectorAll('.claim-select:checked');
             if (selected.length === 0) {
-                alert('Please select at least one claim to verify.');
+                alert('Please select at least one claim to approve.');
                 return;
             }
 
-            if (!confirm(`Are you sure you want to verify ${selected.length} claim(s) and send to Academic Manager?`)) {
+            if (!confirm(`Are you sure you want to approve ${selected.length} claim(s)?`)) {
                 return;
             }
 
-            const container = document.getElementById('bulkVerifyClaimIds');
+            const container = document.getElementById('bulkApproveClaimIds');
             container.innerHTML = '';
             selected.forEach(cb => {
                 const input = document.createElement('input');
@@ -615,7 +615,7 @@
                 container.appendChild(input);
             });
 
-            document.getElementById('bulkVerifyForm').submit();
+            document.getElementById('bulkApproveForm').submit();
         }
 
         // Bulk reject modal

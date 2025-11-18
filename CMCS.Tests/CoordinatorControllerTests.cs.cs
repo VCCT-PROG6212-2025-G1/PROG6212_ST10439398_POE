@@ -123,7 +123,7 @@ namespace CMCS.Tests
         }
 
         [Fact]
-        public async Task ApproveClaim_ValidClaim_UpdatesStatus()
+        public async Task VerifyClaim_ValidClaim_UpdatesStatus()
         {
             // Arrange
             var context = GetInMemoryDbContext();
@@ -138,7 +138,7 @@ namespace CMCS.Tests
                 CurrentStatus = ClaimStatus.Submitted,
                 SubmissionDate = DateTime.Now,
                 ClaimPeriod = "2025-04",
-                AdditionalNotes = "Test claim for approval"
+                AdditionalNotes = "Test claim for verification"
             };
             context.Claims.Add(claim);
             await context.SaveChangesAsync();
@@ -148,20 +148,20 @@ namespace CMCS.Tests
             try
             {
                 // Act
-                var result = await controller.ApproveClaim(1);
+                var result = await controller.VerifyClaim(1);
 
                 // Assert
                 Assert.IsType<RedirectToActionResult>(result);
 
                 var updatedClaim = await context.Claims.FindAsync(1);
                 Assert.NotNull(updatedClaim);
-                Assert.Equal(ClaimStatus.Approved, updatedClaim.CurrentStatus);
+                Assert.Equal(ClaimStatus.UnderReview, updatedClaim.CurrentStatus);
             }
             catch (NullReferenceException)
             {
-                // If the method has dependencies we can't mock, verify the claim was approved
+                // If the method has dependencies we can't mock, verify the claim was verified
                 var updatedClaim = await context.Claims.FindAsync(1);
-                if (updatedClaim != null && updatedClaim.CurrentStatus == ClaimStatus.Approved)
+                if (updatedClaim != null && updatedClaim.CurrentStatus == ClaimStatus.UnderReview)
                 {
                     Assert.True(true);
                 }
@@ -173,7 +173,7 @@ namespace CMCS.Tests
         }
 
         [Fact]
-        public async Task ApproveClaim_InvalidId_HandlesGracefully()
+        public async Task VerifyClaim_InvalidId_HandlesGracefully()
         {
             // Arrange
             var context = GetInMemoryDbContext();
@@ -182,7 +182,7 @@ namespace CMCS.Tests
             try
             {
                 // Act
-                var result = await controller.ApproveClaim(999);
+                var result = await controller.VerifyClaim(999);
 
                 // Assert
                 Assert.NotNull(result);
@@ -283,7 +283,7 @@ namespace CMCS.Tests
         }
 
         [Fact]
-        public async Task BulkApprove_MultipleIds_ApprovesAll()
+        public async Task BulkVerify_MultipleIds_VerifiesAll()
         {
             // Arrange
             var context = GetInMemoryDbContext();
@@ -324,23 +324,23 @@ namespace CMCS.Tests
             try
             {
                 // Act
-                var result = await controller.BulkApprove(new List<int> { 1, 2 });
+                var result = await controller.BulkVerify(new List<int> { 1, 2 });
 
                 // Assert
                 Assert.NotNull(result);
 
-                var approvedClaims = await context.Claims
-                    .Where(c => c.CurrentStatus == ClaimStatus.Approved)
+                var verifiedClaims = await context.Claims
+                    .Where(c => c.CurrentStatus == ClaimStatus.UnderReview)
                     .ToListAsync();
-                Assert.Equal(2, approvedClaims.Count);
+                Assert.Equal(2, verifiedClaims.Count);
             }
             catch (NullReferenceException)
             {
-                // Verify claims were approved even if view fails
-                var approvedClaims = await context.Claims
-                    .Where(c => c.CurrentStatus == ClaimStatus.Approved)
+                // Verify claims were verified even if view fails
+                var verifiedClaims = await context.Claims
+                    .Where(c => c.CurrentStatus == ClaimStatus.UnderReview)
                     .ToListAsync();
-                if (approvedClaims.Count == 2)
+                if (verifiedClaims.Count == 2)
                 {
                     Assert.True(true);
                 }
