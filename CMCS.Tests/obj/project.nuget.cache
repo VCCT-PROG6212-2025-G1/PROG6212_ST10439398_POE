@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "I28EzU0TOnY=",
+  "dgSpecHash": "ul/MPhyyPWU=",
   "success": true,
-  "projectFilePath": "C:\\Users\\morgt\\source\\repos\\VCCT-PROG6212-2025-G1\\PROG6212_ST10439398_POE\\PROG6212_ST10439398_POE\\CMCS.Tests\\CMCS.Tests.csproj",
+  "projectFilePath": "C:\\Users\\morgt\\Desktop\\PROG6212_ST10439398_POE\\PROG6212_ST10439398_POE\\CMCS.Tests\\CMCS.Tests.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\morgt\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",
     "C:\\Users\\morgt\\.nuget\\packages\\azure.identity\\1.11.4\\azure.identity.1.11.4.nupkg.sha512",
