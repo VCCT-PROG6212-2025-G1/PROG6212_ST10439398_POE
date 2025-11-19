@@ -19,8 +19,11 @@ namespace CMCS.Controllers
                 case "Lecturer":
                     return RedirectToAction("Dashboard", "Lecturer");
                 case "Coordinator":
-                case "Manager":
                     return RedirectToAction("Dashboard", "Coordinator");
+                case "Manager":
+                    return RedirectToAction("Dashboard", "Manager");
+                case "HR":
+                    return RedirectToAction("Dashboard", "HR");
                 default:
                     return View();
             }
