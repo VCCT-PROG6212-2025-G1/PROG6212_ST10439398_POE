@@ -20,17 +20,17 @@
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
 
-    .page-header h1 {
-        color: #1e3a8a;
-        font-size: 1.8rem;
-        font-weight: 700;
-        margin: 0 0 5px 0;
-    }
+        .page-header h1 {
+            color: #1e3a8a;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 0 0 5px 0;
+        }
 
-    .page-header p {
-        color: #6b7280;
-        margin: 0;
-    }
+        .page-header p {
+            color: #6b7280;
+            margin: 0;
+        }
 
     .claim-card {
         background: white;
@@ -178,10 +178,10 @@
         transition: all 0.2s;
     }
 
-    .document-item:hover {
-        border-color: #3b82f6;
-        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
-    }
+        .document-item:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+        }
 
     .document-info {
         display: flex;
@@ -226,11 +226,11 @@
         gap: 5px;
     }
 
-    .btn-download:hover {
-        background: #2563eb;
-        color: white;
-        transform: translateY(-1px);
-    }
+        .btn-download:hover {
+            background: #2563eb;
+            color: white;
+            transform: translateY(-1px);
+        }
 
     .no-documents {
         text-align: center;
@@ -250,20 +250,20 @@
         padding: 15px;
         background: #f9fafb;
         border-radius: 8px;
+        margin-bottom: 10px;
         border-left: 4px solid #3b82f6;
-        margin-bottom: 15px;
     }
 
     .history-header {
         display: flex;
         justify-content: space-between;
+        align-items: center;
         margin-bottom: 8px;
     }
 
     .history-status {
+        font-weight: 600;
         color: #1e3a8a;
-        font-weight: 700;
-        font-size: 1rem;
     }
 
     .history-date {
@@ -277,22 +277,33 @@
         font-style: italic;
     }
 
+    .notes-box {
+        background: #fef3c7;
+        border: 2px solid #fcd34d;
+        border-radius: 12px;
+        padding: 20px;
+    }
+
+    .notes-content {
+        color: #92400e;
+        line-height: 1.6;
+    }
+
     .action-buttons {
         display: flex;
         gap: 15px;
-        margin-top: 30px;
+        justify-content: center;
+        padding: 20px 0;
     }
 
     .btn {
-        padding: 12px 30px;
-        border: none;
+        padding: 12px 24px;
         border-radius: 8px;
         font-weight: 600;
-        font-size: 1rem;
-        cursor: pointer;
-        transition: all 0.3s;
         text-decoration: none;
-        display: inline-block;
+        cursor: pointer;
+        border: none;
+        transition: all 0.2s;
     }
 
     .btn-approve {
@@ -300,69 +311,57 @@
         color: white;
     }
 
-    .btn-approve:hover {
-        background: #059669;
-        transform: translateY(-2px);
-        color: white;
-    }
+        .btn-approve:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
 
     .btn-reject {
         background: #ef4444;
         color: white;
     }
 
-    .btn-reject:hover {
-        background: #dc2626;
-        transform: translateY(-2px);
-        color: white;
-    }
+        .btn-reject:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+        }
 
     .btn-back {
         background: #6b7280;
         color: white;
     }
 
-    .btn-back:hover {
-        background: #4b5563;
-        color: white;
-    }
-
-    .notes-box {
-        background: #fffbeb;
-        border-left: 4px solid #f59e0b;
-        padding: 15px;
-        border-radius: 8px;
-        margin-top: 20px;
-    }
-
-    .notes-content {
-        color: #78350f;
-    }
+        .btn-back:hover {
+            background: #4b5563;
+            color: white;
+        }
 
     .modal-backdrop {
         display: none;
         position: fixed;
         top: 0;
         left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0,0,0,0.5);
-        z-index: 9999;
-        align-items: center;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
         justify-content: center;
+        align-items: center;
     }
 
     .modal-content {
         background: white;
         padding: 30px;
         border-radius: 12px;
-        max-width: 500px;
         width: 90%;
+        max-width: 500px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
     }
 
     .modal-title {
         color: #1e3a8a;
-        margin-bottom: 15px;
+        font-size: 1.3rem;
+        margin: 0 0 15px 0;
     }
 
     .modal-text {
@@ -372,68 +371,76 @@
 
     .modal-textarea {
         width: 100%;
-        min-height: 100px;
+        min-height: 120px;
         padding: 12px;
         border: 2px solid #e5e7eb;
         border-radius: 8px;
-        font-family: inherit;
+        font-size: 0.95rem;
+        resize: vertical;
         margin-bottom: 20px;
-        box-sizing: border-box;
     }
+
+        .modal-textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
 
     .modal-buttons {
         display: flex;
         gap: 10px;
+        justify-content: flex-end;
     }
 
     .modal-btn {
-        flex: 1;
-        padding: 12px;
-        border: none;
-        border-radius: 8px;
+        padding: 10px 20px;
+        border-radius: 6px;
         font-weight: 600;
         cursor: pointer;
+        border: none;
     }
 
     .modal-btn-cancel {
-        background: #6b7280;
-        color: white;
+        background: #e5e7eb;
+        color: #374151;
     }
+
+        .modal-btn-cancel:hover {
+            background: #d1d5db;
+        }
 
     .modal-btn-confirm {
         background: #ef4444;
         color: white;
     }
 
-    @@media (max-width: 768px) {
-        .info-grid {
-            grid-template-columns: 1fr;
+        .modal-btn-confirm:hover {
+            background: #dc2626;
         }
-        .detail-row {
-            grid-template-columns: 1fr;
-        }
-    }
 </style>
 
 <div class="claim-details-container">
     <div class="page-header">
-        <h1>Claim Details</h1>
-        <p>Review complete claim information</p>
+        <h1>📋 Claim Details</h1>
+        <p>Review claim information and supporting documents</p>
     </div>
 
     <div class="claim-card">
         <div class="claim-header">
             <div>
                 <h2 class="claim-title">Claim #CLC-@Model.ClaimId.ToString("D4")</h2>
-                <p class="claim-date">Submitted on @Model.SubmissionDate.ToString("dd MMMM yyyy")</p>
+                <div class="claim-date">Submitted on @Model.SubmissionDate.ToString("dddd, dd MMMM yyyy 'at' HH:mm")</div>
             </div>
-            <div>
-                @{
-                    var statusClass = "status-submitted";
-                    var statusText = "SUBMITTED";
-
+            @{
+                var statusClass = "";
+                var statusText = "";
+                if (Model.CurrentStatus != null)
+                {
                     switch (Model.CurrentStatus)
                     {
+                        case ClaimStatus.Draft:
+                            statusClass = "status-submitted";
+                            statusText = "DRAFT";
+                            break;
                         case ClaimStatus.Submitted:
                             statusClass = "status-submitted";
                             statusText = "SUBMITTED";
@@ -452,8 +459,8 @@
                             break;
                     }
                 }
-                <span class="status-badge @statusClass">@statusText</span>
-            </div>
+            }
+            <span class="status-badge @statusClass">@statusText</span>
         </div>
 
         <div class="info-section">
@@ -554,7 +561,8 @@
                                     </span>
                                 </div>
                             </div>
-                            <a href="@doc.FilePath" target="_blank" class="btn-download" download="@doc.FileName">
+                            <!-- FIXED: Now routes through Coordinator controller for decryption -->
+                            <a asp-controller="Coordinator" asp-action="DownloadDocument" asp-route-documentId="@doc.DocumentId" class="btn-download">
                                 ⬇️ Download
                             </a>
                         </div>
@@ -615,12 +623,11 @@
         </div>
     }
 
-   @{
-    
-       var formattedTotal = Model.TotalAmount.ToString("N2");
-   }
+    @{
+        var formattedTotal = Model.TotalAmount.ToString("N2");
+    }
 
-   <div class="action-buttons">
+    <div class="action-buttons">
         @if (Model.CurrentStatus == ClaimStatus.Submitted)
         {
             <button type="button" class="btn btn-approve" onclick="verifySingle(@Model.ClaimId)">
@@ -640,11 +647,11 @@
     <div class="modal-content">
         <h3 class="modal-title">Reject Claim</h3>
         <p class="modal-text">Please provide a reason for rejecting this claim:</p>
-        
+
         <form asp-action="RejectClaim" method="post">
             <input type="hidden" name="id" value="@Model.ClaimId" />
             <textarea name="reason" id="rejectReason" required class="modal-textarea" placeholder="Enter rejection reason..."></textarea>
-            
+
             <div class="modal-buttons">
                 <button type="button" onclick="hideRejectModal()" class="modal-btn modal-btn-cancel">
                     Cancel
@@ -665,7 +672,7 @@
 
 <script>
     function verifySingle(claimId) {
-        if (confirm('Are you sure you want to verify this claim and send to Academic Manager?')) {
+        if (confirm('Are you sure you want to verify this claim and send it to the Academic Manager for approval?')) {
             document.getElementById('verifyClaimId').value = claimId;
             document.getElementById('singleVerifyForm').submit();
         }
