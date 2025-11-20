@@ -1,611 +1,230 @@
-﻿<!--------------------- Start of File ------------------------->
-@model CMCS.ViewModels.ClaimSubmissionViewModel
+﻿@model CMCS.ViewModels.ClaimSubmissionViewModel
 @{
     ViewData["Title"] = "Submit Claim";
-    Layout = "_Layout";
 }
 
-<style>
-    .submit-container {
-        max-width: 900px;
-        margin: 0 auto;
-        padding: 0 20px;
-    }
-
-    .submit-header {
-        background: white;
-        padding: 30px;
-        border-radius: 16px;
-        margin-bottom: 20px;
-        text-align: center;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
-
-        .submit-header h1 {
-            color: #1e3a8a;
-            font-size: 2rem;
-            font-weight: 700;
-            margin: 0 0 8px 0;
-        }
-
-        .submit-header p {
-            color: #6b7280;
-            margin: 0;
-        }
-
-    .form-card {
-        background: white;
-        padding: 40px;
-        border-radius: 16px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
-
-    .form-section {
-        margin-bottom: 35px;
-    }
-
-    .section-title {
-        color: #1e3a8a;
-        font-size: 1.3rem;
-        font-weight: 700;
-        margin-bottom: 20px;
-        padding-bottom: 10px;
-        border-bottom: 2px solid #e5e7eb;
-    }
-
-    .form-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 20px;
-        margin-bottom: 20px;
-    }
-
-    .form-group {
-        margin-bottom: 20px;
-    }
-
-    .form-label {
-        display: block;
-        color: #374151;
-        font-weight: 600;
-        margin-bottom: 8px;
-        font-size: 0.95rem;
-    }
-
-    .required {
-        color: #ef4444;
-    }
-
-    .form-control {
-        width: 100%;
-        padding: 12px 16px;
-        border: 2px solid #e5e7eb;
-        border-radius: 8px;
-        font-size: 0.95rem;
-        transition: all 0.3s;
-        box-sizing: border-box;
-    }
-
-        .form-control:focus {
-            outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-
-        .form-control:disabled {
-            background: #f3f4f6;
-            cursor: not-allowed;
-        }
-
-    textarea.form-control {
-        min-height: 120px;
-        resize: vertical;
-    }
-
-    .upload-wrapper {
-        background: #f9fafb;
-        border: 2px solid #e5e7eb;
-        border-radius: 12px;
-        padding: 20px;
-    }
-
-    .upload-area {
-        border: 2px dashed #d1d5db;
-        border-radius: 12px;
-        padding: 30px 20px;
-        text-align: center;
-        background: white;
-        transition: all 0.3s;
-        cursor: pointer;
-        position: relative;
-    }
-
-        .upload-area:hover {
-            border-color: #3b82f6;
-            background: #eff6ff;
-        }
-
-        .upload-area.has-files {
-            border-color: #10b981;
-            background: #f0fdf4;
-        }
-
-    .upload-content {
-        pointer-events: none;
-    }
-
-    .upload-icon {
-        font-size: 2.5rem;
-        margin-bottom: 10px;
-        line-height: 1;
-        display: block;
-    }
-
-    .upload-text {
-        color: #374151;
-        font-weight: 600;
-        margin-bottom: 5px;
-        display: block;
-    }
-
-    .upload-hint {
-        color: #6b7280;
-        font-size: 0.85rem;
-        display: block;
-    }
-
-    .file-input {
-        display: none;
-    }
-
-    .file-list {
-        margin-top: 15px;
-        max-height: 200px;
-        overflow-y: auto;
-    }
-
-    .file-item {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 12px 15px;
-        background: white;
-        border: 1px solid #e5e7eb;
-        border-radius: 8px;
-        margin-bottom: 8px;
-    }
-
-    .file-info {
-        flex: 1;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .file-icon {
-        font-size: 1.2rem;
-    }
-
-    .file-details {
-        flex: 1;
-    }
-
-    .file-name {
-        color: #374151;
-        font-weight: 500;
-        font-size: 0.9rem;
-        display: block;
-    }
-
-    .file-size {
-        color: #6b7280;
-        font-size: 0.8rem;
-    }
-
-    .file-remove {
-        background: #ef4444;
-        color: white;
-        border: none;
-        padding: 6px 12px;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 0.85rem;
-        transition: all 0.2s;
-    }
-
-        .file-remove:hover {
-            background: #dc2626;
-        }
-
-    .btn-submit {
-        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-        color: white;
-        padding: 14px 40px;
-        border: none;
-        border-radius: 8px;
-        font-size: 1rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s;
-        width: 100%;
-    }
-
-        .btn-submit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
-        }
-
-        .btn-submit:disabled {
-            background: #9ca3af;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-    .btn-cancel {
-        background: #6b7280;
-        color: white;
-        padding: 14px 40px;
-        border: none;
-        border-radius: 8px;
-        font-size: 1rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s;
-        width: 100%;
-        text-decoration: none;
-        display: inline-block;
-        text-align: center;
-    }
-
-        .btn-cancel:hover {
-            background: #4b5563;
-            color: white;
-        }
-
-    .button-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 15px;
-        margin-top: 30px;
-    }
-
-    .info-box {
-        background: #eff6ff;
-        border-left: 4px solid #3b82f6;
-        padding: 15px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-    }
-
-        .info-box p {
-            color: #1e40af;
-            margin: 0;
-            font-size: 0.9rem;
-        }
-
-    .rate-display {
-        background: #f3f4f6;
-        padding: 10px 16px;
-        border-radius: 8px;
-        color: #374151;
-        font-weight: 600;
-        margin-top: 8px;
-    }
-
-    .text-danger {
-        color: #ef4444;
-        font-size: 0.85rem;
-        margin-top: 5px;
-        display: block;
-    }
-
- 
-    {
-        grid-template-columns: 1fr;
-    }
-
-    .button-row {
-        grid-template-columns: 1fr;
-    }
-
-    }
-</style>
-
-<div class="submit-container">
-    <div class="submit-header">
-        <h1>Submit New Claim</h1>
-        <p>Complete the form below to submit your monthly claim</p>
-    </div>
-
-    <div class="form-card">
-        <form asp-action="SubmitClaim" method="post" enctype="multipart/form-data" id="claimForm">
-
-            <!-- Basic Information Section -->
-            <div class="form-section">
-                <h2 class="section-title">Basic Information</h2>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label" for="ModuleId">Module/Course <span class="required">*</span></label>
-                        <select asp-for="ModuleId" class="form-control" id="moduleSelect">
-                            <option value="">Select Module...</option>
-                            @if (ViewBag.Modules != null)
-                            {
-                                @foreach (var item in ViewBag.Modules)
-                                {
-                                    <option value="@item.Value">@item.Text</option>
-                                }
-                            }
-                        </select>
-                        <span asp-validation-for="ModuleId" class="text-danger"></span>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label" for="ClaimPeriod">Claim Period <span class="required">*</span></label>
-                        <input asp-for="ClaimPeriod" type="month" class="form-control" id="claimPeriod" />
-                        <span asp-validation-for="ClaimPeriod" class="text-danger"></span>
-                    </div>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-file-earmark-plus"></i> Submit New Claim
+                    </h4>
                 </div>
-            </div>
-
-            <!-- Hours & Rate Information Section -->
-            <div class="form-section">
-                <h2 class="section-title">Hours & Rate Information</h2>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label" for="HoursWorked">Hours Worked <span class="required">*</span></label>
-                        <input asp-for="HoursWorked" type="number" step="0.5" min="0.5" class="form-control" id="hoursInput" />
-                        <span asp-validation-for="HoursWorked" class="text-danger"></span>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Hourly Rate (R)</label>
-                        <input type="number" class="form-control" id="hourlyRateDisplay" disabled readonly />
-                        <div class="rate-display" id="standardRate">Select a module to see the rate</div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Total Amount (R)</label>
-                    <input type="text" class="form-control" id="totalAmount" value="Calculated automatically" disabled readonly />
-                </div>
-            </div>
-
-            <!-- Additional Information Section -->
-            <div class="form-section">
-                <h2 class="section-title">Additional Information</h2>
-
-                <div class="form-group">
-                    <label class="form-label" for="AdditionalNotes">Additional Notes (Optional)</label>
-                    <textarea asp-for="AdditionalNotes" class="form-control" placeholder="Enter any additional notes or comments about this claim..."></textarea>
-                </div>
-            </div>
-
-            <!-- Supporting Documents Section -->
-            <div class="form-section">
-                <h2 class="section-title">Supporting Documents</h2>
-
-                <div class="info-box">
-                    <p>📎 Upload supporting documents such as timesheets, attendance records, or other relevant files (Optional)</p>
-                </div>
-
-                <div class="upload-wrapper">
-                    <div class="upload-area" id="uploadArea">
-                        <div class="upload-content">
-                            <span class="upload-icon">📁</span>
-                            <span class="upload-text">Drop files here or click to browse</span>
-                            <span class="upload-hint">Supported: PDF, DOC, DOCX, XLS, XLSX (Max 10MB each)</span>
+                <div class="card-body">
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="bi bi-exclamation-circle"></i> @TempData["Error"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
-                    </div>
-                    <input type="file" id="fileInput" name="SupportingDocuments" class="file-input" multiple accept=".pdf,.doc,.docx,.xls,.xlsx" />
+                    }
 
-                    <div class="file-list" id="fileList"></div>
+                    <form asp-action="SubmitClaim" method="post" enctype="multipart/form-data" id="claimForm">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                        <!-- Auto-pulled Information (Read-only) -->
+                        <div class="alert alert-info">
+                            <h6><i class="bi bi-info-circle"></i> Your Information (Auto-populated by HR)</h6>
+                            <div class="row mt-2">
+                                <div class="col-md-4">
+                                    <small class="text-muted">Name</small>
+                                    <p class="mb-0 fw-bold">@ViewBag.UserName</p>
+                                </div>
+                                <div class="col-md-4">
+                                    <small class="text-muted">Email</small>
+                                    <p class="mb-0 fw-bold">@ViewBag.UserEmail</p>
+                                </div>
+                                <div class="col-md-4">
+                                    <small class="text-muted">Hourly Rate</small>
+                                    <p class="mb-0 fw-bold text-success">R @ViewBag.HourlyRate</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Hidden field for hourly rate -->
+                        <input type="hidden" id="hourlyRate" value="@ViewBag.HourlyRateValue" />
+
+                        <!-- Module Selection -->
+                        <div class="mb-3">
+                            <label asp-for="ModuleId" class="form-label">Module</label>
+                            <select asp-for="ModuleId" asp-items="ViewBag.Modules" class="form-select">
+                                <option value="">-- Select Module --</option>
+                            </select>
+                            <span asp-validation-for="ModuleId" class="text-danger"></span>
+                        </div>
+
+                        <!-- Hours Worked with Auto-calculation -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="HoursWorked" class="form-label">Hours Worked</label>
+                                <input asp-for="HoursWorked" class="form-control" id="hoursWorked"
+                                       type="number" step="0.5" min="0.5" max="180"
+                                       placeholder="Enter hours (max 180)" />
+                                <span asp-validation-for="HoursWorked" class="text-danger"></span>
+                                <small class="text-muted">Maximum 180 hours per claim</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Calculated Total</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">R</span>
+                                    <input type="text" class="form-control fw-bold text-success"
+                                           id="calculatedTotal" readonly value="0.00" />
+                                </div>
+                                <small class="text-muted">Auto-calculated: Hours × Hourly Rate</small>
+                            </div>
+                        </div>
+
+                        <!-- Claim Period -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="ClaimPeriodStart" class="form-label">Period Start</label>
+                                <input asp-for="ClaimPeriodStart" class="form-control" type="date" />
+                                <span asp-validation-for="ClaimPeriodStart" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="ClaimPeriodEnd" class="form-label">Period End</label>
+                                <input asp-for="ClaimPeriodEnd" class="form-control" type="date" />
+                                <span asp-validation-for="ClaimPeriodEnd" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <!-- Notes -->
+                        <div class="mb-3">
+                            <label asp-for="Notes" class="form-label">Additional Notes</label>
+                            <textarea asp-for="Notes" class="form-control" rows="3"
+                                      placeholder="Any additional information about this claim..."></textarea>
+                            <span asp-validation-for="Notes" class="text-danger"></span>
+                        </div>
+
+                        <!-- Supporting Document -->
+                        <div class="mb-3">
+                            <label asp-for="SupportingDocument" class="form-label">Supporting Document</label>
+                            <input asp-for="SupportingDocument" class="form-control" type="file"
+                                   accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg" />
+                            <span asp-validation-for="SupportingDocument" class="text-danger"></span>
+                            <small class="text-muted">
+                                Accepted formats: PDF, Word, Excel, Images (Max 10MB)
+                            </small>
+                        </div>
+
+                        <!-- Summary Card -->
+                        <div class="card bg-light mb-4">
+                            <div class="card-body">
+                                <h6 class="card-title">
+                                    <i class="bi bi-calculator"></i> Claim Summary
+                                </h6>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <small class="text-muted">Hours</small>
+                                        <p class="mb-0 fw-bold" id="summaryHours">0</p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <small class="text-muted">Rate</small>
+                                        <p class="mb-0 fw-bold">R @ViewBag.HourlyRate</p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <small class="text-muted">Total Amount</small>
+                                        <p class="mb-0 fw-bold text-success fs-5" id="summaryTotal">R 0.00</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Buttons -->
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Dashboard" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-send"></i> Submit Claim
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
-
-            <!-- Submit Buttons -->
-            <div class="button-row">
-                <a asp-action="Dashboard" class="btn-cancel">Cancel</a>
-                <button type="submit" class="btn-submit" id="submitBtn">Submit Claim</button>
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    <partial name="_ValidationScriptsPartial" />
     <script>
-        let selectedFiles = [];
+        $(document).ready(function() {
+            // Get hourly rate from hidden field
+            var hourlyRate = parseFloat($('#hourlyRate').val()) || 0;
 
-        // Module selection - fetch hourly rate
-        document.getElementById('moduleSelect').addEventListener('change', async function() {
-            const moduleId = this.value;
+            // Function to calculate and update totals
+            function calculateTotal() {
+                var hours = parseFloat($('#hoursWorked').val()) || 0;
 
-            if (moduleId) {
-                try {
-                    const response = await fetch(`/Lecturer/GetHourlyRate?moduleId=${moduleId}`);
-                    const data = await response.json();
-
-                    document.getElementById('hourlyRateDisplay').value = data.hourlyRate;
-                    document.getElementById('standardRate').textContent = `Standard Module Rate: R${data.hourlyRate.toFixed(2)}`;
-
-                    calculateTotal();
-                } catch (error) {
-                    console.error('Error fetching hourly rate:', error);
-                    alert('Error loading hourly rate. Please try again.');
+                // Validate hours
+                if (hours < 0) hours = 0;
+                if (hours > 180) {
+                    hours = 180;
+                    $('#hoursWorked').val(180);
+                    alert('Maximum hours per claim is 180');
                 }
-            } else {
-                document.getElementById('hourlyRateDisplay').value = '';
-                document.getElementById('standardRate').textContent = 'Select a module to see the rate';
-                document.getElementById('totalAmount').value = 'Calculated automatically';
+
+                var total = hours * hourlyRate;
+
+                // Update displays
+                $('#calculatedTotal').val(total.toFixed(2));
+                $('#summaryHours').text(hours.toFixed(1));
+                $('#summaryTotal').text('R ' + total.toFixed(2));
             }
-        });
 
-        // Calculate total amount
-        function calculateTotal() {
-            const hours = parseFloat(document.getElementById('hoursInput').value) || 0;
-            const rate = parseFloat(document.getElementById('hourlyRateDisplay').value) || 0;
-            const total = hours * rate;
+            // Calculate on input change
+            $('#hoursWorked').on('input change', function() {
+                calculateTotal();
+            });
 
-            document.getElementById('totalAmount').value = total > 0 ? `R${total.toFixed(2)}` : 'Calculated automatically';
-        }
-
-        document.getElementById('hoursInput').addEventListener('input', calculateTotal);
-
-        // File upload handling
-        const fileInput = document.getElementById('fileInput');
-        const uploadArea = document.getElementById('uploadArea');
-        const fileListContainer = document.getElementById('fileList');
-
-        // Click on upload area to browse files
-        uploadArea.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            fileInput.click();
-        });
-
-        // File input change handler
-        fileInput.addEventListener('change', function(e) {
-            handleFiles(this.files);
-        });
-
-        // Drag and drop handlers
-        uploadArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            uploadArea.style.borderColor = '#3b82f6';
-            uploadArea.style.background = '#eff6ff';
-        });
-
-        uploadArea.addEventListener('dragleave', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            uploadArea.style.borderColor = '#d1d5db';
-            uploadArea.style.background = 'white';
-        });
-
-        uploadArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            uploadArea.style.borderColor = '#d1d5db';
-            uploadArea.style.background = 'white';
-
-            const dt = e.dataTransfer;
-            handleFiles(dt.files);
-        });
-
-        function handleFiles(files) {
-            const allowedExtensions = ['.pdf', '.doc', '.docx', '.xls', '.xlsx'];
-            const maxFileSize = 10 * 1024 * 1024; // 10MB
-
-            Array.from(files).forEach(file => {
-                const extension = '.' + file.name.split('.').pop().toLowerCase();
-
-                // Validate extension
-                if (!allowedExtensions.includes(extension)) {
-                    alert(`File "${file.name}" has an invalid extension. Only PDF, DOC, DOCX, XLS, XLSX are allowed.`);
-                    return;
-                }
-
-                // Validate size
-                if (file.size > maxFileSize) {
-                    alert(`File "${file.name}" exceeds the maximum size of 10MB.`);
-                    return;
-                }
-
-                // Add to selected files if not already added
-                const exists = selectedFiles.some(f => f.name === file.name && f.size === file.size);
-                if (!exists) {
-                    selectedFiles.push(file);
+            // Also call API for validation (optional)
+            $('#hoursWorked').on('blur', function() {
+                var hours = parseFloat($(this).val()) || 0;
+                if (hours > 0) {
+                    // Optional: Call API to verify calculation
+                    $.ajax({
+                        url: '/api/v1/claims/calculate',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            userId: @ViewBag.UserId,
+                            hoursWorked: hours
+                        }),
+                        success: function(response) {
+                            if (response.success) {
+                                $('#calculatedTotal').val(response.totalAmount.toFixed(2));
+                                $('#summaryTotal').text('R ' + response.totalAmount.toFixed(2));
+                            }
+                        },
+                        error: function() {
+                            // Fallback to client-side calculation
+                            calculateTotal();
+                        }
+                    });
                 }
             });
 
-            updateFileList();
-            updateFileInput();
-        }
-
-        function updateFileList() {
-            fileListContainer.innerHTML = '';
-
-            if (selectedFiles.length === 0) {
-                uploadArea.classList.remove('has-files');
-                return;
-            }
-
-            uploadArea.classList.add('has-files');
-
-            selectedFiles.forEach((file, index) => {
-                const fileItem = document.createElement('div');
-                fileItem.className = 'file-item';
-                fileItem.innerHTML = `
-                    <div class="file-info">
-                        <span class="file-icon">📄</span>
-                        <div class="file-details">
-                            <span class="file-name">${file.name}</span>
-                            <span class="file-size">${(file.size / 1024 / 1024).toFixed(2)} MB</span>
-                        </div>
-                    </div>
-                    <button type="button" class="file-remove" onclick="removeFile(${index})">Remove</button>
-                `;
-                fileListContainer.appendChild(fileItem);
+            // Form validation before submit
+            $('#claimForm').on('submit', function(e) {
+                var hours = parseFloat($('#hoursWorked').val()) || 0;
+                if (hours <= 0) {
+                    e.preventDefault();
+                    alert('Please enter valid hours worked');
+                    return false;
+                }
+                if (hours > 180) {
+                    e.preventDefault();
+                    alert('Hours cannot exceed 180 per claim');
+                    return false;
+                }
+                return true;
             });
-        }
 
-        function removeFile(index) {
-            selectedFiles.splice(index, 1);
-            updateFileList();
-            updateFileInput();
-        }
-
-        function updateFileInput() {
-            // Create a new DataTransfer object to update the file input
-            const dt = new DataTransfer();
-            selectedFiles.forEach(file => {
-                dt.items.add(file);
-            });
-            fileInput.files = dt.files;
-        }
-
-        // Form submission validation
-        document.getElementById('claimForm').addEventListener('submit', function(e) {
-            const moduleId = document.getElementById('moduleSelect').value;
-            const hours = document.getElementById('hoursInput').value;
-            const period = document.getElementById('claimPeriod').value;
-
-            if (!moduleId) {
-                e.preventDefault();
-                alert('Please select a module.');
-                document.getElementById('moduleSelect').focus();
-                return false;
-            }
-
-            if (!hours || parseFloat(hours) <= 0) {
-                e.preventDefault();
-                alert('Please enter valid hours worked (must be greater than 0).');
-                document.getElementById('hoursInput').focus();
-                return false;
-            }
-
-            if (!period) {
-                e.preventDefault();
-                alert('Please select a claim period.');
-                document.getElementById('claimPeriod').focus();
-                return false;
-            }
-
-            // Disable submit button to prevent double submission
-            const submitBtn = document.getElementById('submitBtn');
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Submitting...';
-
-            return true;
+            // Initial calculation
+            calculateTotal();
         });
-
-        // Make removeFile globally accessible
-        window.removeFile = removeFile;
     </script>
 }
-<!--------------------- End of File ------------------------->
