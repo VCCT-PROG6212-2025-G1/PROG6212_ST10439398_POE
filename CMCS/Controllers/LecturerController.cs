@@ -27,10 +27,18 @@ namespace CMCS.Controllers
 
         public async Task<IActionResult> Dashboard()
         {
+            // SESSION CHECK
+            var userId = HttpContext.Session.GetInt32("UserId");
+            var userRole = HttpContext.Session.GetString("UserRole");
+
+            if (userId == null || userRole != "Lecturer")
+            {
+                return RedirectToAction("Login", "Account");
+            }
+           
+
             try
             {
-                var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
-
                 var viewModel = new LecturerDashboardViewModel
                 {
                     PendingClaims = await _context.Claims
@@ -78,8 +86,18 @@ namespace CMCS.Controllers
         [HttpGet]
         public async Task<IActionResult> SubmitClaim()
         {
+            // Session check
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
             try
             {
+                // Get the user to auto-populate their hourly rate
+                var user = await _context.Users.FindAsync(userId);
+
                 var modules = await _context.Modules
                     .Where(m => m.IsActive)
                     .OrderBy(m => m.ModuleCode)
@@ -87,6 +105,10 @@ namespace CMCS.Controllers
 
                 ViewBag.Modules = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(
                     modules, "ModuleId", "ModuleName");
+
+                // Pass user info to view for auto-calculation
+                ViewBag.UserHourlyRate = user?.HourlyRate ?? 0;
+                ViewBag.UserName = $"{user?.FirstName} {user?.LastName}";
 
                 return View(new ClaimSubmissionViewModel());
             }
@@ -104,16 +126,44 @@ namespace CMCS.Controllers
         {
             try
             {
+                // Session check
+                var userId = HttpContext.Session.GetInt32("UserId");
+                if (userId == null)
+                {
+                    return RedirectToAction("Login", "Account");
+                }
+
                 if (!ModelState.IsValid)
                 {
                     var modules = await _context.Modules.Where(m => m.IsActive).ToListAsync();
                     ViewBag.Modules = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(
                         modules, "ModuleId", "ModuleName");
+
+                    var user = await _context.Users.FindAsync(userId);
+                    ViewBag.UserHourlyRate = user?.HourlyRate ?? 0;
+                    ViewBag.UserName = $"{user?.FirstName} {user?.LastName}";
+
                     TempData["Error"] = "Please correct the errors in the form.";
                     return View(model);
                 }
 
-                var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
+                //  VALIDATION - Max 180 hours per month 
+                if (model.HoursWorked > 180)
+                {
+                    ModelState.AddModelError("HoursWorked", "Hours worked cannot exceed 180 per month.");
+                    var modules = await _context.Modules.Where(m => m.IsActive).ToListAsync();
+                    ViewBag.Modules = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(
+                        modules, "ModuleId", "ModuleName");
+
+                    var userForError = await _context.Users.FindAsync(userId);
+                    ViewBag.UserHourlyRate = userForError?.HourlyRate ?? 0;
+                    ViewBag.UserName = $"{userForError?.FirstName} {userForError?.LastName}";
+
+                    return View(model);
+                }
+                
+
+                var currentUser = await _context.Users.FindAsync(userId);
                 var module = await _context.Modules.FindAsync(model.ModuleId);
 
                 if (module == null)
@@ -122,13 +172,23 @@ namespace CMCS.Controllers
                     return RedirectToAction(nameof(SubmitClaim));
                 }
 
+                // AUTO-PULL HOURLY RATE FROM USER (Set by HR)
+                // Use the lecturer's hourly rate set by HR, fallback to module rate
+                var hourlyRate = currentUser.HourlyRate > 0
+                    ? currentUser.HourlyRate
+                    : module.StandardHourlyRate;
+
+                // Auto-calculation
+                var totalAmount = model.HoursWorked * hourlyRate;
+             
+
                 var claim = new Claim
                 {
-                    UserId = userId,
+                    UserId = userId.Value,
                     ModuleId = model.ModuleId,
                     HoursWorked = model.HoursWorked,
-                    HourlyRate = module.StandardHourlyRate,
-                    TotalAmount = model.HoursWorked * module.StandardHourlyRate,
+                    HourlyRate = hourlyRate,
+                    TotalAmount = totalAmount,
                     ClaimPeriod = model.ClaimPeriod,
                     AdditionalNotes = model.AdditionalNotes,
                     CurrentStatus = ClaimStatus.Submitted,
@@ -138,7 +198,8 @@ namespace CMCS.Controllers
                 _context.Claims.Add(claim);
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation("Claim {ClaimId} created for user {UserId}", claim.ClaimId, userId);
+                _logger.LogInformation("Claim {ClaimId} created for user {UserId} with auto-calculated total: R{Total}",
+                    claim.ClaimId, userId, totalAmount);
 
                 // Handle file uploads AFTER claim is saved
                 if (SupportingDocuments != null && SupportingDocuments.Any())
@@ -159,7 +220,7 @@ namespace CMCS.Controllers
                 var statusHistory = new ClaimStatusHistory
                 {
                     ClaimId = claim.ClaimId,
-                    ChangedBy = userId,
+                    ChangedBy = userId.Value,
                     PreviousStatus = ClaimStatus.Draft,
                     NewStatus = ClaimStatus.Submitted,
                     Comments = "Claim submitted by lecturer"
@@ -168,7 +229,7 @@ namespace CMCS.Controllers
                 _context.ClaimStatusHistories.Add(statusHistory);
                 await _context.SaveChangesAsync();
 
-                TempData["Success"] = "Claim submitted successfully!";
+                TempData["Success"] = $"Claim submitted successfully! Total: R{totalAmount:N2}";
                 return RedirectToAction(nameof(Dashboard));
             }
             catch (Exception ex)
@@ -185,21 +246,26 @@ namespace CMCS.Controllers
 
         public async Task<IActionResult> ViewClaim(int id)
         {
+            // Session check
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
             try
             {
-                var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
-
                 var claim = await _context.Claims
                     .Include(c => c.Module)
-                    .Include(c => c.User)
-                    .Include(c => c.StatusHistory.OrderBy(sh => sh.ChangeDate))
                     .Include(c => c.SupportingDocuments)
+                    .Include(c => c.StatusHistory)
+                        .ThenInclude(sh => sh.User)
                     .FirstOrDefaultAsync(c => c.ClaimId == id && c.UserId == userId);
 
                 if (claim == null)
                 {
-                    TempData["Error"] = "Claim not found.";
-                    return RedirectToAction(nameof(ClaimHistory));
+                    TempData["Error"] = "Claim not found or access denied.";
+                    return RedirectToAction(nameof(Dashboard));
                 }
 
                 return View(claim);
@@ -207,41 +273,25 @@ namespace CMCS.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error viewing claim {ClaimId}", id);
-                TempData["Error"] = "Error loading claim details.";
-                return RedirectToAction(nameof(ClaimHistory));
+                TempData["Error"] = "An error occurred loading claim details.";
+                return RedirectToAction(nameof(Dashboard));
             }
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetHourlyRate(int moduleId)
-        {
-            try
-            {
-                var module = await _context.Modules.FindAsync(moduleId);
-                if (module == null)
-                {
-                    return NotFound(new { error = "Module not found" });
-                }
-
-                return Json(new { hourlyRate = module.StandardHourlyRate });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error fetching hourly rate for module {ModuleId}", moduleId);
-                return BadRequest(new { error = "Error fetching hourly rate" });
-            }
-        }
-
-        [HttpGet]
         public async Task<IActionResult> ClaimHistory()
         {
+            // Session check
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
             try
             {
-                var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
-
                 var claims = await _context.Claims
                     .Include(c => c.Module)
-                    .Include(c => c.StatusHistory)
+                    .Include(c => c.SupportingDocuments)
                     .Where(c => c.UserId == userId)
                     .OrderByDescending(c => c.SubmissionDate)
                     .ToListAsync();
@@ -254,6 +304,30 @@ namespace CMCS.Controllers
                 TempData["Error"] = "An error occurred loading your claim history.";
                 return RedirectToAction(nameof(Dashboard));
             }
+        }
+
+        // API endpoint for jQuery auto-calculation
+        [HttpGet]
+        public async Task<IActionResult> GetHourlyRate()
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+            {
+                return Json(new { success = false, message = "Not authenticated" });
+            }
+
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null)
+            {
+                return Json(new { success = false, message = "User not found" });
+            }
+
+            return Json(new
+            {
+                success = true,
+                hourlyRate = user.HourlyRate,
+                userName = $"{user.FirstName} {user.LastName}"
+            });
         }
 
         private async Task<(bool Success, string Message)> HandleFileUploads(List<IFormFile> files, int claimId)
@@ -376,7 +450,11 @@ namespace CMCS.Controllers
         {
             try
             {
-                var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
+                var userId = HttpContext.Session.GetInt32("UserId");
+                if (userId == null)
+                {
+                    return RedirectToAction("Login", "Account");
+                }
 
                 // Get document and verify ownership
                 var document = await _context.SupportingDocuments
@@ -427,4 +505,4 @@ namespace CMCS.Controllers
         }
     }
 }
-//--------------------------End Of File--------------------------////--------------------------End Of File--------------------------//
+//--------------------------End Of File--------------------------//
