@@ -42,7 +42,7 @@ namespace CMCS.Controllers
                 .Include(c => c.User)
                 .Include(c => c.Module)
                 .Include(c => c.SupportingDocuments)
-                .Where(c => c.Status == "Pending")
+                .Where(c => c.CurrentStatus == ClaimStatus.Submitted)
                 .OrderBy(c => c.SubmissionDate)
                 .ToListAsync();
 
@@ -50,8 +50,8 @@ namespace CMCS.Controllers
             {
                 PendingClaims = pendingClaims,
                 TotalPending = pendingClaims.Count,
-                TotalVerified = await _context.Claims.CountAsync(c => c.Status == "Verified"),
-                TotalRejected = await _context.Claims.CountAsync(c => c.Status == "Rejected")
+                TotalVerified = await _context.Claims.CountAsync(c => c.CurrentStatus == ClaimStatus.UnderReview),
+                TotalRejected = await _context.Claims.CountAsync(c => c.CurrentStatus == ClaimStatus.Rejected)
             };
 
             return View(viewModel);
@@ -94,44 +94,20 @@ namespace CMCS.Controllers
 
             try
             {
-                // Call API to verify claim
-                var client = _httpClientFactory.CreateClient();
-                var baseUrl = $"{Request.Scheme}://{Request.Host}";
-
-                var response = await client.PostAsJsonAsync($"{baseUrl}/api/v1/approvals/{id}/verify", new
-                {
-                    userId = userId.Value,
-                    comments = comments ?? "Verified by Coordinator"
-                });
-
-                if (response.IsSuccessStatusCode)
-                {
-                    TempData["Success"] = "Claim has been verified and forwarded to Manager for approval.";
-                }
-                else
-                {
-                    var error = await response.Content.ReadAsStringAsync();
-                    TempData["Error"] = $"Failed to verify claim: {error}";
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error verifying claim {ClaimId}", id);
-
-                // Fallback to direct database update if API fails
                 var claim = await _context.Claims.FindAsync(id);
-                if (claim != null && claim.Status == "Pending")
+                if (claim != null && claim.CurrentStatus == ClaimStatus.Submitted)
                 {
-                    claim.Status = "Verified";
-                    claim.VerifiedByUserId = userId;
-                    claim.VerifiedAt = DateTime.Now;
+                    var previousStatus = claim.CurrentStatus;
+                    claim.CurrentStatus = ClaimStatus.UnderReview;
+                    claim.LastModified = DateTime.Now;
 
                     var statusHistory = new ClaimStatusHistory
                     {
                         ClaimId = id,
-                        Status = "Verified",
-                        ChangedAt = DateTime.Now,
-                        ChangedByUserId = userId.Value,
+                        PreviousStatus = previousStatus,
+                        NewStatus = ClaimStatus.UnderReview,
+                        ChangeDate = DateTime.Now,
+                        ChangedBy = userId.Value,
                         Comments = comments ?? "Verified by Coordinator"
                     };
                     _context.ClaimStatusHistories.Add(statusHistory);
@@ -143,6 +119,11 @@ namespace CMCS.Controllers
                 {
                     TempData["Error"] = "Failed to verify claim.";
                 }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error verifying claim {ClaimId}", id);
+                TempData["Error"] = "An error occurred while verifying the claim.";
             }
 
             return RedirectToAction(nameof(Dashboard));
@@ -167,45 +148,20 @@ namespace CMCS.Controllers
 
             try
             {
-                // Call API to reject claim
-                var client = _httpClientFactory.CreateClient();
-                var baseUrl = $"{Request.Scheme}://{Request.Host}";
-
-                var response = await client.PostAsJsonAsync($"{baseUrl}/api/v1/approvals/{id}/reject", new
-                {
-                    userId = userId.Value,
-                    comments = comments
-                });
-
-                if (response.IsSuccessStatusCode)
-                {
-                    TempData["Success"] = "Claim has been rejected.";
-                }
-                else
-                {
-                    var error = await response.Content.ReadAsStringAsync();
-                    TempData["Error"] = $"Failed to reject claim: {error}";
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error rejecting claim {ClaimId}", id);
-
-                // Fallback to direct database update if API fails
                 var claim = await _context.Claims.FindAsync(id);
-                if (claim != null && claim.Status == "Pending")
+                if (claim != null && claim.CurrentStatus == ClaimStatus.Submitted)
                 {
-                    claim.Status = "Rejected";
-                    claim.RejectedByUserId = userId;
-                    claim.RejectedAt = DateTime.Now;
-                    claim.RejectionReason = comments;
+                    var previousStatus = claim.CurrentStatus;
+                    claim.CurrentStatus = ClaimStatus.Rejected;
+                    claim.LastModified = DateTime.Now;
 
                     var statusHistory = new ClaimStatusHistory
                     {
                         ClaimId = id,
-                        Status = "Rejected",
-                        ChangedAt = DateTime.Now,
-                        ChangedByUserId = userId.Value,
+                        PreviousStatus = previousStatus,
+                        NewStatus = ClaimStatus.Rejected,
+                        ChangeDate = DateTime.Now,
+                        ChangedBy = userId.Value,
                         Comments = comments
                     };
                     _context.ClaimStatusHistories.Add(statusHistory);
@@ -217,6 +173,11 @@ namespace CMCS.Controllers
                 {
                     TempData["Error"] = "Failed to reject claim.";
                 }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error rejecting claim {ClaimId}", id);
+                TempData["Error"] = "An error occurred while rejecting the claim.";
             }
 
             return RedirectToAction(nameof(Dashboard));
@@ -234,7 +195,9 @@ namespace CMCS.Controllers
             var claims = await _context.Claims
                 .Include(c => c.User)
                 .Include(c => c.Module)
-                .Where(c => c.Status == "Verified" || c.Status == "Rejected" || c.Status == "Approved")
+                .Where(c => c.CurrentStatus == ClaimStatus.UnderReview ||
+                            c.CurrentStatus == ClaimStatus.Rejected ||
+                            c.CurrentStatus == ClaimStatus.Approved)
                 .OrderByDescending(c => c.SubmissionDate)
                 .ToListAsync();
 
@@ -280,7 +243,9 @@ namespace CMCS.Controllers
                     return RedirectToAction(nameof(ViewClaim), new { id = document.ClaimId });
                 }
 
-                return File(decryptedBytes, document.ContentType, document.FileName);
+                // Determine content type
+                var contentType = GetContentType(document.FileType);
+                return File(decryptedBytes, contentType, document.FileName);
             }
             catch (Exception ex)
             {
@@ -288,6 +253,22 @@ namespace CMCS.Controllers
                 TempData["Error"] = "An error occurred downloading the file.";
                 return RedirectToAction(nameof(Dashboard));
             }
+        }
+
+        private string GetContentType(string fileType)
+        {
+            return fileType.ToLower() switch
+            {
+                "pdf" => "application/pdf",
+                "doc" => "application/msword",
+                "docx" => "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                "xls" => "application/vnd.ms-excel",
+                "xlsx" => "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                "png" => "image/png",
+                "jpg" or "jpeg" => "image/jpeg",
+                "gif" => "image/gif",
+                _ => "application/octet-stream"
+            };
         }
     }
 }

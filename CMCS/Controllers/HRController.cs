@@ -1,131 +1,63 @@
 ﻿//--------------------------Start Of File--------------------------//
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.EntityFrameworkCore;
-using CMCS.Models;
-using CMCS.Data;
-using CMCS.Services;
 using CMCS.Attributes;
+using CMCS.Data;
+using CMCS.Models;
+using CMCS.Services;
+using CMCS.ViewModels;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.Scripting;
+using Microsoft.EntityFrameworkCore;
 
 namespace CMCS.Controllers
 {
-    [Authorize(Roles = "HR")]
+    [SessionAuthorize("HR")]
     public class HRController : Controller
     {
         private readonly CMCSContext _context;
+        private readonly ReportService _reportService;
         private readonly ILogger<HRController> _logger;
-        private readonly IReportService _reportService;
 
-        public HRController(CMCSContext context, ILogger<HRController> logger, IReportService reportService)
+        public HRController(
+            CMCSContext context,
+            ReportService reportService,
+            ILogger<HRController> logger)
         {
             _context = context;
-            _logger = logger;
             _reportService = reportService;
+            _logger = logger;
         }
 
+        // GET: HR/Dashboard
         public async Task<IActionResult> Dashboard()
         {
-            // Session check - MANDATORY for Part 3
-            var userId = HttpContext.Session.GetInt32("UserId");
-            var userRole = HttpContext.Session.GetString("UserRole");
-
-            if (userId == null || userRole != "HR")
-            {
-                return RedirectToAction("Login", "Account");
-            }
-
-            try
-            {
-                var today = DateTime.Today;
-                var thisMonth = new DateTime(today.Year, today.Month, 1);
-
-                var viewModel = new HRDashboardViewModel
-                {
-                    TotalUsers = await _context.Users.CountAsync(),
-                    TotalLecturers = await _context.Users.CountAsync(u => u.UserRole == UserRole.Lecturer),
-                    PendingClaims = await _context.Claims
-                        .CountAsync(c => c.CurrentStatus == ClaimStatus.Submitted ||
-                                        c.CurrentStatus == ClaimStatus.UnderReview),
-                    ApprovedClaimsThisMonth = await _context.Claims
-                        .CountAsync(c => c.CurrentStatus == ClaimStatus.Approved &&
-                                        c.SubmissionDate >= thisMonth),
-                    TotalApprovedAmount = await _context.Claims
-                        .Where(c => c.CurrentStatus == ClaimStatus.Approved)
-                        .SumAsync(c => (decimal?)c.TotalAmount) ?? 0,
-
-                    RecentUsers = await _context.Users
-                        .OrderByDescending(u => u.CreatedDate)
-                        .Take(5)
-                        .ToListAsync(),
-
-                    ApprovedClaims = await _context.Claims
-                        .Include(c => c.User)
-                        .Include(c => c.Module)
-                        .Where(c => c.CurrentStatus == ClaimStatus.Approved)
-                        .OrderByDescending(c => c.LastModified)
-                        .Take(10)
-                        .ToListAsync()
-                };
-
-                return View(viewModel);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error loading HR dashboard");
-                TempData["Error"] = "An error occurred loading the dashboard.";
-                return View(new HRDashboardViewModel());
-            }
-        }
-
-        #region User Management
-
-        public async Task<IActionResult> Users(string? role = null, string? search = null)
-        {
-            // Session check
             var userId = HttpContext.Session.GetInt32("UserId");
             if (userId == null)
             {
                 return RedirectToAction("Login", "Account");
             }
 
-            try
+            var users = await _context.Users
+                .OrderBy(u => u.LastName)
+                .ThenBy(u => u.FirstName)
+                .ToListAsync();
+
+            var viewModel = new HRDashboardViewModel
             {
-                var query = _context.Users.AsQueryable();
+                Users = users,
+                TotalLecturers = users.Count(u => u.Role == "Lecturer"),
+                TotalCoordinators = users.Count(u => u.Role == "Coordinator"),
+                TotalManagers = users.Count(u => u.Role == "Manager"),
+                TotalUsers = users.Count,
+                TotalApprovedClaims = await _context.Claims.CountAsync(c => c.CurrentStatus == ClaimStatus.Approved),
+                TotalPaymentAmount = await _context.Claims.Where(c => c.CurrentStatus == ClaimStatus.Approved).SumAsync(c => c.TotalAmount)
+            };
 
-                if (!string.IsNullOrEmpty(role) && Enum.TryParse<UserRole>(role, out var userRole))
-                {
-                    query = query.Where(u => u.UserRole == userRole);
-                }
-
-                if (!string.IsNullOrEmpty(search))
-                {
-                    query = query.Where(u =>
-                        u.FirstName.Contains(search) ||
-                        u.LastName.Contains(search) ||
-                        u.Email.Contains(search));
-                }
-
-                var users = await query
-                    .OrderBy(u => u.UserRole)
-                    .ThenBy(u => u.LastName)
-                    .ToListAsync();
-
-                ViewBag.CurrentRole = role;
-                ViewBag.CurrentSearch = search;
-
-                return View(users);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error loading users list");
-                TempData["Error"] = "An error occurred loading the users.";
-                return View(new List<User>());
-            }
+            return View(viewModel);
         }
 
+        // GET: HR/CreateUser
         public IActionResult CreateUser()
         {
-            // Session check
             var userId = HttpContext.Session.GetInt32("UserId");
             if (userId == null)
             {
@@ -135,24 +67,23 @@ namespace CMCS.Controllers
             return View(new CreateUserViewModel());
         }
 
+        // POST: HR/CreateUser
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateUser(CreateUserViewModel model)
         {
-            try
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
             {
-                if (!ModelState.IsValid)
-                {
-                    return View(model);
-                }
+                return RedirectToAction("Login", "Account");
+            }
 
+            if (ModelState.IsValid)
+            {
                 // Check if email already exists
-                var existingUser = await _context.Users
-                    .FirstOrDefaultAsync(u => u.Email == model.Email);
-
-                if (existingUser != null)
+                if (await _context.Users.AnyAsync(u => u.Email == model.Email))
                 {
-                    ModelState.AddModelError("Email", "A user with this email already exists.");
+                    ModelState.AddModelError("Email", "This email is already registered.");
                     return View(model);
                 }
 
@@ -161,269 +92,165 @@ namespace CMCS.Controllers
                     FirstName = model.FirstName,
                     LastName = model.LastName,
                     Email = model.Email,
-                    PhoneNumber = model.PhoneNumber,
-                    UserRole = model.UserRole,
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password),
+                    Role = model.Role,
+                    Phone = model.Phone,
+                    Department = model.Department,
+                    Faculty = model.Faculty,
+                    Campus = model.Campus,
                     HourlyRate = model.HourlyRate,
                     IsActive = true,
-                    CreatedDate = DateTime.Now
+                    CreatedAt = DateTime.Now
                 };
 
                 _context.Users.Add(user);
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation("HR created new user {UserId}: {Email} as {Role}",
-                    user.UserId, user.Email, user.UserRole);
+                TempData["Success"] = $"User {user.FullName} has been created successfully.";
+                return RedirectToAction(nameof(Dashboard));
+            }
 
-                TempData["Success"] = $"User {user.FirstName} {user.LastName} created successfully!";
-                return RedirectToAction(nameof(Users));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error creating user");
-                TempData["Error"] = "An error occurred creating the user.";
-                return View(model);
-            }
+            return View(model);
         }
 
+        // GET: HR/EditUser/5
         public async Task<IActionResult> EditUser(int id)
         {
-            // Session check
             var userId = HttpContext.Session.GetInt32("UserId");
             if (userId == null)
             {
                 return RedirectToAction("Login", "Account");
             }
 
-            try
+            var user = await _context.Users.FindAsync(id);
+            if (user == null)
             {
-                var user = await _context.Users.FindAsync(id);
-
-                if (user == null)
-                {
-                    TempData["Error"] = "User not found.";
-                    return RedirectToAction(nameof(Users));
-                }
-
-                var viewModel = new EditUserViewModel
-                {
-                    UserId = user.UserId,
-                    FirstName = user.FirstName,
-                    LastName = user.LastName,
-                    Email = user.Email,
-                    PhoneNumber = user.PhoneNumber,
-                    UserRole = user.UserRole,
-                    HourlyRate = user.HourlyRate,
-                    IsActive = user.IsActive
-                };
-
-                return View(viewModel);
+                return NotFound();
             }
-            catch (Exception ex)
+
+            var model = new EditUserViewModel
             {
-                _logger.LogError(ex, "Error loading user {UserId} for edit", id);
-                TempData["Error"] = "An error occurred loading the user.";
-                return RedirectToAction(nameof(Users));
-            }
+                UserId = user.UserId,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                Role = user.Role,
+                Phone = user.Phone,
+                Department = user.Department,
+                Faculty = user.Faculty,
+                Campus = user.Campus,
+                HourlyRate = user.HourlyRate,
+                IsActive = user.IsActive
+            };
+
+            return View(model);
         }
 
+        // POST: HR/EditUser/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditUser(EditUserViewModel model)
+        public async Task<IActionResult> EditUser(int id, EditUserViewModel model)
         {
-            try
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
             {
-                if (!ModelState.IsValid)
-                {
-                    return View(model);
-                }
+                return RedirectToAction("Login", "Account");
+            }
 
-                var user = await _context.Users.FindAsync(model.UserId);
+            if (id != model.UserId)
+            {
+                return NotFound();
+            }
 
+            if (ModelState.IsValid)
+            {
+                var user = await _context.Users.FindAsync(id);
                 if (user == null)
                 {
-                    TempData["Error"] = "User not found.";
-                    return RedirectToAction(nameof(Users));
+                    return NotFound();
                 }
 
-                // Check if email is being changed and if it's already in use
-                if (model.Email != user.Email)
+                // Check if new email conflicts with another user
+                if (model.Email != user.Email &&
+                    await _context.Users.AnyAsync(u => u.Email == model.Email && u.UserId != id))
                 {
-                    var existingUser = await _context.Users
-                        .FirstOrDefaultAsync(u => u.Email == model.Email && u.UserId != model.UserId);
-
-                    if (existingUser != null)
-                    {
-                        ModelState.AddModelError("Email", "Email is already in use by another user.");
-                        return View(model);
-                    }
+                    ModelState.AddModelError("Email", "This email is already in use by another user.");
+                    return View(model);
                 }
 
                 user.FirstName = model.FirstName;
                 user.LastName = model.LastName;
                 user.Email = model.Email;
-                user.PhoneNumber = model.PhoneNumber;
+                user.Role = model.Role;
+                user.Phone = model.Phone;
+                user.Department = model.Department;
+                user.Faculty = model.Faculty;
+                user.Campus = model.Campus;
                 user.HourlyRate = model.HourlyRate;
                 user.IsActive = model.IsActive;
-                user.LastModified = DateTime.Now;
+                user.UpdatedAt = DateTime.Now;
 
-                _context.Entry(user).State = EntityState.Modified;
-                await _context.SaveChangesAsync();
-
-                _logger.LogInformation("HR updated user {UserId}", model.UserId);
-
-                TempData["Success"] = $"User {user.FirstName} {user.LastName} updated successfully!";
-                return RedirectToAction(nameof(Users));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error updating user {UserId}", model.UserId);
-                TempData["Error"] = "An error occurred updating the user.";
-                return View(model);
-            }
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ToggleUserActive(int id)
-        {
-            try
-            {
-                var user = await _context.Users.FindAsync(id);
-
-                if (user == null)
+                // Update password if provided
+                if (!string.IsNullOrEmpty(model.Password))
                 {
-                    TempData["Error"] = "User not found.";
-                    return RedirectToAction(nameof(Users));
+                    user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password);
                 }
 
-                user.IsActive = !user.IsActive;
-                user.LastModified = DateTime.Now;
-
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation("HR toggled user {UserId} active status to {Status}", id, user.IsActive);
+                TempData["Success"] = $"User {user.FullName} has been updated successfully.";
+                return RedirectToAction(nameof(Dashboard));
+            }
 
-                TempData["Success"] = $"User {user.FirstName} {user.LastName} {(user.IsActive ? "activated" : "deactivated")} successfully!";
-                return RedirectToAction(nameof(Users));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error toggling user {UserId} status", id);
-                TempData["Error"] = "An error occurred updating the user status.";
-                return RedirectToAction(nameof(Users));
-            }
+            return View(model);
         }
 
-        #endregion
+        // GET: HR/ViewUser/5
+        public async Task<IActionResult> ViewUser(int id)
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
 
-        #region Reports
+            var user = await _context.Users
+                .Include(u => u.Claims)
+                .ThenInclude(c => c.Module)
+                .FirstOrDefaultAsync(u => u.UserId == id);
 
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            return View(user);
+        }
+
+        // GET: HR/Reports
         public async Task<IActionResult> Reports()
         {
-            // Session check
             var userId = HttpContext.Session.GetInt32("UserId");
             if (userId == null)
             {
                 return RedirectToAction("Login", "Account");
             }
 
-            var viewModel = new ReportsViewModel
-            {
-                Lecturers = await _context.Users
-                    .Where(u => u.UserRole == UserRole.Lecturer)
-                    .OrderBy(u => u.LastName)
-                    .ToListAsync(),
+            var approvedClaims = await _context.Claims
+                .Include(c => c.User)
+                .Include(c => c.Module)
+                .Where(c => c.CurrentStatus == ClaimStatus.Approved)
+                .OrderByDescending(c => c.LastModified)
+                .ToListAsync();
 
-                ApprovedClaims = await _context.Claims
-                    .Include(c => c.User)
-                    .Include(c => c.Module)
-                    .Where(c => c.CurrentStatus == ClaimStatus.Approved)
-                    .OrderByDescending(c => c.LastModified)
-                    .ToListAsync()
-            };
-
-            return View(viewModel);
+            return View(approvedClaims);
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GenerateApprovedClaimsReport(DateTime? startDate, DateTime? endDate)
+        // POST: HR/GenerateReport
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> GenerateReport(string reportType, DateTime? startDate, DateTime? endDate)
         {
-            try
-            {
-                var reportBytes = await _reportService.GenerateApprovedClaimsReportAsync(startDate, endDate);
-                var fileName = $"ApprovedClaims_{DateTime.Now:yyyyMMdd_HHmmss}.html";
-
-                return File(reportBytes, "text/html", fileName);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error generating approved claims report");
-                TempData["Error"] = "An error occurred generating the report.";
-                return RedirectToAction(nameof(Reports));
-            }
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> GenerateInvoice(int claimId)
-        {
-            try
-            {
-                var reportBytes = await _reportService.GenerateInvoiceAsync(claimId);
-                var fileName = $"Invoice_CLC-{claimId:D4}_{DateTime.Now:yyyyMMdd}.html";
-
-                return File(reportBytes, "text/html", fileName);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error generating invoice for claim {ClaimId}", claimId);
-                TempData["Error"] = "An error occurred generating the invoice.";
-                return RedirectToAction(nameof(Reports));
-            }
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> GenerateLecturerReport(int lecturerId, DateTime? startDate, DateTime? endDate)
-        {
-            try
-            {
-                var reportBytes = await _reportService.GenerateLecturerReportAsync(lecturerId, startDate, endDate);
-                var fileName = $"LecturerReport_{lecturerId}_{DateTime.Now:yyyyMMdd}.html";
-
-                return File(reportBytes, "text/html", fileName);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error generating lecturer report for {LecturerId}", lecturerId);
-                TempData["Error"] = "An error occurred generating the report.";
-                return RedirectToAction(nameof(Reports));
-            }
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> GenerateMonthlyReport(int year, int month)
-        {
-            try
-            {
-                var reportBytes = await _reportService.GenerateMonthlyReportAsync(year, month);
-                var fileName = $"MonthlyReport_{year}-{month:D2}.html";
-
-                return File(reportBytes, "text/html", fileName);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error generating monthly report for {Year}-{Month}", year, month);
-                TempData["Error"] = "An error occurred generating the report.";
-                return RedirectToAction(nameof(Reports));
-            }
-        }
-
-        #endregion
-
-        #region Claims Management
-
-        public async Task<IActionResult> Claims(string? status = null)
-        {
-            // Session check
             var userId = HttpContext.Session.GetInt32("UserId");
             if (userId == null)
             {
@@ -432,105 +259,139 @@ namespace CMCS.Controllers
 
             try
             {
-                var query = _context.Claims
-                    .Include(c => c.User)
-                    .Include(c => c.Module)
-                    .AsQueryable();
-
-                if (!string.IsNullOrEmpty(status) && Enum.TryParse<ClaimStatus>(status, out var claimStatus))
-                {
-                    query = query.Where(c => c.CurrentStatus == claimStatus);
-                }
-
-                var claims = await query
-                    .OrderByDescending(c => c.SubmissionDate)
-                    .ToListAsync();
-
-                ViewBag.CurrentStatus = status;
-
-                return View(claims);
+                var pdfBytes = await _reportService.GenerateClaimsReport(reportType, startDate, endDate);
+                var fileName = $"Claims_Report_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
+                return File(pdfBytes, "application/pdf", fileName);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error loading claims for HR");
-                TempData["Error"] = "An error occurred loading the claims.";
-                return View(new List<Claim>());
+                _logger.LogError(ex, "Error generating report");
+                TempData["Error"] = "An error occurred while generating the report.";
+                return RedirectToAction(nameof(Reports));
             }
         }
 
-        #endregion
+        // GET: HR/GenerateAllClaimsReport
+        public async Task<IActionResult> GenerateAllClaimsReport()
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            try
+            {
+                var pdfBytes = await _reportService.GenerateClaimsReport("all", null, null);
+                var fileName = $"All_Claims_Report_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
+                return File(pdfBytes, "application/pdf", fileName);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error generating all claims report");
+                TempData["Error"] = "An error occurred while generating the report.";
+                return RedirectToAction(nameof(Reports));
+            }
+        }
+
+        // GET: HR/GenerateMonthlyReport
+        public async Task<IActionResult> GenerateMonthlyReport()
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            try
+            {
+                var startDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+                var endDate = startDate.AddMonths(1).AddDays(-1);
+
+                var pdfBytes = await _reportService.GenerateClaimsReport("monthly", startDate, endDate);
+                var fileName = $"Monthly_Report_{DateTime.Now:yyyyMM}.pdf";
+                return File(pdfBytes, "application/pdf", fileName);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error generating monthly report");
+                TempData["Error"] = "An error occurred while generating the report.";
+                return RedirectToAction(nameof(Reports));
+            }
+        }
+
+        // GET: HR/Invoices
+        public async Task<IActionResult> Invoices()
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var lecturers = await _context.Users
+                .Include(u => u.Claims)
+                .Where(u => u.Role == "Lecturer")
+                .OrderBy(u => u.LastName)
+                .ThenBy(u => u.FirstName)
+                .ToListAsync();
+
+            return View(lecturers);
+        }
+
+        // POST: HR/GenerateInvoice
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> GenerateInvoice(int lecturerId, DateTime startDate, DateTime endDate)
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            try
+            {
+                var pdfBytes = await _reportService.GenerateInvoice(lecturerId, startDate, endDate);
+                var lecturer = await _context.Users.FindAsync(lecturerId);
+                var fileName = $"Invoice_{lecturer?.LastName}_{DateTime.Now:yyyyMMdd}.pdf";
+                return File(pdfBytes, "application/pdf", fileName);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error generating invoice for lecturer {LecturerId}", lecturerId);
+                TempData["Error"] = "An error occurred while generating the invoice.";
+                return RedirectToAction(nameof(Invoices));
+            }
+        }
+
+        // GET: HR/QuickInvoice/5
+        public async Task<IActionResult> QuickInvoice(int id)
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            try
+            {
+                // Generate invoice for all approved claims
+                var startDate = DateTime.MinValue;
+                var endDate = DateTime.Now;
+
+                var pdfBytes = await _reportService.GenerateInvoice(id, startDate, endDate);
+                var lecturer = await _context.Users.FindAsync(id);
+                var fileName = $"Invoice_{lecturer?.LastName}_{DateTime.Now:yyyyMMdd}.pdf";
+                return File(pdfBytes, "application/pdf", fileName);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error generating quick invoice for lecturer {LecturerId}", id);
+                TempData["Error"] = "An error occurred while generating the invoice.";
+                return RedirectToAction(nameof(Invoices));
+            }
+        }
     }
-
-    #region ViewModels
-
-    public class HRDashboardViewModel
-    {
-        public int TotalUsers { get; set; }
-        public int TotalLecturers { get; set; }
-        public int PendingClaims { get; set; }
-        public int ApprovedClaimsThisMonth { get; set; }
-        public decimal TotalApprovedAmount { get; set; }
-        public List<User> RecentUsers { get; set; } = new();
-        public List<Claim> ApprovedClaims { get; set; } = new();
-    }
-
-    public class CreateUserViewModel
-    {
-        [System.ComponentModel.DataAnnotations.Required]
-        [System.ComponentModel.DataAnnotations.StringLength(100)]
-        public string FirstName { get; set; }
-
-        [System.ComponentModel.DataAnnotations.Required]
-        [System.ComponentModel.DataAnnotations.StringLength(100)]
-        public string LastName { get; set; }
-
-        [System.ComponentModel.DataAnnotations.Required]
-        [System.ComponentModel.DataAnnotations.EmailAddress]
-        public string Email { get; set; }
-
-        [System.ComponentModel.DataAnnotations.Phone]
-        public string PhoneNumber { get; set; }
-
-        [System.ComponentModel.DataAnnotations.Required]
-        public UserRole UserRole { get; set; }
-
-        [System.ComponentModel.DataAnnotations.Range(0, 10000)]
-        public decimal HourlyRate { get; set; }
-    }
-
-    public class EditUserViewModel
-    {
-        public int UserId { get; set; }
-
-        [System.ComponentModel.DataAnnotations.Required]
-        [System.ComponentModel.DataAnnotations.StringLength(100)]
-        public string FirstName { get; set; }
-
-        [System.ComponentModel.DataAnnotations.Required]
-        [System.ComponentModel.DataAnnotations.StringLength(100)]
-        public string LastName { get; set; }
-
-        [System.ComponentModel.DataAnnotations.Required]
-        [System.ComponentModel.DataAnnotations.EmailAddress]
-        public string Email { get; set; }
-
-        [System.ComponentModel.DataAnnotations.Phone]
-        public string PhoneNumber { get; set; }
-
-        public UserRole UserRole { get; set; }
-
-        [System.ComponentModel.DataAnnotations.Range(0, 10000)]
-        public decimal HourlyRate { get; set; }
-
-        public bool IsActive { get; set; }
-    }
-
-    public class ReportsViewModel
-    {
-        public List<User> Lecturers { get; set; } = new();
-        public List<Claim> ApprovedClaims { get; set; } = new();
-    }
-
-    #endregion
 }
 //--------------------------End Of File--------------------------//

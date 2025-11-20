@@ -22,6 +22,8 @@
 
 		<!-- Other packages -->
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="2.3.0" />
+		<PackageReference Include="Microsoft.OpenApi" Version="3.0.1" />
+		<PackageReference Include="Microsoft.VisualStudio.Services.Client" Version="19.225.1" />
 		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.7" />
 	</ItemGroup>
 

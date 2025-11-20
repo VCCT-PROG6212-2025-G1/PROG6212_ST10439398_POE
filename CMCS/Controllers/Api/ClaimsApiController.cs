@@ -55,10 +55,9 @@ namespace CMCS.Controllers.Api
                     HoursWorked = request.HoursWorked,
                     HourlyRate = user.HourlyRate,
                     TotalAmount = totalAmount,
-                    ClaimPeriodStart = request.ClaimPeriodStart,
-                    ClaimPeriodEnd = request.ClaimPeriodEnd,
-                    Notes = request.Notes,
-                    Status = "Pending",
+                    ClaimPeriod = request.ClaimPeriod,
+                    AdditionalNotes = request.AdditionalNotes ?? string.Empty,
+                    CurrentStatus = ClaimStatus.Submitted,
                     SubmissionDate = DateTime.Now
                 };
 
@@ -69,9 +68,10 @@ namespace CMCS.Controllers.Api
                 var statusHistory = new ClaimStatusHistory
                 {
                     ClaimId = claim.ClaimId,
-                    Status = "Pending",
-                    ChangedAt = DateTime.Now,
-                    ChangedByUserId = request.UserId,
+                    PreviousStatus = ClaimStatus.Draft,
+                    NewStatus = ClaimStatus.Submitted,
+                    ChangeDate = DateTime.Now,
+                    ChangedBy = request.UserId,
                     Comments = "Claim submitted"
                 };
                 _context.ClaimStatusHistories.Add(statusHistory);
@@ -101,8 +101,8 @@ namespace CMCS.Controllers.Api
                         FileName = request.SupportingDocument.FileName,
                         FilePath = fileName,
                         FileSize = request.SupportingDocument.Length,
-                        ContentType = request.SupportingDocument.ContentType,
-                        UploadedAt = DateTime.Now
+                        FileType = Path.GetExtension(request.SupportingDocument.FileName).TrimStart('.'),
+                        Description = "Uploaded via API"
                     };
                     _context.SupportingDocuments.Add(document);
                 }
@@ -188,12 +188,11 @@ namespace CMCS.Controllers.Api
                         claim.HoursWorked,
                         claim.HourlyRate,
                         claim.TotalAmount,
-                        claim.ClaimPeriodStart,
-                        claim.ClaimPeriodEnd,
-                        claim.Status,
-                        claim.Notes,
+                        claim.ClaimPeriod,
+                        Status = claim.CurrentStatus.ToString(),
+                        claim.AdditionalNotes,
                         claim.SubmissionDate,
-                        DocumentCount = claim.SupportingDocuments.Count
+                        DocumentCount = claim.SupportingDocuments?.Count ?? 0
                     }
                 });
             }
@@ -220,7 +219,7 @@ namespace CMCS.Controllers.Api
                         ModuleName = c.Module != null ? c.Module.ModuleName : "N/A",
                         c.HoursWorked,
                         c.TotalAmount,
-                        c.Status,
+                        Status = c.CurrentStatus.ToString(),
                         c.SubmissionDate
                     })
                     .ToListAsync();
@@ -243,7 +242,7 @@ namespace CMCS.Controllers.Api
                 var claims = await _context.Claims
                     .Include(c => c.User)
                     .Include(c => c.Module)
-                    .Where(c => c.Status == "Pending")
+                    .Where(c => c.CurrentStatus == ClaimStatus.Submitted)
                     .OrderBy(c => c.SubmissionDate)
                     .Select(c => new
                     {
@@ -252,7 +251,7 @@ namespace CMCS.Controllers.Api
                         ModuleName = c.Module != null ? c.Module.ModuleName : "N/A",
                         c.HoursWorked,
                         c.TotalAmount,
-                        c.Status,
+                        Status = c.CurrentStatus.ToString(),
                         c.SubmissionDate
                     })
                     .ToListAsync();
@@ -275,7 +274,7 @@ namespace CMCS.Controllers.Api
                 var claims = await _context.Claims
                     .Include(c => c.User)
                     .Include(c => c.Module)
-                    .Where(c => c.Status == "Verified")
+                    .Where(c => c.CurrentStatus == ClaimStatus.UnderReview)
                     .OrderBy(c => c.SubmissionDate)
                     .Select(c => new
                     {
@@ -284,7 +283,7 @@ namespace CMCS.Controllers.Api
                         ModuleName = c.Module != null ? c.Module.ModuleName : "N/A",
                         c.HoursWorked,
                         c.TotalAmount,
-                        c.Status,
+                        Status = c.CurrentStatus.ToString(),
                         c.SubmissionDate
                     })
                     .ToListAsync();
@@ -305,9 +304,8 @@ namespace CMCS.Controllers.Api
         public int UserId { get; set; }
         public int ModuleId { get; set; }
         public decimal HoursWorked { get; set; }
-        public DateTime ClaimPeriodStart { get; set; }
-        public DateTime ClaimPeriodEnd { get; set; }
-        public string? Notes { get; set; }
+        public string ClaimPeriod { get; set; } = string.Empty;
+        public string? AdditionalNotes { get; set; }
         public IFormFile? SupportingDocument { get; set; }
     }
 

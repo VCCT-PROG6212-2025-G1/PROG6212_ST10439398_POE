@@ -78,6 +78,14 @@
               "target": "Package",
               "version": "[8.0.11, )"
             },
+            "Microsoft.OpenApi": {
+              "target": "Package",
+              "version": "[3.0.1, )"
+            },
+            "Microsoft.VisualStudio.Services.Client": {
+              "target": "Package",
+              "version": "[19.225.1, )"
+            },
             "Microsoft.VisualStudio.Web.CodeGeneration.Design": {
               "target": "Package",
               "version": "[8.0.7, )"

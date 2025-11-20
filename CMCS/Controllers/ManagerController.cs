@@ -38,12 +38,12 @@ namespace CMCS.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            // Manager only sees VERIFIED claims (not pending)
+            // Manager only sees VERIFIED claims (UnderReview status)
             var verifiedClaims = await _context.Claims
                 .Include(c => c.User)
                 .Include(c => c.Module)
                 .Include(c => c.SupportingDocuments)
-                .Where(c => c.Status == "Verified")
+                .Where(c => c.CurrentStatus == ClaimStatus.UnderReview)
                 .OrderBy(c => c.SubmissionDate)
                 .ToListAsync();
 
@@ -51,8 +51,8 @@ namespace CMCS.Controllers
             {
                 VerifiedClaims = verifiedClaims,
                 TotalVerified = verifiedClaims.Count,
-                TotalApproved = await _context.Claims.CountAsync(c => c.Status == "Approved"),
-                TotalRejected = await _context.Claims.CountAsync(c => c.Status == "Rejected" && c.RejectedByUserId != null)
+                TotalApproved = await _context.Claims.CountAsync(c => c.CurrentStatus == ClaimStatus.Approved),
+                TotalRejected = await _context.Claims.CountAsync(c => c.CurrentStatus == ClaimStatus.Rejected)
             };
 
             return View(viewModel);
@@ -95,44 +95,20 @@ namespace CMCS.Controllers
 
             try
             {
-                // Call API to approve claim
-                var client = _httpClientFactory.CreateClient();
-                var baseUrl = $"{Request.Scheme}://{Request.Host}";
-
-                var response = await client.PostAsJsonAsync($"{baseUrl}/api/v1/approvals/{id}/approve", new
-                {
-                    userId = userId.Value,
-                    comments = comments ?? "Approved by Manager"
-                });
-
-                if (response.IsSuccessStatusCode)
-                {
-                    TempData["Success"] = "Claim has been approved for payment.";
-                }
-                else
-                {
-                    var error = await response.Content.ReadAsStringAsync();
-                    TempData["Error"] = $"Failed to approve claim: {error}";
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error approving claim {ClaimId}", id);
-
-                // Fallback to direct database update if API fails
                 var claim = await _context.Claims.FindAsync(id);
-                if (claim != null && claim.Status == "Verified")
+                if (claim != null && claim.CurrentStatus == ClaimStatus.UnderReview)
                 {
-                    claim.Status = "Approved";
-                    claim.ApprovedByUserId = userId;
-                    claim.ApprovedAt = DateTime.Now;
+                    var previousStatus = claim.CurrentStatus;
+                    claim.CurrentStatus = ClaimStatus.Approved;
+                    claim.LastModified = DateTime.Now;
 
                     var statusHistory = new ClaimStatusHistory
                     {
                         ClaimId = id,
-                        Status = "Approved",
-                        ChangedAt = DateTime.Now,
-                        ChangedByUserId = userId.Value,
+                        PreviousStatus = previousStatus,
+                        NewStatus = ClaimStatus.Approved,
+                        ChangeDate = DateTime.Now,
+                        ChangedBy = userId.Value,
                         Comments = comments ?? "Approved by Manager"
                     };
                     _context.ClaimStatusHistories.Add(statusHistory);
@@ -144,6 +120,11 @@ namespace CMCS.Controllers
                 {
                     TempData["Error"] = "Failed to approve claim. Claim must be verified first.";
                 }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error approving claim {ClaimId}", id);
+                TempData["Error"] = "An error occurred while approving the claim.";
             }
 
             return RedirectToAction(nameof(Dashboard));
@@ -168,45 +149,20 @@ namespace CMCS.Controllers
 
             try
             {
-                // Call API to reject claim
-                var client = _httpClientFactory.CreateClient();
-                var baseUrl = $"{Request.Scheme}://{Request.Host}";
-
-                var response = await client.PostAsJsonAsync($"{baseUrl}/api/v1/approvals/{id}/reject", new
-                {
-                    userId = userId.Value,
-                    comments = comments
-                });
-
-                if (response.IsSuccessStatusCode)
-                {
-                    TempData["Success"] = "Claim has been rejected.";
-                }
-                else
-                {
-                    var error = await response.Content.ReadAsStringAsync();
-                    TempData["Error"] = $"Failed to reject claim: {error}";
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error rejecting claim {ClaimId}", id);
-
-                // Fallback to direct database update if API fails
                 var claim = await _context.Claims.FindAsync(id);
-                if (claim != null && claim.Status == "Verified")
+                if (claim != null && claim.CurrentStatus == ClaimStatus.UnderReview)
                 {
-                    claim.Status = "Rejected";
-                    claim.RejectedByUserId = userId;
-                    claim.RejectedAt = DateTime.Now;
-                    claim.RejectionReason = comments;
+                    var previousStatus = claim.CurrentStatus;
+                    claim.CurrentStatus = ClaimStatus.Rejected;
+                    claim.LastModified = DateTime.Now;
 
                     var statusHistory = new ClaimStatusHistory
                     {
                         ClaimId = id,
-                        Status = "Rejected",
-                        ChangedAt = DateTime.Now,
-                        ChangedByUserId = userId.Value,
+                        PreviousStatus = previousStatus,
+                        NewStatus = ClaimStatus.Rejected,
+                        ChangeDate = DateTime.Now,
+                        ChangedBy = userId.Value,
                         Comments = comments
                     };
                     _context.ClaimStatusHistories.Add(statusHistory);
@@ -218,6 +174,11 @@ namespace CMCS.Controllers
                 {
                     TempData["Error"] = "Failed to reject claim.";
                 }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error rejecting claim {ClaimId}", id);
+                TempData["Error"] = "An error occurred while rejecting the claim.";
             }
 
             return RedirectToAction(nameof(Dashboard));
@@ -235,7 +196,7 @@ namespace CMCS.Controllers
             var claims = await _context.Claims
                 .Include(c => c.User)
                 .Include(c => c.Module)
-                .Where(c => c.Status == "Approved" || (c.Status == "Rejected" && c.RejectedByUserId != null))
+                .Where(c => c.CurrentStatus == ClaimStatus.Approved || c.CurrentStatus == ClaimStatus.Rejected)
                 .OrderByDescending(c => c.SubmissionDate)
                 .ToListAsync();
 
@@ -281,7 +242,9 @@ namespace CMCS.Controllers
                     return RedirectToAction(nameof(ViewClaim), new { id = document.ClaimId });
                 }
 
-                return File(decryptedBytes, document.ContentType, document.FileName);
+                // Determine content type
+                var contentType = GetContentType(document.FileType);
+                return File(decryptedBytes, contentType, document.FileName);
             }
             catch (Exception ex)
             {
@@ -303,12 +266,28 @@ namespace CMCS.Controllers
             var approvedClaims = await _context.Claims
                 .Include(c => c.User)
                 .Include(c => c.Module)
-                .Where(c => c.Status == "Approved")
-                .OrderByDescending(c => c.ApprovedAt)
+                .Where(c => c.CurrentStatus == ClaimStatus.Approved)
+                .OrderByDescending(c => c.LastModified)
                 .ToListAsync();
 
             return View(approvedClaims);
         }
+
+        private string GetContentType(string fileType)
+        {
+            return fileType.ToLower() switch
+            {
+                "pdf" => "application/pdf",
+                "doc" => "application/msword",
+                "docx" => "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                "xls" => "application/vnd.ms-excel",
+                "xlsx" => "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                "png" => "image/png",
+                "jpg" or "jpeg" => "image/jpeg",
+                "gif" => "image/gif",
+                _ => "application/octet-stream"
+            };
+        }
     }
 }
-//--------------------------End Of File--------------------------/
+//--------------------------End Of File--------------------------//

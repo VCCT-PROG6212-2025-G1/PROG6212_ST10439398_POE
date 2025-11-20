@@ -123,7 +123,7 @@
                                 <th>Hours</th>
                                 <th>Rate</th>
                                 <th>Total</th>
-                                <th>Approved Date</th>
+                                <th>Period</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -136,7 +136,7 @@
                                     <td>@claim.HoursWorked.ToString("N1")</td>
                                     <td>R @claim.HourlyRate.ToString("N2")</td>
                                     <td><strong>R @claim.TotalAmount.ToString("N2")</strong></td>
-                                    <td>@claim.ApprovedAt?.ToString("dd MMM yyyy")</td>
+                                    <td>@claim.ClaimPeriod</td>
                                 </tr>
                             }
                         </tbody>

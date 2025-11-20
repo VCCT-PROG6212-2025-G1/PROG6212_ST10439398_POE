@@ -183,22 +183,22 @@
                                             <td>@claim.HoursWorked.ToString("N1")</td>
                                             <td>R @claim.TotalAmount.ToString("N2")</td>
                                             <td>
-                                                @switch (claim.Status)
+                                                @switch (claim.CurrentStatus)
                                                 {
-                                                    case "Pending":
-                                                        <span class="badge bg-warning text-dark">@claim.Status</span>
+                                                    case CMCS.Models.ClaimStatus.Submitted:
+                                                        <span class="badge bg-warning text-dark">Pending</span>
                                                         break;
-                                                    case "Verified":
-                                                        <span class="badge bg-info">@claim.Status</span>
+                                                    case CMCS.Models.ClaimStatus.UnderReview:
+                                                        <span class="badge bg-info">Verified</span>
                                                         break;
-                                                    case "Approved":
-                                                        <span class="badge bg-success">@claim.Status</span>
+                                                    case CMCS.Models.ClaimStatus.Approved:
+                                                        <span class="badge bg-success">Approved</span>
                                                         break;
-                                                    case "Rejected":
-                                                        <span class="badge bg-danger">@claim.Status</span>
+                                                    case CMCS.Models.ClaimStatus.Rejected:
+                                                        <span class="badge bg-danger">Rejected</span>
                                                         break;
                                                     default:
-                                                        <span class="badge bg-secondary">@claim.Status</span>
+                                                        <span class="badge bg-secondary">@claim.CurrentStatus</span>
                                                         break;
                                                 }
                                             </td>

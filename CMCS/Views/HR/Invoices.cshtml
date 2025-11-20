@@ -92,7 +92,7 @@
         </div>
         <div class="card-body">
             @{
-                var lecturersWithClaims = Model.Where(u => u.Role == "Lecturer" && u.Claims.Any(c => c.Status == "Approved")).ToList();
+                var lecturersWithClaims = Model.Where(u => u.Role == "Lecturer" && u.Claims.Any(c => c.CurrentStatus == CMCS.Models.ClaimStatus.Approved)).ToList();
             }
             @if (lecturersWithClaims.Any())
             {
@@ -112,7 +112,7 @@
                         <tbody>
                             @foreach (var lecturer in lecturersWithClaims)
                             {
-                                var approvedClaims = lecturer.Claims.Where(c => c.Status == "Approved").ToList();
+                                var approvedClaims = lecturer.Claims.Where(c => c.CurrentStatus == CMCS.Models.ClaimStatus.Approved).ToList();
                                 <tr>
                                     <td>@lecturer.FullName</td>
                                     <td>@lecturer.Email</td>

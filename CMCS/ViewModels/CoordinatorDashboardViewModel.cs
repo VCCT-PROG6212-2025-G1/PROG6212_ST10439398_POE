@@ -1,16 +1,14 @@
 //--------------------------Start Of File--------------------------//
-using System.Collections.Generic;
 using CMCS.Models;
 
 namespace CMCS.ViewModels
 {
     public class CoordinatorDashboardViewModel
     {
-        public int PendingReview { get; set; }
-        public int ApprovedToday { get; set; }
-        public int UrgentClaims { get; set; }
-        public decimal TotalThisWeek { get; set; }
-        public List<Claim> ClaimsForReview { get; set; }
+        public List<Claim> PendingClaims { get; set; } = new List<Claim>();
+        public int TotalPending { get; set; }
+        public int TotalVerified { get; set; }
+        public int TotalRejected { get; set; }
     }
 }
 //--------------------------End Of File--------------------------//

@@ -77,35 +77,28 @@
                         </div>
 
                         <!-- Claim Period -->
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label asp-for="ClaimPeriodStart" class="form-label">Period Start</label>
-                                <input asp-for="ClaimPeriodStart" class="form-control" type="date" />
-                                <span asp-validation-for="ClaimPeriodStart" class="text-danger"></span>
-                            </div>
-                            <div class="col-md-6">
-                                <label asp-for="ClaimPeriodEnd" class="form-label">Period End</label>
-                                <input asp-for="ClaimPeriodEnd" class="form-control" type="date" />
-                                <span asp-validation-for="ClaimPeriodEnd" class="text-danger"></span>
-                            </div>
+                        <div class="mb-3">
+                            <label asp-for="ClaimPeriod" class="form-label">Claim Period</label>
+                            <input asp-for="ClaimPeriod" class="form-control" placeholder="e.g., October 2024" />
+                            <span asp-validation-for="ClaimPeriod" class="text-danger"></span>
                         </div>
 
                         <!-- Notes -->
                         <div class="mb-3">
-                            <label asp-for="Notes" class="form-label">Additional Notes</label>
-                            <textarea asp-for="Notes" class="form-control" rows="3"
+                            <label asp-for="AdditionalNotes" class="form-label">Additional Notes</label>
+                            <textarea asp-for="AdditionalNotes" class="form-control" rows="3"
                                       placeholder="Any additional information about this claim..."></textarea>
-                            <span asp-validation-for="Notes" class="text-danger"></span>
+                            <span asp-validation-for="AdditionalNotes" class="text-danger"></span>
                         </div>
 
-                        <!-- Supporting Document -->
+                        <!-- Supporting Documents -->
                         <div class="mb-3">
-                            <label asp-for="SupportingDocument" class="form-label">Supporting Document</label>
-                            <input asp-for="SupportingDocument" class="form-control" type="file"
-                                   accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg" />
-                            <span asp-validation-for="SupportingDocument" class="text-danger"></span>
+                            <label asp-for="SupportingDocuments" class="form-label">Supporting Documents</label>
+                            <input asp-for="SupportingDocuments" class="form-control" type="file"
+                                   accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg" multiple />
+                            <span asp-validation-for="SupportingDocuments" class="text-danger"></span>
                             <small class="text-muted">
-                                Accepted formats: PDF, Word, Excel, Images (Max 10MB)
+                                Accepted formats: PDF, Word, Excel, Images (Max 10MB each)
                             </small>
                         </div>
 
