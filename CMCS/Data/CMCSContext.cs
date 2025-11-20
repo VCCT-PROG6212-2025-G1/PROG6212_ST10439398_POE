@@ -28,6 +28,8 @@ namespace CMCS.Data
                 entity.Property(u => u.LastName).IsRequired().HasMaxLength(100);
                 entity.Property(u => u.Email).IsRequired().HasMaxLength(255);
                 entity.Property(u => u.PhoneNumber).HasMaxLength(20);
+                entity.Property(u => u.HourlyRate).HasColumnType("decimal(18,2)");
+                entity.Property(u => u.PasswordHash).HasMaxLength(256);
                 entity.HasIndex(u => u.Email).IsUnique();
             });
 
@@ -101,7 +103,7 @@ namespace CMCS.Data
         {
             var baseDate = new DateTime(2024, 10, 1, 9, 0, 0);
 
-            // Seed Users
+            // Seed Users - Now with HourlyRate for lecturers (set by HR)
             modelBuilder.Entity<User>().HasData(
                 new User
                 {
@@ -111,6 +113,7 @@ namespace CMCS.Data
                     Email = "john.lecturer@iie.ac.za",
                     PhoneNumber = "+27 11 123 4567",
                     UserRole = UserRole.Lecturer,
+                    HourlyRate = 450.00m, // Set by HR
                     IsActive = true,
                     CreatedDate = baseDate
                 },
@@ -122,6 +125,7 @@ namespace CMCS.Data
                     Email = "jane.coordinator@iie.ac.za",
                     PhoneNumber = "+27 11 234 5678",
                     UserRole = UserRole.Coordinator,
+                    HourlyRate = 0, // Not a lecturer
                     IsActive = true,
                     CreatedDate = baseDate
                 },
@@ -133,6 +137,7 @@ namespace CMCS.Data
                     Email = "mike.manager@iie.ac.za",
                     PhoneNumber = "+27 11 345 6789",
                     UserRole = UserRole.Manager,
+                    HourlyRate = 0, // Not a lecturer
                     IsActive = true,
                     CreatedDate = baseDate
                 },
@@ -144,6 +149,7 @@ namespace CMCS.Data
                     Email = "sarah.davis@iie.ac.za",
                     PhoneNumber = "+27 11 456 7890",
                     UserRole = UserRole.Lecturer,
+                    HourlyRate = 420.00m, // Set by HR
                     IsActive = true,
                     CreatedDate = baseDate
                 },
@@ -155,6 +161,7 @@ namespace CMCS.Data
                     Email = "emily.hr@iie.ac.za",
                     PhoneNumber = "+27 11 567 8901",
                     UserRole = UserRole.HR,
+                    HourlyRate = 0, // Not a lecturer
                     IsActive = true,
                     CreatedDate = baseDate
                 }
