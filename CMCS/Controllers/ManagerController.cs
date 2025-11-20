@@ -1,421 +1,258 @@
 ﻿//--------------------------Start Of File--------------------------//
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
-using CMCS.Models;
 using CMCS.Data;
+using CMCS.Models;
 using CMCS.ViewModels;
+using CMCS.Attributes;
 using CMCS.Services;
 
 namespace CMCS.Controllers
 {
-    [Authorize(Roles = "Manager")]
+    [SessionAuthorize("Manager")]
     public class ManagerController : Controller
     {
         private readonly CMCSContext _context;
+        private readonly FileEncryptionService _encryptionService;
         private readonly ILogger<ManagerController> _logger;
-        private readonly IFileEncryptionService _encryptionService;
-        private readonly IWebHostEnvironment _environment;
+        private readonly IHttpClientFactory _httpClientFactory;
 
-        public ManagerController(CMCSContext context, ILogger<ManagerController> logger, IFileEncryptionService encryptionService, IWebHostEnvironment environment)
+        public ManagerController(
+            CMCSContext context,
+            FileEncryptionService encryptionService,
+            ILogger<ManagerController> logger,
+            IHttpClientFactory httpClientFactory)
         {
             _context = context;
-            _logger = logger;
             _encryptionService = encryptionService;
-            _environment = environment;
+            _logger = logger;
+            _httpClientFactory = httpClientFactory;
         }
 
-        public async Task<IActionResult> Dashboard(string filter = "all")
+        // GET: Manager/Dashboard
+        public async Task<IActionResult> Dashboard()
         {
-            try
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
             {
-                var today = DateTime.Today;
-                var startOfWeek = today.AddDays(-(int)today.DayOfWeek);
-
-                var viewModel = new ManagerDashboardViewModel
-                {
-                    PendingApproval = 0,
-                    ApprovedToday = 0,
-                    UrgentClaims = 0,
-                    TotalThisWeek = 0,
-                    ClaimsForApproval = new List<Claim>()
-                };
-
-                try
-                {
-                    // Manager sees claims that have been verified (UnderReview status)
-                    viewModel.PendingApproval = await _context.Claims
-                        .Where(c => c.CurrentStatus == ClaimStatus.UnderReview)
-                        .CountAsync();
-
-                    viewModel.ApprovedToday = await _context.Claims
-                        .Include(c => c.StatusHistory)
-                        .Where(c => c.CurrentStatus == ClaimStatus.Approved &&
-                                   c.StatusHistory.Any(sh => sh.NewStatus == ClaimStatus.Approved &&
-                                                            sh.ChangeDate.Date == today))
-                        .CountAsync();
-
-                    var allPendingClaims = await _context.Claims
-                        .Where(c => c.CurrentStatus == ClaimStatus.UnderReview)
-                        .ToListAsync();
-                    viewModel.UrgentClaims = allPendingClaims.Count(c => (DateTime.Now - c.SubmissionDate).Days > 5);
-
-                    viewModel.TotalThisWeek = await _context.Claims
-                        .Include(c => c.StatusHistory)
-                        .Where(c => c.CurrentStatus == ClaimStatus.Approved &&
-                                   c.StatusHistory.Any(sh => sh.NewStatus == ClaimStatus.Approved &&
-                                                            sh.ChangeDate >= startOfWeek &&
-                                                            sh.ChangeDate <= DateTime.Now))
-                        .SumAsync(c => (decimal?)c.TotalAmount) ?? 0;
-
-                    // Manager sees only UnderReview claims (verified by Coordinator)
-                    var query = _context.Claims
-                        .Include(c => c.User)
-                        .Include(c => c.Module)
-                        .Include(c => c.StatusHistory)
-                        .Where(c => c.CurrentStatus == ClaimStatus.UnderReview);
-
-                    switch (filter.ToLower())
-                    {
-                        case "urgent":
-                            var allClaims = await query.ToListAsync();
-                            viewModel.ClaimsForApproval = allClaims
-                                .Where(c => (DateTime.Now - c.SubmissionDate).Days > 5)
-                                .OrderByDescending(c => c.SubmissionDate)
-                                .ToList();
-                            break;
-
-                        case "thisweek":
-                            viewModel.ClaimsForApproval = await query
-                                .Where(c => c.SubmissionDate >= startOfWeek)
-                                .OrderByDescending(c => c.SubmissionDate)
-                                .ToListAsync();
-                            break;
-
-                        case "bymodule":
-                            viewModel.ClaimsForApproval = await query
-                                .OrderBy(c => c.Module.ModuleCode)
-                                .ThenByDescending(c => c.SubmissionDate)
-                                .ToListAsync();
-                            break;
-
-                        default:
-                            viewModel.ClaimsForApproval = await query
-                                .OrderByDescending(c => c.SubmissionDate)
-                                .ToListAsync();
-                            break;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error fetching manager dashboard data");
-                    TempData["Warning"] = "Some dashboard data could not be loaded.";
-                }
-
-                ViewBag.CurrentFilter = filter;
-                return View(viewModel);
+                return RedirectToAction("Login", "Account");
             }
-            catch (Exception ex)
+
+            // Manager only sees VERIFIED claims (not pending)
+            var verifiedClaims = await _context.Claims
+                .Include(c => c.User)
+                .Include(c => c.Module)
+                .Include(c => c.SupportingDocuments)
+                .Where(c => c.Status == "Verified")
+                .OrderBy(c => c.SubmissionDate)
+                .ToListAsync();
+
+            var viewModel = new ManagerDashboardViewModel
             {
-                _logger.LogError(ex, "Critical error loading manager dashboard");
-                TempData["Error"] = "An error occurred loading the dashboard. Please try again.";
-                return View(new ManagerDashboardViewModel
-                {
-                    ClaimsForApproval = new List<Claim>()
-                });
-            }
+                VerifiedClaims = verifiedClaims,
+                TotalVerified = verifiedClaims.Count,
+                TotalApproved = await _context.Claims.CountAsync(c => c.Status == "Approved"),
+                TotalRejected = await _context.Claims.CountAsync(c => c.Status == "Rejected" && c.RejectedByUserId != null)
+            };
+
+            return View(viewModel);
         }
 
-        // Manager can APPROVE a claim
+        // GET: Manager/ViewClaim/5
+        public async Task<IActionResult> ViewClaim(int id)
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var claim = await _context.Claims
+                .Include(c => c.User)
+                .Include(c => c.Module)
+                .Include(c => c.SupportingDocuments)
+                .Include(c => c.StatusHistory)
+                .FirstOrDefaultAsync(c => c.ClaimId == id);
+
+            if (claim == null)
+            {
+                return NotFound();
+            }
+
+            return View(claim);
+        }
+
+        // POST: Manager/Approve/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ApproveClaim(int id)
+        public async Task<IActionResult> Approve(int id, string? comments)
         {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
             try
             {
-                var claim = await _context.Claims
-                    .Include(c => c.User)
-                    .Include(c => c.Module)
-                    .FirstOrDefaultAsync(c => c.ClaimId == id);
+                // Call API to approve claim
+                var client = _httpClientFactory.CreateClient();
+                var baseUrl = $"{Request.Scheme}://{Request.Host}";
 
-                if (claim == null)
+                var response = await client.PostAsJsonAsync($"{baseUrl}/api/v1/approvals/{id}/approve", new
                 {
-                    TempData["Error"] = "Claim not found.";
-                    return RedirectToAction(nameof(Dashboard));
+                    userId = userId.Value,
+                    comments = comments ?? "Approved by Manager"
+                });
+
+                if (response.IsSuccessStatusCode)
+                {
+                    TempData["Success"] = "Claim has been approved for payment.";
                 }
-
-                if (claim.CurrentStatus != ClaimStatus.UnderReview)
+                else
                 {
-                    TempData["Error"] = "Only verified claims (Under Review) can be approved.";
-                    return RedirectToAction(nameof(Dashboard));
+                    var error = await response.Content.ReadAsStringAsync();
+                    TempData["Error"] = $"Failed to approve claim: {error}";
                 }
-
-                var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
-
-                var previousStatus = claim.CurrentStatus;
-                claim.CurrentStatus = ClaimStatus.Approved;
-                claim.LastModified = DateTime.Now;
-
-                _context.Entry(claim).State = EntityState.Modified;
-
-                var statusHistory = new ClaimStatusHistory
-                {
-                    ClaimId = claim.ClaimId,
-                    ChangedBy = userId,
-                    PreviousStatus = previousStatus,
-                    NewStatus = ClaimStatus.Approved,
-                    Comments = "Claim approved by Academic Manager"
-                };
-
-                _context.ClaimStatusHistories.Add(statusHistory);
-                await _context.SaveChangesAsync();
-
-                TempData["Success"] = $"Claim #CLC-{claim.ClaimId.ToString("D4")} for {claim.User.FirstName} {claim.User.LastName} has been approved! Amount: R{claim.TotalAmount:N2}";
-                _logger.LogInformation("Claim {ClaimId} approved by manager {UserId}", claim.ClaimId, userId);
-
-                return RedirectToAction(nameof(Dashboard));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error approving claim {ClaimId}", id);
-                TempData["Error"] = "An error occurred while approving the claim. Please try again.";
-                return RedirectToAction(nameof(Dashboard));
+
+                // Fallback to direct database update if API fails
+                var claim = await _context.Claims.FindAsync(id);
+                if (claim != null && claim.Status == "Verified")
+                {
+                    claim.Status = "Approved";
+                    claim.ApprovedByUserId = userId;
+                    claim.ApprovedAt = DateTime.Now;
+
+                    var statusHistory = new ClaimStatusHistory
+                    {
+                        ClaimId = id,
+                        Status = "Approved",
+                        ChangedAt = DateTime.Now,
+                        ChangedByUserId = userId.Value,
+                        Comments = comments ?? "Approved by Manager"
+                    };
+                    _context.ClaimStatusHistories.Add(statusHistory);
+                    await _context.SaveChangesAsync();
+
+                    TempData["Success"] = "Claim has been approved for payment.";
+                }
+                else
+                {
+                    TempData["Error"] = "Failed to approve claim. Claim must be verified first.";
+                }
             }
+
+            return RedirectToAction(nameof(Dashboard));
         }
 
-        // Manager can REJECT a claim
+        // POST: Manager/Reject/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> RejectClaim(int id, string reason)
+        public async Task<IActionResult> Reject(int id, string? comments)
         {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            if (string.IsNullOrWhiteSpace(comments))
+            {
+                TempData["Error"] = "Please provide a reason for rejection.";
+                return RedirectToAction(nameof(ViewClaim), new { id });
+            }
+
             try
             {
-                var claim = await _context.Claims
-                    .Include(c => c.User)
-                    .Include(c => c.Module)
-                    .FirstOrDefaultAsync(c => c.ClaimId == id);
+                // Call API to reject claim
+                var client = _httpClientFactory.CreateClient();
+                var baseUrl = $"{Request.Scheme}://{Request.Host}";
 
-                if (claim == null)
+                var response = await client.PostAsJsonAsync($"{baseUrl}/api/v1/approvals/{id}/reject", new
                 {
-                    TempData["Error"] = "Claim not found.";
-                    return RedirectToAction(nameof(Dashboard));
+                    userId = userId.Value,
+                    comments = comments
+                });
+
+                if (response.IsSuccessStatusCode)
+                {
+                    TempData["Success"] = "Claim has been rejected.";
                 }
-
-                if (claim.CurrentStatus != ClaimStatus.UnderReview)
+                else
                 {
-                    TempData["Error"] = "Only verified claims (Under Review) can be rejected by Manager.";
-                    return RedirectToAction(nameof(Dashboard));
+                    var error = await response.Content.ReadAsStringAsync();
+                    TempData["Error"] = $"Failed to reject claim: {error}";
                 }
-
-                if (string.IsNullOrWhiteSpace(reason))
-                {
-                    TempData["Error"] = "Rejection reason is required.";
-                    return RedirectToAction(nameof(Dashboard));
-                }
-
-                var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
-
-                var previousStatus = claim.CurrentStatus;
-                claim.CurrentStatus = ClaimStatus.Rejected;
-                claim.LastModified = DateTime.Now;
-
-                _context.Entry(claim).State = EntityState.Modified;
-
-                var statusHistory = new ClaimStatusHistory
-                {
-                    ClaimId = claim.ClaimId,
-                    ChangedBy = userId,
-                    PreviousStatus = previousStatus,
-                    NewStatus = ClaimStatus.Rejected,
-                    Comments = $"Rejected by Academic Manager: {reason}"
-                };
-
-                _context.ClaimStatusHistories.Add(statusHistory);
-                await _context.SaveChangesAsync();
-
-                TempData["Success"] = $"Claim #CLC-{claim.ClaimId.ToString("D4")} for {claim.User.FirstName} {claim.User.LastName} has been rejected.";
-                _logger.LogInformation("Claim {ClaimId} rejected by manager {UserId}. Reason: {Reason}", claim.ClaimId, userId, reason);
-
-                return RedirectToAction(nameof(Dashboard));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error rejecting claim {ClaimId}", id);
-                TempData["Error"] = "An error occurred while rejecting the claim. Please try again.";
-                return RedirectToAction(nameof(Dashboard));
-            }
-        }
 
-        // Bulk approve claims
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> BulkApprove(List<int> claimIds)
-        {
-            try
-            {
-                if (claimIds == null || !claimIds.Any())
+                // Fallback to direct database update if API fails
+                var claim = await _context.Claims.FindAsync(id);
+                if (claim != null && claim.Status == "Verified")
                 {
-                    TempData["Error"] = "No claims selected.";
-                    return RedirectToAction(nameof(Dashboard));
-                }
-
-                var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
-                var claims = await _context.Claims
-                    .Include(c => c.User)
-                    .Where(c => claimIds.Contains(c.ClaimId) && c.CurrentStatus == ClaimStatus.UnderReview)
-                    .ToListAsync();
-
-                if (!claims.Any())
-                {
-                    TempData["Error"] = "No valid claims found for approval.";
-                    return RedirectToAction(nameof(Dashboard));
-                }
-
-                var approvedCount = 0;
-                var totalAmount = 0m;
-
-                foreach (var claim in claims)
-                {
-                    var previousStatus = claim.CurrentStatus;
-                    claim.CurrentStatus = ClaimStatus.Approved;
-                    claim.LastModified = DateTime.Now;
-
-                    _context.Entry(claim).State = EntityState.Modified;
+                    claim.Status = "Rejected";
+                    claim.RejectedByUserId = userId;
+                    claim.RejectedAt = DateTime.Now;
+                    claim.RejectionReason = comments;
 
                     var statusHistory = new ClaimStatusHistory
                     {
-                        ClaimId = claim.ClaimId,
-                        ChangedBy = userId,
-                        PreviousStatus = previousStatus,
-                        NewStatus = ClaimStatus.Approved,
-                        Comments = "Bulk approved by Academic Manager"
+                        ClaimId = id,
+                        Status = "Rejected",
+                        ChangedAt = DateTime.Now,
+                        ChangedByUserId = userId.Value,
+                        Comments = comments
                     };
                     _context.ClaimStatusHistories.Add(statusHistory);
+                    await _context.SaveChangesAsync();
 
-                    approvedCount++;
-                    totalAmount += claim.TotalAmount;
+                    TempData["Success"] = "Claim has been rejected.";
                 }
-
-                await _context.SaveChangesAsync();
-
-                TempData["Success"] = $"Successfully approved {approvedCount} claim(s) totaling R{totalAmount:N2}!";
-                _logger.LogInformation("{Count} claims bulk approved by manager {UserId}", approvedCount, userId);
-
-                return RedirectToAction(nameof(Dashboard));
+                else
+                {
+                    TempData["Error"] = "Failed to reject claim.";
+                }
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error bulk approving claims");
-                TempData["Error"] = "An error occurred while approving the claims. Please try again.";
-                return RedirectToAction(nameof(Dashboard));
-            }
+
+            return RedirectToAction(nameof(Dashboard));
         }
 
-        // Bulk reject claims
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> BulkReject(BulkRejectModel model)
+        // GET: Manager/ClaimHistory
+        public async Task<IActionResult> ClaimHistory()
         {
-            try
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
             {
-                if (model.ClaimIds == null || !model.ClaimIds.Any())
-                {
-                    TempData["Error"] = "No claims selected.";
-                    return RedirectToAction(nameof(Dashboard));
-                }
-
-                if (string.IsNullOrWhiteSpace(model.Reason))
-                {
-                    TempData["Error"] = "Rejection reason is required.";
-                    return RedirectToAction(nameof(Dashboard));
-                }
-
-                var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
-                var claims = await _context.Claims
-                    .Include(c => c.User)
-                    .Where(c => model.ClaimIds.Contains(c.ClaimId) && c.CurrentStatus == ClaimStatus.UnderReview)
-                    .ToListAsync();
-
-                if (!claims.Any())
-                {
-                    TempData["Error"] = "No valid claims found for rejection.";
-                    return RedirectToAction(nameof(Dashboard));
-                }
-
-                var rejectedCount = 0;
-
-                foreach (var claim in claims)
-                {
-                    var previousStatus = claim.CurrentStatus;
-                    claim.CurrentStatus = ClaimStatus.Rejected;
-                    claim.LastModified = DateTime.Now;
-
-                    _context.Entry(claim).State = EntityState.Modified;
-
-                    var statusHistory = new ClaimStatusHistory
-                    {
-                        ClaimId = claim.ClaimId,
-                        ChangedBy = userId,
-                        PreviousStatus = previousStatus,
-                        NewStatus = ClaimStatus.Rejected,
-                        Comments = $"Bulk rejected by Academic Manager: {model.Reason}"
-                    };
-                    _context.ClaimStatusHistories.Add(statusHistory);
-
-                    rejectedCount++;
-                }
-
-                await _context.SaveChangesAsync();
-
-                TempData["Success"] = $"Successfully rejected {rejectedCount} claim(s).";
-                _logger.LogInformation("{Count} claims bulk rejected by manager {UserId}. Reason: {Reason}", rejectedCount, userId, model.Reason);
-
-                return RedirectToAction(nameof(Dashboard));
+                return RedirectToAction("Login", "Account");
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error bulk rejecting claims");
-                TempData["Error"] = "An error occurred while rejecting the claims. Please try again.";
-                return RedirectToAction(nameof(Dashboard));
-            }
+
+            var claims = await _context.Claims
+                .Include(c => c.User)
+                .Include(c => c.Module)
+                .Where(c => c.Status == "Approved" || (c.Status == "Rejected" && c.RejectedByUserId != null))
+                .OrderByDescending(c => c.SubmissionDate)
+                .ToListAsync();
+
+            return View(claims);
         }
 
-        public async Task<IActionResult> ViewClaim(int id)
-        {
-            try
-            {
-                var claim = await _context.Claims
-                    .Include(c => c.User)
-                    .Include(c => c.Module)
-                    .Include(c => c.SupportingDocuments)
-                    .Include(c => c.StatusHistory)
-                        .ThenInclude(sh => sh.User)
-                    .FirstOrDefaultAsync(c => c.ClaimId == id);
-
-                if (claim == null)
-                {
-                    TempData["Error"] = "Claim not found.";
-                    return RedirectToAction(nameof(Dashboard));
-                }
-
-                return View(claim);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error viewing claim {ClaimId}", id);
-                TempData["Error"] = "An error occurred loading claim details.";
-                return RedirectToAction(nameof(Dashboard));
-            }
-        }
-
-        [HttpGet]
+        // GET: Manager/DownloadDocument/5
         public async Task<IActionResult> DownloadDocument(int documentId)
         {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
             try
             {
-                var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
-
-                // Get document (manager sees all)
                 var document = await _context.SupportingDocuments
                     .Include(d => d.Claim)
                     .FirstOrDefaultAsync(d => d.DocumentId == documentId);
@@ -426,34 +263,25 @@ namespace CMCS.Controllers
                     return RedirectToAction(nameof(Dashboard));
                 }
 
-                var filePath = Path.Combine(_environment.WebRootPath, document.FilePath.TrimStart('/'));
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", document.FilePath);
 
                 if (!System.IO.File.Exists(filePath))
                 {
-                    _logger.LogError("File not found: {FilePath}", filePath);
                     TempData["Error"] = "File not found on server.";
                     return RedirectToAction(nameof(ViewClaim), new { id = document.ClaimId });
                 }
 
-                try
+                // Read and decrypt file
+                var encryptedBytes = await System.IO.File.ReadAllBytesAsync(filePath);
+                var decryptedBytes = _encryptionService.Decrypt(encryptedBytes);
+
+                if (decryptedBytes == null)
                 {
-                    // Read encrypted file from disk
-                    byte[] encryptedData = await System.IO.File.ReadAllBytesAsync(filePath);
-
-                    // Decrypt the file
-                    byte[] decryptedData = _encryptionService.DecryptFile(encryptedData);
-
-                    _logger.LogInformation("Document {DocumentId} decrypted and downloaded by manager {UserId}", documentId, userId);
-
-                    // Return decrypted file
-                    return File(decryptedData, "application/octet-stream", document.FileName);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error decrypting document {DocumentId}", documentId);
-                    TempData["Error"] = "Error decrypting file. File may be corrupted.";
+                    TempData["Error"] = "Unable to decrypt file. File may be corrupted.";
                     return RedirectToAction(nameof(ViewClaim), new { id = document.ClaimId });
                 }
+
+                return File(decryptedBytes, document.ContentType, document.FileName);
             }
             catch (Exception ex)
             {
@@ -462,6 +290,25 @@ namespace CMCS.Controllers
                 return RedirectToAction(nameof(Dashboard));
             }
         }
+
+        // GET: Manager/Reports
+        public async Task<IActionResult> Reports()
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var approvedClaims = await _context.Claims
+                .Include(c => c.User)
+                .Include(c => c.Module)
+                .Where(c => c.Status == "Approved")
+                .OrderByDescending(c => c.ApprovedAt)
+                .ToListAsync();
+
+            return View(approvedClaims);
+        }
     }
 }
-//--------------------------End Of File--------------------------//
+//--------------------------End Of File--------------------------/
