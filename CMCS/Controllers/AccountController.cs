@@ -24,6 +24,12 @@ namespace CMCS.Controllers
         [HttpGet]
         public IActionResult Login()
         {
+            // Check session first
+            if (HttpContext.Session.GetInt32("UserId") != null)
+            {
+                return RedirectToDashboard();
+            }
+
             if (User.Identity?.IsAuthenticated == true)
             {
                 return RedirectToDashboard();
@@ -85,9 +91,21 @@ namespace CMCS.Controllers
                     new ClaimsPrincipal(claimsIdentity),
                     authProperties);
 
+                // ========== SESSION STORAGE - MANDATORY FOR PART 3 ==========
+                // Store user information in session for authorization checks
+                HttpContext.Session.SetInt32("UserId", user.UserId);
+                HttpContext.Session.SetString("UserRole", user.UserRole.ToString());
+                HttpContext.Session.SetString("UserEmail", user.Email);
+                HttpContext.Session.SetString("UserFullName", $"{user.FirstName} {user.LastName}");
+                HttpContext.Session.SetString("HourlyRate", user.HourlyRate.ToString());
+
+                _logger.LogInformation("User {UserId} logged in. Session created with Role: {Role}",
+                    user.UserId, user.UserRole);
+                // =============================================================
+
                 TempData["Success"] = $"Welcome back, {user.FirstName}!";
 
-                // Redirect based on role - Manager now goes to ManagerController
+                // Redirect based on role
                 return user.UserRole switch
                 {
                     UserRole.Lecturer => RedirectToAction("Dashboard", "Lecturer"),
@@ -112,7 +130,15 @@ namespace CMCS.Controllers
         {
             try
             {
+                var userId = HttpContext.Session.GetInt32("UserId");
+
+                // Clear session - MANDATORY
+                HttpContext.Session.Clear();
+
                 await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+                _logger.LogInformation("User {UserId} logged out. Session cleared.", userId);
+
                 TempData["Success"] = "You have been logged out successfully.";
                 return RedirectToAction(nameof(Login));
             }
@@ -131,14 +157,26 @@ namespace CMCS.Controllers
 
         private IActionResult RedirectToDashboard()
         {
-            if (User.IsInRole("Lecturer"))
-                return RedirectToAction("Dashboard", "Lecturer");
-            if (User.IsInRole("Coordinator"))
-                return RedirectToAction("Dashboard", "Coordinator");
-            if (User.IsInRole("Manager"))
-                return RedirectToAction("Dashboard", "Manager");
-            if (User.IsInRole("HR"))
-                return RedirectToAction("Dashboard", "HR");
+            var role = HttpContext.Session.GetString("UserRole");
+
+            if (string.IsNullOrEmpty(role))
+            {
+                if (User.IsInRole("Lecturer")) return RedirectToAction("Dashboard", "Lecturer");
+                if (User.IsInRole("Coordinator")) return RedirectToAction("Dashboard", "Coordinator");
+                if (User.IsInRole("Manager")) return RedirectToAction("Dashboard", "Manager");
+                if (User.IsInRole("HR")) return RedirectToAction("Dashboard", "HR");
+            }
+            else
+            {
+                return role switch
+                {
+                    "Lecturer" => RedirectToAction("Dashboard", "Lecturer"),
+                    "Coordinator" => RedirectToAction("Dashboard", "Coordinator"),
+                    "Manager" => RedirectToAction("Dashboard", "Manager"),
+                    "HR" => RedirectToAction("Dashboard", "HR"),
+                    _ => RedirectToAction("Index", "Home")
+                };
+            }
 
             return RedirectToAction("Index", "Home");
         }
