@@ -1,0 +1,207 @@
+﻿@model CMCS.ViewModels.HRDashboardViewModel
+@{
+    ViewData["Title"] = "HR Dashboard";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="text-primary">
+                <i class="bi bi-person-gear"></i> HR Dashboard
+            </h2>
+            <p class="text-muted">Manage users, set hourly rates, and generate reports</p>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-2">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center">
+                    <h3>@Model.TotalUsers</h3>
+                    <p class="mb-0">Total Users</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card bg-info text-white">
+                <div class="card-body text-center">
+                    <h3>@Model.TotalLecturers</h3>
+                    <p class="mb-0">Lecturers</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card bg-warning text-dark">
+                <div class="card-body text-center">
+                    <h3>@Model.TotalCoordinators</h3>
+                    <p class="mb-0">Coordinators</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card bg-secondary text-white">
+                <div class="card-body text-center">
+                    <h3>@Model.TotalManagers</h3>
+                    <p class="mb-0">Managers</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <h3>@Model.TotalApprovedClaims</h3>
+                    <p class="mb-0">Approved Claims</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card bg-dark text-white">
+                <div class="card-body text-center">
+                    <h3>R @Model.TotalPaymentAmount.ToString("N2")</h3>
+                    <p class="mb-0">Total Payments</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <a asp-action="CreateUser" class="btn btn-success me-2">
+                <i class="bi bi-person-plus"></i> Add New User
+            </a>
+            <a asp-action="Reports" class="btn btn-primary me-2">
+                <i class="bi bi-file-earmark-pdf"></i> Generate Reports
+            </a>
+            <a asp-action="Invoices" class="btn btn-info">
+                <i class="bi bi-receipt"></i> Generate Invoices
+            </a>
+        </div>
+    </div>
+
+    <!-- Alerts -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle"></i> @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-circle"></i> @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Users Table -->
+    <div class="card">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">
+                <i class="bi bi-people"></i> All Users
+            </h5>
+        </div>
+        <div class="card-body">
+            @if (Model.Users.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Department</th>
+                                <th>Hourly Rate</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var user in Model.Users)
+                            {
+                                <tr>
+                                    <td>@user.UserId</td>
+                                    <td>@user.FullName</td>
+                                    <td>@user.Email</td>
+                                    <td>
+                                        @switch (user.Role)
+                                        {
+                                            case "Lecturer":
+                                                <span class="badge bg-info">@user.Role</span>
+                                                break;
+                                            case "Coordinator":
+                                                <span class="badge bg-warning text-dark">@user.Role</span>
+                                                break;
+                                            case "Manager":
+                                                <span class="badge bg-secondary">@user.Role</span>
+                                                break;
+                                            case "HR":
+                                                <span class="badge bg-primary">@user.Role</span>
+                                                break;
+                                            default:
+                                                <span class="badge bg-dark">@user.Role</span>
+                                                break;
+                                        }
+                                    </td>
+                                    <td>@(user.Department ?? "N/A")</td>
+                                    <td>
+                                        @if (user.Role == "Lecturer")
+                                        {
+                                            <span>R @user.HourlyRate.ToString("N2")</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">N/A</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (user.IsActive)
+                                        {
+                                            <span class="badge bg-success">Active</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger">Inactive</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <a asp-action="EditUser" asp-route-id="@user.UserId" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-pencil"></i> Edit
+                                        </a>
+                                        <a asp-action="ViewUser" asp-route-id="@user.UserId" class="btn btn-sm btn-outline-info">
+                                            <i class="bi bi-eye"></i> View
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-4">
+                    <i class="bi bi-people display-4 text-muted"></i>
+                    <p class="mt-2 text-muted">No users found. Click "Add New User" to create one.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Auto-dismiss alerts after 5 seconds
+        setTimeout(function() {
+            var alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                var bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+    </script>
+}

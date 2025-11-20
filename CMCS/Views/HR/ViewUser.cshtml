@@ -1,0 +1,216 @@
+﻿@model CMCS.Models.User
+@{
+    ViewData["Title"] = "View User Details";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-person"></i> User Details
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <!-- Personal Information -->
+                    <h5 class="text-primary mb-3">Personal Information</h5>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label text-muted">First Name</label>
+                            <p class="form-control-plaintext fw-bold">@Model.FirstName</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted">Last Name</label>
+                            <p class="form-control-plaintext fw-bold">@Model.LastName</p>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label text-muted">Email Address</label>
+                            <p class="form-control-plaintext fw-bold">@Model.Email</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted">Phone Number</label>
+                            <p class="form-control-plaintext fw-bold">@(Model.Phone ?? "Not provided")</p>
+                        </div>
+                    </div>
+
+                    <hr class="my-4" />
+
+                    <!-- Account Information -->
+                    <h5 class="text-primary mb-3">Account Information</h5>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label text-muted">User ID</label>
+                            <p class="form-control-plaintext fw-bold">@Model.UserId</p>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label text-muted">Role</label>
+                            <p class="form-control-plaintext">
+                                @switch (Model.Role)
+                                {
+                                    case "Lecturer":
+                                        <span class="badge bg-info fs-6">@Model.Role</span>
+                                        break;
+                                    case "Coordinator":
+                                        <span class="badge bg-warning text-dark fs-6">@Model.Role</span>
+                                        break;
+                                    case "Manager":
+                                        <span class="badge bg-secondary fs-6">@Model.Role</span>
+                                        break;
+                                    case "HR":
+                                        <span class="badge bg-primary fs-6">@Model.Role</span>
+                                        break;
+                                    default:
+                                        <span class="badge bg-dark fs-6">@Model.Role</span>
+                                        break;
+                                }
+                            </p>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label text-muted">Status</label>
+                            <p class="form-control-plaintext">
+                                @if (Model.IsActive)
+                                {
+                                    <span class="badge bg-success fs-6">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger fs-6">Inactive</span>
+                                }
+                            </p>
+                        </div>
+                    </div>
+
+                    @if (Model.Role == "Lecturer")
+                    {
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label text-muted">Hourly Rate</label>
+                                <p class="form-control-plaintext fw-bold text-success">R @Model.HourlyRate.ToString("N2")</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-muted">Total Claims</label>
+                                <p class="form-control-plaintext fw-bold">@Model.Claims.Count</p>
+                            </div>
+                        </div>
+                    }
+
+                    <hr class="my-4" />
+
+                    <!-- Work Information -->
+                    <h5 class="text-primary mb-3">Work Information</h5>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label text-muted">Department</label>
+                            <p class="form-control-plaintext fw-bold">@(Model.Department ?? "Not specified")</p>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label text-muted">Faculty</label>
+                            <p class="form-control-plaintext fw-bold">@(Model.Faculty ?? "Not specified")</p>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label text-muted">Campus</label>
+                            <p class="form-control-plaintext fw-bold">@(Model.Campus ?? "Not specified")</p>
+                        </div>
+                    </div>
+
+                    <hr class="my-4" />
+
+                    <!-- Timestamps -->
+                    <h5 class="text-primary mb-3">Account Dates</h5>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label text-muted">Created</label>
+                            <p class="form-control-plaintext">@Model.CreatedAt.ToString("dd MMM yyyy HH:mm")</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted">Last Updated</label>
+                            <p class="form-control-plaintext">@(Model.UpdatedAt?.ToString("dd MMM yyyy HH:mm") ?? "Never")</p>
+                        </div>
+                    </div>
+
+                    <hr class="my-4" />
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Dashboard" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i> Back to Dashboard
+                        </a>
+                        <div>
+                            <a asp-action="EditUser" asp-route-id="@Model.UserId" class="btn btn-primary">
+                                <i class="bi bi-pencil"></i> Edit User
+                            </a>
+                            @if (Model.Role == "Lecturer")
+                            {
+                                <a asp-action="QuickInvoice" asp-route-id="@Model.UserId" class="btn btn-info">
+                                    <i class="bi bi-receipt"></i> Generate Invoice
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @if (Model.Role == "Lecturer" && Model.Claims.Any())
+            {
+                <!-- Recent Claims -->
+                <div class="card mt-4">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">
+                            <i class="bi bi-file-earmark-text"></i> Recent Claims
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Hours</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var claim in Model.Claims.OrderByDescending(c => c.SubmissionDate).Take(5))
+                                    {
+                                        <tr>
+                                            <td>@claim.ClaimId</td>
+                                            <td>@claim.HoursWorked.ToString("N1")</td>
+                                            <td>R @claim.TotalAmount.ToString("N2")</td>
+                                            <td>
+                                                @switch (claim.Status)
+                                                {
+                                                    case "Pending":
+                                                        <span class="badge bg-warning text-dark">@claim.Status</span>
+                                                        break;
+                                                    case "Verified":
+                                                        <span class="badge bg-info">@claim.Status</span>
+                                                        break;
+                                                    case "Approved":
+                                                        <span class="badge bg-success">@claim.Status</span>
+                                                        break;
+                                                    case "Rejected":
+                                                        <span class="badge bg-danger">@claim.Status</span>
+                                                        break;
+                                                    default:
+                                                        <span class="badge bg-secondary">@claim.Status</span>
+                                                        break;
+                                                }
+                                            </td>
+                                            <td>@claim.SubmissionDate.ToString("dd MMM yyyy")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

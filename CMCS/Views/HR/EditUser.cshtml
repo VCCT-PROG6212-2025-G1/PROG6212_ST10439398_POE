@@ -1,0 +1,158 @@
+﻿@model CMCS.ViewModels.EditUserViewModel
+@{
+    ViewData["Title"] = "Edit User";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-pencil"></i> Edit User
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="EditUser" method="post">
+                        <input type="hidden" asp-for="UserId" />
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                        <!-- Personal Information -->
+                        <h5 class="text-primary mb-3">Personal Information</h5>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="FirstName" class="form-label"></label>
+                                <input asp-for="FirstName" class="form-control" />
+                                <span asp-validation-for="FirstName" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="LastName" class="form-label"></label>
+                                <input asp-for="LastName" class="form-control" />
+                                <span asp-validation-for="LastName" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="Email" class="form-label"></label>
+                                <input asp-for="Email" class="form-control" />
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Phone" class="form-label"></label>
+                                <input asp-for="Phone" class="form-control" />
+                                <span asp-validation-for="Phone" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <hr class="my-4" />
+
+                        <!-- Account Information -->
+                        <h5 class="text-primary mb-3">Account Information</h5>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="Password" class="form-label"></label>
+                                <input asp-for="Password" class="form-control" placeholder="Leave blank to keep current" />
+                                <span asp-validation-for="Password" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="ConfirmPassword" class="form-label"></label>
+                                <input asp-for="ConfirmPassword" class="form-control" placeholder="Confirm new password" />
+                                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="Role" class="form-label"></label>
+                                <select asp-for="Role" class="form-select" id="roleSelect">
+                                    <option value="Lecturer">Lecturer</option>
+                                    <option value="Coordinator">Programme Coordinator</option>
+                                    <option value="Manager">Academic Manager</option>
+                                    <option value="HR">HR</option>
+                                </select>
+                                <span asp-validation-for="Role" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="IsActive" class="form-label d-block"></label>
+                                <div class="form-check form-switch mt-2">
+                                    <input asp-for="IsActive" class="form-check-input" type="checkbox" role="switch" />
+                                    <label class="form-check-label" asp-for="IsActive">
+                                        @(Model.IsActive ? "Account is Active" : "Account is Inactive")
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3" id="hourlyRateGroup">
+                            <div class="col-md-6">
+                                <label asp-for="HourlyRate" class="form-label"></label>
+                                <div class="input-group">
+                                    <span class="input-group-text">R</span>
+                                    <input asp-for="HourlyRate" class="form-control" />
+                                </div>
+                                <span asp-validation-for="HourlyRate" class="text-danger"></span>
+                                <small class="text-muted">Hourly rate for claim calculations</small>
+                            </div>
+                        </div>
+
+                        <hr class="my-4" />
+
+                        <!-- Work Information -->
+                        <h5 class="text-primary mb-3">Work Information</h5>
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label asp-for="Department" class="form-label"></label>
+                                <input asp-for="Department" class="form-control" />
+                                <span asp-validation-for="Department" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="Faculty" class="form-label"></label>
+                                <input asp-for="Faculty" class="form-control" />
+                                <span asp-validation-for="Faculty" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="Campus" class="form-label"></label>
+                                <input asp-for="Campus" class="form-control" />
+                                <span asp-validation-for="Campus" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <hr class="my-4" />
+
+                        <!-- Submit Buttons -->
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Dashboard" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left"></i> Back to Dashboard
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save"></i> Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Show/hide hourly rate based on role selection
+        function toggleHourlyRate() {
+            var roleSelect = document.getElementById('roleSelect');
+            var hourlyRateGroup = document.getElementById('hourlyRateGroup');
+            if (roleSelect.value === 'Lecturer') {
+                hourlyRateGroup.style.display = 'block';
+            } else {
+                hourlyRateGroup.style.display = 'none';
+            }
+        }
+
+        document.getElementById('roleSelect').addEventListener('change', toggleHourlyRate);
+
+        // Trigger on page load
+        toggleHourlyRate();
+    </script>
+}
