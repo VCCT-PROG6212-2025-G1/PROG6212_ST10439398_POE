@@ -7,7 +7,6 @@ using System.Security.Claims;
 using CMCS.Models;
 using CMCS.ViewModels;
 using CMCS.Data;
-using Microsoft.VisualStudio.Services.UserAccountMapping;
 
 namespace CMCS.Controllers
 {
@@ -70,6 +69,18 @@ namespace CMCS.Controllers
                     return View(model);
                 }
 
+                // ========== PASSWORD VALIDATION - MANDATORY FOR PART 3 ==========
+                // Verify password using BCrypt
+                if (string.IsNullOrEmpty(user.PasswordHash) ||
+                    !BCrypt.Net.BCrypt.Verify(model.Password, user.PasswordHash))
+                {
+                    ModelState.AddModelError("", "Invalid login credentials.");
+                    TempData["Error"] = "Invalid password. Please try again.";
+                    _logger.LogWarning("Failed login attempt for user: {Email}", model.Email);
+                    return View(model);
+                }
+                // ================================================================
+
                 // Create authentication claims
                 var claims = new List<System.Security.Claims.Claim>
                 {
@@ -100,7 +111,7 @@ namespace CMCS.Controllers
                 HttpContext.Session.SetString("UserFullName", $"{user.FirstName} {user.LastName}");
                 HttpContext.Session.SetString("HourlyRate", user.HourlyRate.ToString());
 
-                _logger.LogInformation("User {UserId} logged in. Session created with Role: {Role}",
+                _logger.LogInformation("User {UserId} logged in successfully. Session created with Role: {Role}",
                     user.UserId, user.UserRole);
                 // =============================================================
 

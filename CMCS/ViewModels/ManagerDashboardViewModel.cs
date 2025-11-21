@@ -5,6 +5,13 @@ namespace CMCS.ViewModels
 {
     public class ManagerDashboardViewModel
     {
+        public List<Claim> ClaimsForApproval { get; set; } = new List<Claim>();
+        public int UrgentClaims { get; set; }
+        public int TotalThisWeek { get; set; }
+        public int PendingApproval { get; set; }
+        public int ApprovedToday { get; set; }
+
+        // Keep these for backward compatibility
         public List<Claim> VerifiedClaims { get; set; } = new List<Claim>();
         public int TotalVerified { get; set; }
         public int TotalApproved { get; set; }

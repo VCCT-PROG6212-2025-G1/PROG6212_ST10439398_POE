@@ -1,9 +1,10 @@
 ﻿//--------------------------Start Of File--------------------------//
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using CMCS.Data;
 using CMCS.Models;
 using CMCS.Services;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace CMCS.Controllers.Api
 {
@@ -12,12 +13,12 @@ namespace CMCS.Controllers.Api
     public class ClaimsApiController : ControllerBase
     {
         private readonly CMCSContext _context;
-        private readonly FileEncryptionService _encryptionService;
+        private readonly IFileEncryptionService _encryptionService;
         private readonly ILogger<ClaimsApiController> _logger;
 
         public ClaimsApiController(
             CMCSContext context,
-            FileEncryptionService encryptionService,
+            IFileEncryptionService encryptionService,
             ILogger<ClaimsApiController> logger)
         {
             _context = context;
@@ -33,7 +34,7 @@ namespace CMCS.Controllers.Api
             {
                 // Validate user exists and is a lecturer
                 var user = await _context.Users.FindAsync(request.UserId);
-                if (user == null || user.Role != "Lecturer")
+                if (user == null || user.UserRole != UserRole.Lecturer)
                 {
                     return BadRequest(new { success = false, message = "Invalid user or user is not a lecturer" });
                 }
@@ -85,13 +86,8 @@ namespace CMCS.Controllers.Api
                     var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(request.SupportingDocument.FileName)}";
                     var filePath = Path.Combine(uploadsPath, fileName);
 
-                    // Read file bytes
-                    using var memoryStream = new MemoryStream();
-                    await request.SupportingDocument.CopyToAsync(memoryStream);
-                    var fileBytes = memoryStream.ToArray();
-
-                    // Encrypt and save
-                    var encryptedBytes = _encryptionService.Encrypt(fileBytes);
+                    // Encrypt and save using the service
+                    var encryptedBytes = await _encryptionService.EncryptFileAsync(request.SupportingDocument);
                     await System.IO.File.WriteAllBytesAsync(filePath, encryptedBytes);
 
                     // Save document record
@@ -182,7 +178,7 @@ namespace CMCS.Controllers.Api
                     {
                         claim.ClaimId,
                         claim.UserId,
-                        LecturerName = claim.User.FullName,
+                        LecturerName = $"{claim.User.FirstName} {claim.User.LastName}",
                         claim.ModuleId,
                         ModuleName = claim.Module?.ModuleName,
                         claim.HoursWorked,
@@ -199,36 +195,6 @@ namespace CMCS.Controllers.Api
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting claim {ClaimId}", id);
-                return StatusCode(500, new { success = false, message = "An error occurred" });
-            }
-        }
-
-        // GET: api/v1/claims/user/{userId}
-        [HttpGet("user/{userId}")]
-        public async Task<IActionResult> GetUserClaims(int userId)
-        {
-            try
-            {
-                var claims = await _context.Claims
-                    .Include(c => c.Module)
-                    .Where(c => c.UserId == userId)
-                    .OrderByDescending(c => c.SubmissionDate)
-                    .Select(c => new
-                    {
-                        c.ClaimId,
-                        ModuleName = c.Module != null ? c.Module.ModuleName : "N/A",
-                        c.HoursWorked,
-                        c.TotalAmount,
-                        Status = c.CurrentStatus.ToString(),
-                        c.SubmissionDate
-                    })
-                    .ToListAsync();
-
-                return Ok(new { success = true, claims });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting claims for user {UserId}", userId);
                 return StatusCode(500, new { success = false, message = "An error occurred" });
             }
         }
@@ -261,38 +227,6 @@ namespace CMCS.Controllers.Api
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting pending claims");
-                return StatusCode(500, new { success = false, message = "An error occurred" });
-            }
-        }
-
-        // GET: api/v1/claims/verified
-        [HttpGet("verified")]
-        public async Task<IActionResult> GetVerifiedClaims()
-        {
-            try
-            {
-                var claims = await _context.Claims
-                    .Include(c => c.User)
-                    .Include(c => c.Module)
-                    .Where(c => c.CurrentStatus == ClaimStatus.UnderReview)
-                    .OrderBy(c => c.SubmissionDate)
-                    .Select(c => new
-                    {
-                        c.ClaimId,
-                        LecturerName = c.User.FirstName + " " + c.User.LastName,
-                        ModuleName = c.Module != null ? c.Module.ModuleName : "N/A",
-                        c.HoursWorked,
-                        c.TotalAmount,
-                        Status = c.CurrentStatus.ToString(),
-                        c.SubmissionDate
-                    })
-                    .ToListAsync();
-
-                return Ok(new { success = true, claims });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting verified claims");
                 return StatusCode(500, new { success = false, message = "An error occurred" });
             }
         }

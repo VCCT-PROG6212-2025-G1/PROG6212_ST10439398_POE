@@ -4,41 +4,48 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CMCS.Models
 {
+    public enum UserRole
+    {
+        Lecturer,
+        Coordinator,
+        Manager,
+        HR
+    }
+
     public class User
     {
         [Key]
         public int UserId { get; set; }
 
         [Required]
-        [StringLength(50)]
+        [StringLength(100)]
         public string FirstName { get; set; } = string.Empty;
 
         [Required]
-        [StringLength(50)]
+        [StringLength(100)]
         public string LastName { get; set; } = string.Empty;
 
         [Required]
         [EmailAddress]
-        [StringLength(100)]
+        [StringLength(255)]
         public string Email { get; set; } = string.Empty;
 
-        [Required]
+        [StringLength(256)]
         public string PasswordHash { get; set; } = string.Empty;
 
         [Required]
-        [StringLength(20)]
-        public string Role { get; set; } = string.Empty; // Lecturer, Coordinator, Manager, HR
+        public UserRole UserRole { get; set; }
 
         [StringLength(20)]
-        public string? Phone { get; set; }
+        public string? PhoneNumber { get; set; }
 
-        [StringLength(50)]
+        [StringLength(100)]
         public string? Department { get; set; }
 
-        [StringLength(50)]
+        [StringLength(100)]
         public string? Faculty { get; set; }
 
-        [StringLength(50)]
+        [StringLength(100)]
         public string? Campus { get; set; }
 
         // HR-set hourly rate for lecturers
@@ -47,9 +54,9 @@ namespace CMCS.Models
 
         public bool IsActive { get; set; } = true;
 
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime CreatedDate { get; set; } = DateTime.Now;
 
-        public DateTime? UpdatedAt { get; set; }
+        public DateTime? LastModified { get; set; }
 
         // Navigation property
         public virtual ICollection<Claim> Claims { get; set; } = new List<Claim>();
@@ -57,6 +64,41 @@ namespace CMCS.Models
         // Computed property for full name
         [NotMapped]
         public string FullName => $"{FirstName} {LastName}";
+
+        // Computed properties for compatibility with existing code
+        [NotMapped]
+        public string Role
+        {
+            get => UserRole.ToString();
+            set
+            {
+                if (Enum.TryParse<UserRole>(value, true, out var role))
+                {
+                    UserRole = role;
+                }
+            }
+        }
+
+        [NotMapped]
+        public string? Phone
+        {
+            get => PhoneNumber;
+            set => PhoneNumber = value;
+        }
+
+        [NotMapped]
+        public DateTime CreatedAt
+        {
+            get => CreatedDate;
+            set => CreatedDate = value;
+        }
+
+        [NotMapped]
+        public DateTime? UpdatedAt
+        {
+            get => LastModified;
+            set => LastModified = value;
+        }
     }
 }
 //--------------------------End Of File--------------------------//

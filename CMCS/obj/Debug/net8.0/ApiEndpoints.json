@@ -1,1 +1,288 @@
-[]
+[
+  {
+    "ContainingType": "CMCS.Controllers.Api.ApprovalsApiController",
+    "Method": "ApproveClaim",
+    "RelativePath": "api/v1/ApprovalsApi/{id}/approve",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "request",
+        "Type": "CMCS.Controllers.Api.ApprovalRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CMCS.Controllers.Api.ApprovalsApiController",
+    "Method": "RejectClaim",
+    "RelativePath": "api/v1/ApprovalsApi/{id}/reject",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "request",
+        "Type": "CMCS.Controllers.Api.ApprovalRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CMCS.Controllers.Api.ApprovalsApiController",
+    "Method": "VerifyClaim",
+    "RelativePath": "api/v1/ApprovalsApi/{id}/verify",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "request",
+        "Type": "CMCS.Controllers.Api.ApprovalRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CMCS.Controllers.Api.ApprovalsApiController",
+    "Method": "GetPendingApprovals",
+    "RelativePath": "api/v1/ApprovalsApi/pending",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CMCS.Controllers.Api.ApprovalsApiController",
+    "Method": "GetVerifiedClaims",
+    "RelativePath": "api/v1/ApprovalsApi/verified",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CMCS.Controllers.Api.ClaimsApiController",
+    "Method": "GetClaim",
+    "RelativePath": "api/v1/ClaimsApi/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CMCS.Controllers.Api.ClaimsApiController",
+    "Method": "CalculatePayment",
+    "RelativePath": "api/v1/ClaimsApi/calculate",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "CMCS.Controllers.Api.CalculateRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CMCS.Controllers.Api.ClaimsApiController",
+    "Method": "GetPendingClaims",
+    "RelativePath": "api/v1/ClaimsApi/pending",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CMCS.Controllers.Api.ClaimsApiController",
+    "Method": "SubmitClaim",
+    "RelativePath": "api/v1/ClaimsApi/submit",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "UserId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "ModuleId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "HoursWorked",
+        "Type": "System.Decimal",
+        "IsRequired": false
+      },
+      {
+        "Name": "ClaimPeriod",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "AdditionalNotes",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "SupportingDocument",
+        "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CMCS.Controllers.Api.HRApiController",
+    "Method": "GetDashboardStats",
+    "RelativePath": "api/v1/HRApi/dashboard",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CMCS.Controllers.Api.HRApiController",
+    "Method": "GetClaimsReport",
+    "RelativePath": "api/v1/HRApi/reports/claims",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "startDate",
+        "Type": "System.Nullable\u00601[[System.DateTime, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "endDate",
+        "Type": "System.Nullable\u00601[[System.DateTime, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CMCS.Controllers.Api.HRApiController",
+    "Method": "GenerateInvoice",
+    "RelativePath": "api/v1/HRApi/reports/invoices/{lecturerId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "lecturerId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "startDate",
+        "Type": "System.Nullable\u00601[[System.DateTime, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "endDate",
+        "Type": "System.Nullable\u00601[[System.DateTime, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CMCS.Controllers.Api.HRApiController",
+    "Method": "CreateUser",
+    "RelativePath": "api/v1/HRApi/users",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "CMCS.Controllers.Api.CreateUserRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CMCS.Controllers.Api.HRApiController",
+    "Method": "GetAllUsers",
+    "RelativePath": "api/v1/HRApi/users",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CMCS.Controllers.Api.HRApiController",
+    "Method": "UpdateUser",
+    "RelativePath": "api/v1/HRApi/users/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "request",
+        "Type": "CMCS.Controllers.Api.UpdateUserRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CMCS.Controllers.Api.HRApiController",
+    "Method": "GetUser",
+    "RelativePath": "api/v1/HRApi/users/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  }
+]

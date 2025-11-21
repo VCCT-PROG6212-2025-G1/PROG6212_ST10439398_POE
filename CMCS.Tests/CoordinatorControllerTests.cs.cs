@@ -72,8 +72,7 @@ namespace CMCS.Tests
         {
             var mockLogger = new Mock<ILogger<CoordinatorController>>();
             var mockEncryptionService = new Mock<IFileEncryptionService>();
-            var mockEnvironment = new Mock<Microsoft.AspNetCore.Hosting.IWebHostEnvironment>();
-            var controller = new CoordinatorController(context, mockLogger.Object, mockEncryptionService.Object, mockEnvironment.Object);
+            var controller = new CoordinatorController(context, mockEncryptionService.Object, mockLogger.Object);
 
             var claims = new List<SecurityClaim>
             {
@@ -85,7 +84,6 @@ namespace CMCS.Tests
             var claimsPrincipal = new System.Security.Claims.ClaimsPrincipal(identity);
 
             var httpContext = new DefaultHttpContext { User = claimsPrincipal };
-            // Initialize TempData to avoid null reference
             httpContext.Items = new Dictionary<object, object>();
 
             controller.ControllerContext = new ControllerContext
@@ -93,7 +91,6 @@ namespace CMCS.Tests
                 HttpContext = httpContext
             };
 
-            // Mock TempData
             var tempData = new Microsoft.AspNetCore.Mvc.ViewFeatures.TempDataDictionary(
                 httpContext,
                 Mock.Of<Microsoft.AspNetCore.Mvc.ViewFeatures.ITempDataProvider>());
@@ -327,7 +324,7 @@ namespace CMCS.Tests
             try
             {
                 // Act
-                var result = await controller.BulkVerify(new List<int> { 1, 2 });
+                var result = await controller.BulkVerify(new int[] { 1, 2 });
 
                 // Assert
                 Assert.NotNull(result);

@@ -13,20 +13,17 @@ namespace CMCS.Controllers
     public class CoordinatorController : Controller
     {
         private readonly CMCSContext _context;
-        private readonly FileEncryptionService _encryptionService;
+        private readonly IFileEncryptionService _encryptionService;
         private readonly ILogger<CoordinatorController> _logger;
-        private readonly IHttpClientFactory _httpClientFactory;
 
         public CoordinatorController(
             CMCSContext context,
-            FileEncryptionService encryptionService,
-            ILogger<CoordinatorController> logger,
-            IHttpClientFactory httpClientFactory)
+            IFileEncryptionService encryptionService,
+            ILogger<CoordinatorController> logger)
         {
             _context = context;
             _encryptionService = encryptionService;
             _logger = logger;
-            _httpClientFactory = httpClientFactory;
         }
 
         // GET: Coordinator/Dashboard
@@ -38,7 +35,7 @@ namespace CMCS.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            var pendingClaims = await _context.Claims
+            var claimsForReview = await _context.Claims
                 .Include(c => c.User)
                 .Include(c => c.Module)
                 .Include(c => c.SupportingDocuments)
@@ -46,10 +43,21 @@ namespace CMCS.Controllers
                 .OrderBy(c => c.SubmissionDate)
                 .ToListAsync();
 
+            var startOfWeek = DateTime.Now.Date.AddDays(-(int)DateTime.Now.DayOfWeek);
+            var today = DateTime.Now.Date;
+
             var viewModel = new CoordinatorDashboardViewModel
             {
-                PendingClaims = pendingClaims,
-                TotalPending = pendingClaims.Count,
+                ClaimsForReview = claimsForReview,
+                PendingClaims = claimsForReview,
+                UrgentClaims = claimsForReview.Count(c => (DateTime.Now - c.SubmissionDate).Days > 5),
+                TotalThisWeek = await _context.Claims.CountAsync(c => c.SubmissionDate >= startOfWeek),
+                PendingReview = claimsForReview.Count,
+                ApprovedToday = await _context.Claims.CountAsync(c =>
+                    c.CurrentStatus == ClaimStatus.UnderReview &&
+                    c.LastModified.HasValue &&
+                    c.LastModified.Value.Date == today),
+                TotalPending = claimsForReview.Count,
                 TotalVerified = await _context.Claims.CountAsync(c => c.CurrentStatus == ClaimStatus.UnderReview),
                 TotalRejected = await _context.Claims.CountAsync(c => c.CurrentStatus == ClaimStatus.Rejected)
             };
@@ -81,10 +89,10 @@ namespace CMCS.Controllers
             return View(claim);
         }
 
-        // POST: Coordinator/Verify/5
+        // POST: Coordinator/VerifyClaim
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Verify(int id, string? comments)
+        public async Task<IActionResult> VerifyClaim(int id)
         {
             var userId = HttpContext.Session.GetInt32("UserId");
             if (userId == null)
@@ -108,7 +116,7 @@ namespace CMCS.Controllers
                         NewStatus = ClaimStatus.UnderReview,
                         ChangeDate = DateTime.Now,
                         ChangedBy = userId.Value,
-                        Comments = comments ?? "Verified by Coordinator"
+                        Comments = "Verified by Coordinator"
                     };
                     _context.ClaimStatusHistories.Add(statusHistory);
                     await _context.SaveChangesAsync();
@@ -129,10 +137,10 @@ namespace CMCS.Controllers
             return RedirectToAction(nameof(Dashboard));
         }
 
-        // POST: Coordinator/Reject/5
+        // POST: Coordinator/RejectClaim
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Reject(int id, string? comments)
+        public async Task<IActionResult> RejectClaim(int id, string reason)
         {
             var userId = HttpContext.Session.GetInt32("UserId");
             if (userId == null)
@@ -140,10 +148,10 @@ namespace CMCS.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            if (string.IsNullOrWhiteSpace(comments))
+            if (string.IsNullOrWhiteSpace(reason))
             {
                 TempData["Error"] = "Please provide a reason for rejection.";
-                return RedirectToAction(nameof(ViewClaim), new { id });
+                return RedirectToAction(nameof(Dashboard));
             }
 
             try
@@ -162,7 +170,7 @@ namespace CMCS.Controllers
                         NewStatus = ClaimStatus.Rejected,
                         ChangeDate = DateTime.Now,
                         ChangedBy = userId.Value,
-                        Comments = comments
+                        Comments = reason
                     };
                     _context.ClaimStatusHistories.Add(statusHistory);
                     await _context.SaveChangesAsync();
@@ -183,8 +191,10 @@ namespace CMCS.Controllers
             return RedirectToAction(nameof(Dashboard));
         }
 
-        // GET: Coordinator/ClaimHistory
-        public async Task<IActionResult> ClaimHistory()
+        // POST: Coordinator/BulkVerify
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> BulkVerify(int[] claimIds)
         {
             var userId = HttpContext.Session.GetInt32("UserId");
             if (userId == null)
@@ -192,16 +202,97 @@ namespace CMCS.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            var claims = await _context.Claims
-                .Include(c => c.User)
-                .Include(c => c.Module)
-                .Where(c => c.CurrentStatus == ClaimStatus.UnderReview ||
-                            c.CurrentStatus == ClaimStatus.Rejected ||
-                            c.CurrentStatus == ClaimStatus.Approved)
-                .OrderByDescending(c => c.SubmissionDate)
-                .ToListAsync();
+            try
+            {
+                int verifiedCount = 0;
+                foreach (var claimId in claimIds)
+                {
+                    var claim = await _context.Claims.FindAsync(claimId);
+                    if (claim != null && claim.CurrentStatus == ClaimStatus.Submitted)
+                    {
+                        var previousStatus = claim.CurrentStatus;
+                        claim.CurrentStatus = ClaimStatus.UnderReview;
+                        claim.LastModified = DateTime.Now;
 
-            return View(claims);
+                        var statusHistory = new ClaimStatusHistory
+                        {
+                            ClaimId = claimId,
+                            PreviousStatus = previousStatus,
+                            NewStatus = ClaimStatus.UnderReview,
+                            ChangeDate = DateTime.Now,
+                            ChangedBy = userId.Value,
+                            Comments = "Bulk verified by Coordinator"
+                        };
+                        _context.ClaimStatusHistories.Add(statusHistory);
+                        verifiedCount++;
+                    }
+                }
+                await _context.SaveChangesAsync();
+
+                TempData["Success"] = $"{verifiedCount} claim(s) have been verified and forwarded to Manager.";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error bulk verifying claims");
+                TempData["Error"] = "An error occurred while verifying claims.";
+            }
+
+            return RedirectToAction(nameof(Dashboard));
+        }
+
+        // POST: Coordinator/BulkReject
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> BulkReject(int[] ClaimIds, string Reason)
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            if (string.IsNullOrWhiteSpace(Reason))
+            {
+                TempData["Error"] = "Please provide a reason for rejection.";
+                return RedirectToAction(nameof(Dashboard));
+            }
+
+            try
+            {
+                int rejectedCount = 0;
+                foreach (var claimId in ClaimIds)
+                {
+                    var claim = await _context.Claims.FindAsync(claimId);
+                    if (claim != null && claim.CurrentStatus == ClaimStatus.Submitted)
+                    {
+                        var previousStatus = claim.CurrentStatus;
+                        claim.CurrentStatus = ClaimStatus.Rejected;
+                        claim.LastModified = DateTime.Now;
+
+                        var statusHistory = new ClaimStatusHistory
+                        {
+                            ClaimId = claimId,
+                            PreviousStatus = previousStatus,
+                            NewStatus = ClaimStatus.Rejected,
+                            ChangeDate = DateTime.Now,
+                            ChangedBy = userId.Value,
+                            Comments = Reason
+                        };
+                        _context.ClaimStatusHistories.Add(statusHistory);
+                        rejectedCount++;
+                    }
+                }
+                await _context.SaveChangesAsync();
+
+                TempData["Success"] = $"{rejectedCount} claim(s) have been rejected.";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error bulk rejecting claims");
+                TempData["Error"] = "An error occurred while rejecting claims.";
+            }
+
+            return RedirectToAction(nameof(Dashboard));
         }
 
         // GET: Coordinator/DownloadDocument/5
@@ -235,7 +326,7 @@ namespace CMCS.Controllers
 
                 // Read and decrypt file
                 var encryptedBytes = await System.IO.File.ReadAllBytesAsync(filePath);
-                var decryptedBytes = _encryptionService.Decrypt(encryptedBytes);
+                var decryptedBytes = _encryptionService.DecryptFile(encryptedBytes);
 
                 if (decryptedBytes == null)
                 {
@@ -257,7 +348,7 @@ namespace CMCS.Controllers
 
         private string GetContentType(string fileType)
         {
-            return fileType.ToLower() switch
+            return fileType?.ToLower() switch
             {
                 "pdf" => "application/pdf",
                 "doc" => "application/msword",

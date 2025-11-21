@@ -1,7 +1,7 @@
 //---------------------Start of File -------------------------//
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using CMCS.Data;
 using CMCS.Services;
 

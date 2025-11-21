@@ -1,4 +1,4 @@
-<!--------------------- Start of File ------------------------->
+﻿<!--------------------- Start of File ------------------------->
 @model CMCS.ViewModels.LoginViewModel
 @{
     ViewData["Title"] = "Login";
@@ -34,7 +34,7 @@
             border-radius: 16px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
             width: 100%;
-            max-width: 500px;
+            max-width: 550px;
         }
 
         .login-header {
@@ -64,13 +64,13 @@
         }
 
         .role-buttons {
-            display: flex;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
             gap: 10px;
             margin-bottom: 25px;
         }
 
         .role-btn {
-            flex: 1;
             padding: 12px;
             border: 2px solid #d1d5db;
             border-radius: 8px;
@@ -175,10 +175,12 @@
         <form asp-action="Login" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
+            <!-- 🔧 FIXED: Added HR role button -->
             <div class="role-buttons">
                 <button type="button" class="role-btn active" data-role="Lecturer">Lecturer</button>
                 <button type="button" class="role-btn" data-role="Coordinator">Coordinator</button>
                 <button type="button" class="role-btn" data-role="Manager">Manager</button>
+                <button type="button" class="role-btn" data-role="HR">HR</button>
             </div>
             <input type="hidden" asp-for="UserType" id="userTypeInput" value="Lecturer" />
             <span asp-validation-for="UserType" class="text-danger"></span>

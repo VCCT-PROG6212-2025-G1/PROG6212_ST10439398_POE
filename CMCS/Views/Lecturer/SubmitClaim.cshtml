@@ -28,23 +28,19 @@
                         <div class="alert alert-info">
                             <h6><i class="bi bi-info-circle"></i> Your Information (Auto-populated by HR)</h6>
                             <div class="row mt-2">
-                                <div class="col-md-4">
+                                <div class="col-md-6">
                                     <small class="text-muted">Name</small>
                                     <p class="mb-0 fw-bold">@ViewBag.UserName</p>
                                 </div>
-                                <div class="col-md-4">
-                                    <small class="text-muted">Email</small>
-                                    <p class="mb-0 fw-bold">@ViewBag.UserEmail</p>
-                                </div>
-                                <div class="col-md-4">
-                                    <small class="text-muted">Hourly Rate</small>
-                                    <p class="mb-0 fw-bold text-success">R @ViewBag.HourlyRate</p>
+                                <div class="col-md-6">
+                                    <small class="text-muted">Hourly Rate (Set by HR)</small>
+                                    <p class="mb-0 fw-bold text-success">R @ViewBag.UserHourlyRate</p>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Hidden field for hourly rate -->
-                        <input type="hidden" id="hourlyRate" value="@ViewBag.HourlyRateValue" />
+                        <!-- Hidden field for hourly rate (for JavaScript calculation) -->
+                        <input type="hidden" id="hourlyRate" value="@ViewBag.UserHourlyRate" />
 
                         <!-- Module Selection -->
                         <div class="mb-3">
@@ -115,7 +111,7 @@
                                     </div>
                                     <div class="col-md-4">
                                         <small class="text-muted">Rate</small>
-                                        <p class="mb-0 fw-bold">R @ViewBag.HourlyRate</p>
+                                        <p class="mb-0 fw-bold">R @ViewBag.UserHourlyRate</p>
                                     </div>
                                     <div class="col-md-4">
                                         <small class="text-muted">Total Amount</small>
@@ -171,33 +167,6 @@
             // Calculate on input change
             $('#hoursWorked').on('input change', function() {
                 calculateTotal();
-            });
-
-            // Also call API for validation (optional)
-            $('#hoursWorked').on('blur', function() {
-                var hours = parseFloat($(this).val()) || 0;
-                if (hours > 0) {
-                    // Optional: Call API to verify calculation
-                    $.ajax({
-                        url: '/api/v1/claims/calculate',
-                        type: 'POST',
-                        contentType: 'application/json',
-                        data: JSON.stringify({
-                            userId: @ViewBag.UserId,
-                            hoursWorked: hours
-                        }),
-                        success: function(response) {
-                            if (response.success) {
-                                $('#calculatedTotal').val(response.totalAmount.toFixed(2));
-                                $('#summaryTotal').text('R ' + response.totalAmount.toFixed(2));
-                            }
-                        },
-                        error: function() {
-                            // Fallback to client-side calculation
-                            calculateTotal();
-                        }
-                    });
-                }
             });
 
             // Form validation before submit
