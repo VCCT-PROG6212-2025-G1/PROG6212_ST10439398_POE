@@ -103,7 +103,10 @@ namespace CMCS.Data
         {
             var baseDate = new DateTime(2024, 10, 1, 9, 0, 0);
 
-            // Seed Users - Now with HourlyRate for lecturers (set by HR)
+            // Password for ALL test users: "Password123!"
+            // This makes it easy for markers to test the system
+            var hashedPassword = BCrypt.Net.BCrypt.HashPassword("Password123!");
+
             modelBuilder.Entity<User>().HasData(
                 new User
                 {
@@ -111,6 +114,7 @@ namespace CMCS.Data
                     FirstName = "John",
                     LastName = "Lecturer",
                     Email = "john.lecturer@iie.ac.za",
+                    PasswordHash = hashedPassword, 
                     PhoneNumber = "+27 11 123 4567",
                     UserRole = UserRole.Lecturer,
                     HourlyRate = 450.00m, // Set by HR
@@ -123,6 +127,7 @@ namespace CMCS.Data
                     FirstName = "Jane",
                     LastName = "Coordinator",
                     Email = "jane.coordinator@iie.ac.za",
+                    PasswordHash = hashedPassword, 
                     PhoneNumber = "+27 11 234 5678",
                     UserRole = UserRole.Coordinator,
                     HourlyRate = 0, // Not a lecturer
@@ -135,6 +140,7 @@ namespace CMCS.Data
                     FirstName = "Mike",
                     LastName = "Manager",
                     Email = "mike.manager@iie.ac.za",
+                    PasswordHash = hashedPassword, 
                     PhoneNumber = "+27 11 345 6789",
                     UserRole = UserRole.Manager,
                     HourlyRate = 0, // Not a lecturer
@@ -147,6 +153,7 @@ namespace CMCS.Data
                     FirstName = "Sarah",
                     LastName = "Davis",
                     Email = "sarah.davis@iie.ac.za",
+                    PasswordHash = hashedPassword, 
                     PhoneNumber = "+27 11 456 7890",
                     UserRole = UserRole.Lecturer,
                     HourlyRate = 420.00m, // Set by HR
@@ -159,6 +166,7 @@ namespace CMCS.Data
                     FirstName = "Emily",
                     LastName = "HR",
                     Email = "emily.hr@iie.ac.za",
+                    PasswordHash = hashedPassword, 
                     PhoneNumber = "+27 11 567 8901",
                     UserRole = UserRole.HR,
                     HourlyRate = 0, // Not a lecturer
