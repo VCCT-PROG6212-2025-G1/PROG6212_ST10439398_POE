@@ -1,8 +1,13 @@
 # Contract Monthly Claim System (CMCS)
 
+NB!: Over Half of Commits are not anything important or related as repo was glitched and did not clone properly so when relaunching or saving actual files, the vs. folder and vs tracked other files that were notchanged by myself , hence the number of commits
+
 **PROG6212 - Programming 2B | Portfolio of Evidence Part 3**
 
 A web-based application for managing monthly claims submitted by independent contractor lecturers.
+
+Video Demonstration
+YouTube Link - https://youtu.be/VSqwBeK5ipA
 
 ---
 
@@ -423,7 +428,7 @@ public async Task<byte[]> GenerateClaimsReport(string reportType, DateTime? star
 ---
 
 ## 🎥 Video Demonstration
-YouTube Link - 
+YouTube Link - https://youtu.be/VSqwBeK5ipA
 
 ## 📦 Project Structure
 
