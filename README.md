@@ -4,6 +4,9 @@
 
 A web-based application for managing monthly claims submitted by independent contractor lecturers.
 
+Video Demonstration
+YouTube Link - https://youtu.be/VSqwBeK5ipA
+
 ---
 
 ## 📋 Overview
