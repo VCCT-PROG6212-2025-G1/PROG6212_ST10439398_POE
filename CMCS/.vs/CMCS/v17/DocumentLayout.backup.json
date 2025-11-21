@@ -3,6 +3,10 @@
   "WorkspaceRootPath": "C:\\Users\\morgt\\Desktop\\PROG6212_ST10439398_POE\\PROG6212_ST10439398_POE\\CMCS\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{FF7C943B-9BEE-9A0B-4039-4B4F73648500}|CMCS.csproj|c:\\users\\morgt\\desktop\\prog6212_st10439398_poe\\prog6212_st10439398_poe\\cmcs\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FF7C943B-9BEE-9A0B-4039-4B4F73648500}|CMCS.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{FF7C943B-9BEE-9A0B-4039-4B4F73648500}|CMCS.csproj|c:\\users\\morgt\\desktop\\prog6212_st10439398_poe\\prog6212_st10439398_poe\\cmcs\\readme.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
       "RelativeMoniker": "D:0:0:{FF7C943B-9BEE-9A0B-4039-4B4F73648500}|CMCS.csproj|solutionrelative:readme.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
     },
@@ -96,10 +100,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{FF7C943B-9BEE-9A0B-4039-4B4F73648500}|CMCS.csproj|c:\\users\\morgt\\desktop\\prog6212_st10439398_poe\\prog6212_st10439398_poe\\cmcs\\viewmodels\\coordinatordashboardviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{FF7C943B-9BEE-9A0B-4039-4B4F73648500}|CMCS.csproj|solutionrelative:viewmodels\\coordinatordashboardviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{FF7C943B-9BEE-9A0B-4039-4B4F73648500}|CMCS.csproj|c:\\users\\morgt\\desktop\\prog6212_st10439398_poe\\prog6212_st10439398_poe\\cmcs\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{FF7C943B-9BEE-9A0B-4039-4B4F73648500}|CMCS.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{FF7C943B-9BEE-9A0B-4039-4B4F73648500}|CMCS.csproj|c:\\users\\morgt\\desktop\\prog6212_st10439398_poe\\prog6212_st10439398_poe\\cmcs\\services\\reportservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -253,7 +253,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 5,
+          "SelectedChildIndex": 12,
           "Children": [
             {
               "$type": "Bookmark",
@@ -269,20 +269,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "appsettings.json",
-              "DocumentMoniker": "C:\\Users\\morgt\\Desktop\\PROG6212_ST10439398_POE\\PROG6212_ST10439398_POE\\CMCS\\appsettings.json",
-              "RelativeDocumentMoniker": "appsettings.json",
-              "ToolTip": "C:\\Users\\morgt\\Desktop\\PROG6212_ST10439398_POE\\PROG6212_ST10439398_POE\\CMCS\\appsettings.json",
-              "RelativeToolTip": "appsettings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2025-11-21T12:54:15.002Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 4,
               "Title": "ClaimSubmissionViewModel.cs",
               "DocumentMoniker": "C:\\Users\\morgt\\Desktop\\PROG6212_ST10439398_POE\\PROG6212_ST10439398_POE\\CMCS\\ViewModels\\ClaimSubmissionViewModel.cs",
               "RelativeDocumentMoniker": "ViewModels\\ClaimSubmissionViewModel.cs",
@@ -290,12 +277,11 @@
               "RelativeToolTip": "ViewModels\\ClaimSubmissionViewModel.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAABKAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-22T13:00:19.88Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-22T13:00:19.88Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "README.md",
               "DocumentMoniker": "C:\\Users\\morgt\\Desktop\\PROG6212_ST10439398_POE\\PROG6212_ST10439398_POE\\CMCS\\README.md",
               "RelativeDocumentMoniker": "README.md",
@@ -308,7 +294,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "CoordinatorController.cs",
               "DocumentMoniker": "C:\\Users\\morgt\\Desktop\\PROG6212_ST10439398_POE\\PROG6212_ST10439398_POE\\CMCS\\Controllers\\CoordinatorController.cs",
               "RelativeDocumentMoniker": "Controllers\\CoordinatorController.cs",
@@ -316,12 +302,11 @@
               "RelativeToolTip": "Controllers\\CoordinatorController.cs",
               "ViewState": "AgIAAH4BAAAAAAAAAAAAAH4BAABDAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-20T09:57:32.109Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-11-20T09:57:32.109Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 5,
               "Title": "LecturerController.cs",
               "DocumentMoniker": "C:\\Users\\morgt\\Desktop\\PROG6212_ST10439398_POE\\PROG6212_ST10439398_POE\\CMCS\\Controllers\\LecturerController.cs",
               "RelativeDocumentMoniker": "Controllers\\LecturerController.cs",
@@ -329,12 +314,11 @@
               "RelativeToolTip": "Controllers\\LecturerController.cs",
               "ViewState": "AgIAAPsBAAAAAAAAAAAAALYAAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-21T10:04:57.751Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-21T10:04:57.751Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 12,
               "Title": "EditUser.cshtml",
               "DocumentMoniker": "C:\\Users\\morgt\\Desktop\\PROG6212_ST10439398_POE\\PROG6212_ST10439398_POE\\CMCS\\Views\\HR\\EditUser.cshtml",
               "RelativeDocumentMoniker": "Views\\HR\\EditUser.cshtml",
@@ -342,12 +326,11 @@
               "RelativeToolTip": "Views\\HR\\EditUser.cshtml",
               "ViewState": "AgIAAHgAAAAAAAAAAAAgwJ4AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-11-20T10:05:35.624Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-11-20T10:05:35.624Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 11,
               "Title": "Dashboard.cshtml",
               "DocumentMoniker": "C:\\Users\\morgt\\Desktop\\PROG6212_ST10439398_POE\\PROG6212_ST10439398_POE\\CMCS\\Views\\HR\\Dashboard.cshtml",
               "RelativeDocumentMoniker": "Views\\HR\\Dashboard.cshtml",
@@ -355,16 +338,11 @@
               "RelativeToolTip": "Views\\HR\\Dashboard.cshtml",
               "ViewState": "AgIAAKoAAAAAAAAAAAAMwM8AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-11-20T10:03:24.596Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{40ea2e6b-2121-4bb8-a43e-c83c04b51041}"
+              "WhenOpened": "2025-11-20T10:03:24.596Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 18,
+              "DocumentIndex": 19,
               "Title": "User.cs",
               "DocumentMoniker": "C:\\Users\\morgt\\Desktop\\PROG6212_ST10439398_POE\\PROG6212_ST10439398_POE\\CMCS\\Models\\User.cs",
               "RelativeDocumentMoniker": "Models\\User.cs",
@@ -376,7 +354,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 6,
               "Title": "Login.cshtml",
               "DocumentMoniker": "C:\\Users\\morgt\\Desktop\\PROG6212_ST10439398_POE\\PROG6212_ST10439398_POE\\CMCS\\Views\\Account\\Login.cshtml",
               "RelativeDocumentMoniker": "Views\\Account\\Login.cshtml",
@@ -384,12 +362,11 @@
               "RelativeToolTip": "Views\\Account\\Login.cshtml",
               "ViewState": "AgIAAGwBAAAAAAAAAAAuwC0BAABAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-11-21T11:12:38.099Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-11-21T11:12:38.099Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 8,
               "Title": "SubmitClaim.cshtml",
               "DocumentMoniker": "C:\\Users\\morgt\\Desktop\\PROG6212_ST10439398_POE\\PROG6212_ST10439398_POE\\CMCS\\Views\\Lecturer\\SubmitClaim.cshtml",
               "RelativeDocumentMoniker": "Views\\Lecturer\\SubmitClaim.cshtml",
@@ -397,12 +374,36 @@
               "RelativeToolTip": "Views\\Lecturer\\SubmitClaim.cshtml",
               "ViewState": "AgIAAPMAAAAAAAAAAAAAAPMAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-10-22T06:59:28.243Z",
+              "WhenOpened": "2025-10-22T06:59:28.243Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\morgt\\Desktop\\PROG6212_ST10439398_POE\\PROG6212_ST10439398_POE\\CMCS\\Program.cs",
+              "RelativeDocumentMoniker": "Program.cs",
+              "ToolTip": "C:\\Users\\morgt\\Desktop\\PROG6212_ST10439398_POE\\PROG6212_ST10439398_POE\\CMCS\\Program.cs",
+              "RelativeToolTip": "Program.cs",
+              "ViewState": "AgIAAG8AAAAAAAAAAAAAAGUAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-22T18:08:38.869Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 2,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\Users\\morgt\\Desktop\\PROG6212_ST10439398_POE\\PROG6212_ST10439398_POE\\CMCS\\appsettings.json",
+              "RelativeDocumentMoniker": "appsettings.json",
+              "ToolTip": "C:\\Users\\morgt\\Desktop\\PROG6212_ST10439398_POE\\PROG6212_ST10439398_POE\\CMCS\\appsettings.json",
+              "RelativeToolTip": "appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-11-21T12:54:15.002Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
               "Title": "_Layout.cshtml",
               "DocumentMoniker": "C:\\Users\\morgt\\Desktop\\PROG6212_ST10439398_POE\\PROG6212_ST10439398_POE\\CMCS\\Views\\Shared\\_Layout.cshtml",
               "RelativeDocumentMoniker": "Views\\Shared\\_Layout.cshtml",
@@ -410,12 +411,11 @@
               "RelativeToolTip": "Views\\Shared\\_Layout.cshtml",
               "ViewState": "AgIAAFoAAAAAAAAAAAASwAgAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-10-22T06:53:04.758Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-22T06:53:04.758Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 7,
               "Title": "Claim.cs",
               "DocumentMoniker": "C:\\Users\\morgt\\Desktop\\PROG6212_ST10439398_POE\\PROG6212_ST10439398_POE\\CMCS\\Models\\Claim.cs",
               "RelativeDocumentMoniker": "Models\\Claim.cs",
@@ -423,12 +423,11 @@
               "RelativeToolTip": "Models\\Claim.cs",
               "ViewState": "AgIAACkAAAAAAAAAAAAmwD4AAAAfAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-22T07:30:05.114Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-22T07:30:05.114Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 19,
+              "DocumentIndex": 20,
               "Title": "AccountSettingsController.cs",
               "DocumentMoniker": "C:\\Users\\morgt\\Desktop\\PROG6212_ST10439398_POE\\PROG6212_ST10439398_POE\\CMCS\\Controllers\\AccountSettingsController.cs",
               "RelativeDocumentMoniker": "Controllers\\AccountSettingsController.cs",
@@ -440,7 +439,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 17,
+              "DocumentIndex": 18,
               "Title": "CMCSContext.cs",
               "DocumentMoniker": "C:\\Users\\morgt\\Desktop\\PROG6212_ST10439398_POE\\PROG6212_ST10439398_POE\\CMCS\\Data\\CMCSContext.cs",
               "RelativeDocumentMoniker": "Data\\CMCSContext.cs",
@@ -452,7 +451,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 13,
               "Title": "HRApiController.cs",
               "DocumentMoniker": "C:\\Users\\morgt\\Desktop\\PROG6212_ST10439398_POE\\PROG6212_ST10439398_POE\\CMCS\\Controllers\\Api\\HRApiController.cs",
               "RelativeDocumentMoniker": "Controllers\\Api\\HRApiController.cs",
@@ -460,12 +459,11 @@
               "RelativeToolTip": "Controllers\\Api\\HRApiController.cs",
               "ViewState": "AgIAAGkBAAAAAAAAAAA3wBQAAAApAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-20T09:36:56.561Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-11-20T09:36:56.561Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 9,
               "Title": "site.css",
               "DocumentMoniker": "C:\\Users\\morgt\\Desktop\\PROG6212_ST10439398_POE\\PROG6212_ST10439398_POE\\CMCS\\wwwroot\\css\\site.css",
               "RelativeDocumentMoniker": "wwwroot\\css\\site.css",
@@ -473,12 +471,11 @@
               "RelativeToolTip": "wwwroot\\css\\site.css",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAALcBAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
-              "WhenOpened": "2025-10-22T12:20:11.966Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-22T12:20:11.966Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 16,
+              "DocumentIndex": 17,
               "Title": "AccountController.cs",
               "DocumentMoniker": "C:\\Users\\morgt\\Desktop\\PROG6212_ST10439398_POE\\PROG6212_ST10439398_POE\\CMCS\\Controllers\\AccountController.cs",
               "RelativeDocumentMoniker": "Controllers\\AccountController.cs",
@@ -486,12 +483,11 @@
               "RelativeToolTip": "Controllers\\AccountController.cs",
               "ViewState": "AgIAANwAAAAAAAAAAEBVwOAAAABDAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-21T10:03:21.672Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-21T10:03:21.672Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 15,
+              "DocumentIndex": 16,
               "Title": "CoordinatorControllerTests.cs.cs",
               "DocumentMoniker": "C:\\Users\\morgt\\Desktop\\PROG6212_ST10439398_POE\\PROG6212_ST10439398_POE\\CMCS.Tests\\CoordinatorControllerTests.cs.cs",
               "RelativeDocumentMoniker": "..\\CMCS.Tests\\CoordinatorControllerTests.cs.cs",
@@ -503,7 +499,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 14,
               "Title": "HRController.cs",
               "DocumentMoniker": "C:\\Users\\morgt\\Desktop\\PROG6212_ST10439398_POE\\PROG6212_ST10439398_POE\\CMCS\\Controllers\\HRController.cs",
               "RelativeDocumentMoniker": "Controllers\\HRController.cs",
@@ -511,12 +507,11 @@
               "RelativeToolTip": "Controllers\\HRController.cs",
               "ViewState": "AgIAAHcBAAAAAAAAAAArwBcAAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-20T09:43:53.307Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-11-20T09:43:53.307Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 15,
               "Title": "AccessDenied.cshtml",
               "DocumentMoniker": "C:\\Users\\morgt\\Desktop\\PROG6212_ST10439398_POE\\PROG6212_ST10439398_POE\\CMCS\\Views\\Account\\AccessDenied.cshtml",
               "RelativeDocumentMoniker": "Views\\Account\\AccessDenied.cshtml",
@@ -524,12 +519,11 @@
               "RelativeToolTip": "Views\\Account\\AccessDenied.cshtml",
               "ViewState": "AgIAAAAAAAAAAAAAAAAcwAEAAAAoAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-11-20T10:07:58.412Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-11-20T10:07:58.412Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 21,
+              "DocumentIndex": 22,
               "Title": "HomeController.cs",
               "DocumentMoniker": "C:\\Users\\morgt\\Desktop\\PROG6212_ST10439398_POE\\PROG6212_ST10439398_POE\\CMCS\\Controllers\\HomeController.cs",
               "RelativeDocumentMoniker": "Controllers\\HomeController.cs",
@@ -537,12 +531,11 @@
               "RelativeToolTip": "Controllers\\HomeController.cs",
               "ViewState": "AgIAACkAAAAAAAAAAIBZwC4AAABDAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-22T12:42:21.526Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-22T12:42:21.526Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 22,
+              "DocumentIndex": 23,
               "Title": "ManagerDashboardViewModel.cs",
               "DocumentMoniker": "C:\\Users\\morgt\\Desktop\\PROG6212_ST10439398_POE\\PROG6212_ST10439398_POE\\CMCS\\ViewModels\\ManagerDashboardViewModel.cs",
               "RelativeDocumentMoniker": "ViewModels\\ManagerDashboardViewModel.cs",
@@ -550,12 +543,11 @@
               "RelativeToolTip": "ViewModels\\ManagerDashboardViewModel.cs",
               "ViewState": "AgIAABQAAAAAAAAAAEBUwBcAAABDAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-18T13:12:00.596Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-11-18T13:12:00.596Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 20,
+              "DocumentIndex": 21,
               "Title": "ManagerController.cs",
               "DocumentMoniker": "C:\\Users\\morgt\\Desktop\\PROG6212_ST10439398_POE\\PROG6212_ST10439398_POE\\CMCS\\Controllers\\ManagerController.cs",
               "RelativeDocumentMoniker": "Controllers\\ManagerController.cs",
@@ -563,12 +555,11 @@
               "RelativeToolTip": "Controllers\\ManagerController.cs",
               "ViewState": "AgIAAHoBAAAAAAAAAEBVwH4BAABDAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-18T13:10:47.977Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-11-18T13:10:47.977Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 23,
+              "DocumentIndex": 24,
               "Title": "CoordinatorDashboardViewModel.cs",
               "DocumentMoniker": "C:\\Users\\morgt\\Desktop\\PROG6212_ST10439398_POE\\PROG6212_ST10439398_POE\\CMCS\\ViewModels\\CoordinatorDashboardViewModel.cs",
               "RelativeDocumentMoniker": "ViewModels\\CoordinatorDashboardViewModel.cs",
@@ -576,21 +567,7 @@
               "RelativeToolTip": "ViewModels\\CoordinatorDashboardViewModel.cs",
               "ViewState": "AgIAABQAAAAAAAAAAEBUwBcAAABDAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-22T12:31:12.058Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 24,
-              "Title": "Program.cs",
-              "DocumentMoniker": "C:\\Users\\morgt\\Desktop\\PROG6212_ST10439398_POE\\PROG6212_ST10439398_POE\\CMCS\\Program.cs",
-              "RelativeDocumentMoniker": "Program.cs",
-              "ToolTip": "C:\\Users\\morgt\\Desktop\\PROG6212_ST10439398_POE\\PROG6212_ST10439398_POE\\CMCS\\Program.cs",
-              "RelativeToolTip": "Program.cs",
-              "ViewState": "AgIAAJ4AAAAAAAAAAEBVwGUAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-22T18:08:38.869Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-22T12:31:12.058Z"
             },
             {
               "$type": "Document",
@@ -602,8 +579,7 @@
               "RelativeToolTip": "Services\\ReportService.cs",
               "ViewState": "AgIAAP8AAAAAAAAAAEBVwC0AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-20T09:34:13.56Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-11-20T09:34:13.56Z"
             },
             {
               "$type": "Document",
@@ -759,8 +735,7 @@
               "RelativeToolTip": "Attributes\\SessionAuthorizeAttribute.cs",
               "ViewState": "AgIAACwAAAAAAAAAAIBZwDEAAABDAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-20T09:55:03.165Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-11-20T09:55:03.165Z"
             },
             {
               "$type": "Document",
@@ -928,8 +903,7 @@
               "RelativeToolTip": "ViewModels\\LoginViewModel.cs",
               "ViewState": "AgIAABMAAAAAAAAAAIBYwAAAAABFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-21T10:18:08.077Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-21T10:18:08.077Z"
             },
             {
               "$type": "Document",
@@ -1034,6 +1008,10 @@
               "RelativeToolTip": "..\\..\\..\\..\\source\\repos\\VCCT-PROG6212-2025-G1\\PROG6212_ST10439398_POE\\CMCS.Tests\\ModelValidationTests.cs.cs",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-10-22T17:13:58.17Z"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{40ea2e6b-2121-4bb8-a43e-c83c04b51041}"
             }
           ]
         }
