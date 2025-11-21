@@ -16,14 +16,24 @@ namespace CMCS.Attributes
 
         public void OnAuthorization(AuthorizationFilterContext context)
         {
+            // Don't redirect if already on login or access denied pages
+            var currentPath = context.HttpContext.Request.Path.Value?.ToLower();
+            if (currentPath == "/account/login" || currentPath == "/account/accessdenied")
+            {
+                return;
+            }
+
             // Check if user is logged in via session
             var userId = context.HttpContext.Session.GetInt32("UserId");
             var userRole = context.HttpContext.Session.GetString("UserRole");
 
             if (userId == null || string.IsNullOrEmpty(userRole))
             {
-                // Not logged in - redirect to login
-                context.Result = new RedirectToActionResult("Login", "Account", null);
+                // Not logged in - redirect to login with return URL
+                context.Result = new RedirectToActionResult(
+                    "Login", 
+                    "Account", 
+                    new { returnUrl = context.HttpContext.Request.Path });
                 return;
             }
 

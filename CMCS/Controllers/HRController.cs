@@ -44,9 +44,9 @@ namespace CMCS.Controllers
             var viewModel = new HRDashboardViewModel
             {
                 Users = users,
-                TotalLecturers = users.Count(u => u.Role == "Lecturer"),
-                TotalCoordinators = users.Count(u => u.Role == "Coordinator"),
-                TotalManagers = users.Count(u => u.Role == "Manager"),
+                TotalLecturers = users.Count(u => u.UserRole == UserRole.Lecturer),
+                TotalCoordinators = users.Count(u => u.UserRole == UserRole.Coordinator),
+                TotalManagers = users.Count(u => u.UserRole == UserRole.Manager),
                 TotalUsers = users.Count,
                 TotalApprovedClaims = await _context.Claims.CountAsync(c => c.CurrentStatus == ClaimStatus.Approved),
                 TotalPaymentAmount = await _context.Claims.Where(c => c.CurrentStatus == ClaimStatus.Approved).SumAsync(c => c.TotalAmount)
@@ -331,7 +331,7 @@ namespace CMCS.Controllers
 
             var lecturers = await _context.Users
                 .Include(u => u.Claims)
-                .Where(u => u.Role == "Lecturer")
+                .Where(u => u.UserRole == UserRole.Lecturer)  // ✅ FIXED: Use UserRole enum
                 .OrderBy(u => u.LastName)
                 .ThenBy(u => u.FirstName)
                 .ToListAsync();

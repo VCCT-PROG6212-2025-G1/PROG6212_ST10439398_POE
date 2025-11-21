@@ -46,7 +46,7 @@
                         <div class="mb-3">
                             <label asp-for="ModuleId" class="form-label fw-semibold">Module <span class="text-danger">*</span>
                             </label>
-                            <select asp-for="ModuleId" asp-items="ViewBag.Modules" class="form-select">
+                            <select asp-for="ModuleId" asp-items="ViewBag.Modules" class="form-select" required>
                                 <option value="">-- Select Module --</option>
                             </select>
                             <span asp-validation-for="ModuleId" class="text-danger small"></span>
@@ -59,7 +59,7 @@
                                         class="text-danger">*</span></label>
                                 <input asp-for="HoursWorked" class="form-control" id="hoursWorked"
                                        type="number" step="0.5" min="0.5" max="180"
-                                       placeholder="Enter hours (max 180)" />
+                                       placeholder="Enter hours (max 180)" required />
                                 <span asp-validation-for="HoursWorked" class="text-danger small"></span>
                                 <small class="form-text text-muted">Maximum 180 hours per claim</small>
                             </div>
@@ -78,7 +78,7 @@
                         <div class="mb-3">
                             <label asp-for="ClaimPeriod" class="form-label fw-semibold">Claim Period <span
                                     class="text-danger">*</span></label>
-                            <input asp-for="ClaimPeriod" class="form-control" placeholder="e.g., October 2024" />
+                            <input asp-for="ClaimPeriod" class="form-control" placeholder="e.g., October 2024" required />
                             <span asp-validation-for="ClaimPeriod" class="text-danger small"></span>
                         </div>
 
@@ -144,45 +144,100 @@
     <partial name="_ValidationScriptsPartial" />
     <script>
         $(document).ready(function() {
-            var hourlyRate = parseFloat($('#hourlyRate').val()) || 0;
+            console.log('Submit Claim JavaScript Loaded');
+            
+            // Get hourly rate from hidden input
+            var hourlyRateValue = $('#hourlyRate').val();
+            var hourlyRate = parseFloat(hourlyRateValue) || 0;
+            
+            console.log('Hourly Rate from ViewBag:', hourlyRateValue);
+            console.log('Parsed Hourly Rate:', hourlyRate);
+
+            // Check if hourly rate is 0
+            if (hourlyRate === 0) {
+                console.error('WARNING: Hourly rate is 0! Check if user has an hourly rate set by HR.');
+                alert('Your hourly rate is not set. Please contact HR to set your hourly rate before submitting claims.');
+            }
 
             function calculateTotal() {
-                var hours = parseFloat($('#hoursWorked').val()) || 0;
+                console.log('calculateTotal() called');
+                
+                var hoursValue = $('#hoursWorked').val();
+                var hours = parseFloat(hoursValue) || 0;
+                
+                console.log('Hours input value:', hoursValue);
+                console.log('Parsed hours:', hours);
 
-                if (hours < 0) hours = 0;
+                // Validate hours
+                if (hours < 0) {
+                    hours = 0;
+                    $('#hoursWorked').val(0);
+                }
+                
                 if (hours > 180) {
                     hours = 180;
                     $('#hoursWorked').val(180);
                     alert('Maximum hours per claim is 180');
                 }
 
+                // Calculate total
                 var total = hours * hourlyRate;
+                
+                console.log('Calculation: ' + hours + ' × ' + hourlyRate + ' = ' + total);
 
+                // Update display fields
                 $('#calculatedTotal').val(total.toFixed(2));
                 $('#summaryHours').text(hours.toFixed(1));
                 $('#summaryTotal').text('R ' + total.toFixed(2));
+                
+                console.log('Display updated - Total: R' + total.toFixed(2));
             }
 
-            $('#hoursWorked').on('input change', function() {
+            // Bind event handlers
+            $('#hoursWorked').on('input change keyup blur', function() {
+                console.log('Hours input changed');
                 calculateTotal();
             });
 
+            // Form validation
             $('#claimForm').on('submit', function(e) {
                 var hours = parseFloat($('#hoursWorked').val()) || 0;
+                
                 if (hours <= 0) {
                     e.preventDefault();
-                    alert('Please enter valid hours worked');
+                    alert('Please enter valid hours worked (greater than 0)');
+                    $('#hoursWorked').focus();
                     return false;
                 }
+                
                 if (hours > 180) {
                     e.preventDefault();
                     alert('Hours cannot exceed 180 per claim');
+                    $('#hoursWorked').focus();
                     return false;
                 }
+                
+                // Check if ModuleId is selected
+                var moduleId = $('#ModuleId').val();
+                if (!moduleId || moduleId === '') {
+                    e.preventDefault();
+                    alert('Please select a module');
+                    $('#ModuleId').focus();
+                    return false;
+                }
+                
+                console.log('Form validation passed - submitting');
                 return true;
             });
 
+            // Initial calculation on page load
+            console.log('Running initial calculation');
             calculateTotal();
+            
+            // Set focus on hours input
+            setTimeout(function() {
+                $('#hoursWorked').focus();
+            }, 500);
         });
     </script>
 }

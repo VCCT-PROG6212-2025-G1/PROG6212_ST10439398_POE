@@ -125,28 +125,30 @@ namespace CMCS.Controllers.Api
         {
             try
             {
+                // ✅ FIXED: Load users first, then project in memory
                 var users = await _context.Users
                     .OrderBy(u => u.LastName)
                     .ThenBy(u => u.FirstName)
-                    .Select(u => new
-                    {
-                        u.UserId,
-                        u.FirstName,
-                        u.LastName,
-                        FullName = u.FirstName + " " + u.LastName,
-                        u.Email,
-                        u.Role,
-                        u.Phone,
-                        u.Department,
-                        u.Faculty,
-                        u.Campus,
-                        u.HourlyRate,
-                        u.IsActive,
-                        u.CreatedAt
-                    })
                     .ToListAsync();
 
-                return Ok(new { success = true, users });
+                var userDtos = users.Select(u => new
+                {
+                    u.UserId,
+                    u.FirstName,
+                    u.LastName,
+                    FullName = u.FirstName + " " + u.LastName,
+                    u.Email,
+                    Role = u.Role,  // Use computed property after loading
+                    u.Phone,
+                    u.Department,
+                    u.Faculty,
+                    u.Campus,
+                    u.HourlyRate,
+                    u.IsActive,
+                    u.CreatedAt
+                }).ToList();
+
+                return Ok(new { success = true, users = userDtos });
             }
             catch (Exception ex)
             {
@@ -180,7 +182,7 @@ namespace CMCS.Controllers.Api
                         user.LastName,
                         FullName = user.FullName,
                         user.Email,
-                        user.Role,
+                        Role = user.Role,  // Use computed property
                         user.Phone,
                         user.Department,
                         user.Faculty,
@@ -329,12 +331,13 @@ namespace CMCS.Controllers.Api
         {
             try
             {
+                // ✅ FIXED: Use UserRole enum instead of Role property
                 var stats = new
                 {
                     TotalUsers = await _context.Users.CountAsync(),
-                    TotalLecturers = await _context.Users.CountAsync(u => u.Role == "Lecturer"),
-                    TotalCoordinators = await _context.Users.CountAsync(u => u.Role == "Coordinator"),
-                    TotalManagers = await _context.Users.CountAsync(u => u.Role == "Manager"),
+                    TotalLecturers = await _context.Users.CountAsync(u => u.UserRole == UserRole.Lecturer),
+                    TotalCoordinators = await _context.Users.CountAsync(u => u.UserRole == UserRole.Coordinator),
+                    TotalManagers = await _context.Users.CountAsync(u => u.UserRole == UserRole.Manager),
                     TotalClaims = await _context.Claims.CountAsync(),
                     PendingClaims = await _context.Claims.CountAsync(c => c.CurrentStatus == ClaimStatus.Submitted),
                     ApprovedClaims = await _context.Claims.CountAsync(c => c.CurrentStatus == ClaimStatus.Approved),

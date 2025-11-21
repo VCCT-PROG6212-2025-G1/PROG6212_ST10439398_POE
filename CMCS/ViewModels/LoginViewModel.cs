@@ -7,13 +7,18 @@ namespace CMCS.ViewModels
     {
         [Required(ErrorMessage = "Email is required")]
         [EmailAddress(ErrorMessage = "Invalid email address")]
-        public string Email { get; set; }
+        public string Email { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Password is required")]
-        public string Password { get; set; }
+        [DataType(DataType.Password)]
+        public string Password { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Please select a role")]
-        public string UserType { get; set; }
+        public string UserType { get; set; } = "Lecturer";
+
+        // ✅ Added: Remember me functionality
+        [Display(Name = "Remember Me")]
+        public bool RememberMe { get; set; } = false;
     }
 }
 //--------------------------End Of File--------------------------//

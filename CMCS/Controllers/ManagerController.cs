@@ -35,7 +35,7 @@ namespace CMCS.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            // Manager only sees VERIFIED claims (UnderReview status)
+            // ✅ FIXED: Manager only sees VERIFIED claims (UnderReview status)
             var claimsForApproval = await _context.Claims
                 .Include(c => c.User)
                 .Include(c => c.Module)
@@ -47,17 +47,33 @@ namespace CMCS.Controllers
             var startOfWeek = DateTime.Now.Date.AddDays(-(int)DateTime.Now.DayOfWeek);
             var today = DateTime.Now.Date;
 
+            // ✅ FIXED: Calculate correct statistics
             var viewModel = new ManagerDashboardViewModel
             {
                 ClaimsForApproval = claimsForApproval,
                 VerifiedClaims = claimsForApproval,
-                UrgentClaims = claimsForApproval.Count(c => (DateTime.Now - c.SubmissionDate).Days > 5),
-                TotalThisWeek = await _context.Claims.CountAsync(c => c.SubmissionDate >= startOfWeek),
+                
+                // ✅ FIXED: Pending Approval = claims with UnderReview status
                 PendingApproval = claimsForApproval.Count,
-                ApprovedToday = await _context.Claims.CountAsync(c =>
-                    c.CurrentStatus == ClaimStatus.Approved &&
-                    c.LastModified.HasValue &&
-                    c.LastModified.Value.Date == today),
+                
+                // ✅ FIXED: Approved Today = claims approved today (changed to Approved status today)
+                ApprovedToday = await _context.ClaimStatusHistories
+                    .Where(h => h.NewStatus == ClaimStatus.Approved &&
+                                h.ChangeDate.Date == today)
+                    .Select(h => h.ClaimId)
+                    .Distinct()
+                    .CountAsync(),
+                
+                // ✅ FIXED: Urgent Claims = verified claims over 5 days old
+                UrgentClaims = claimsForApproval.Count(c => (DateTime.Now - c.SubmissionDate).Days > 5),
+                
+                // ✅ FIXED: Total This Week = APPROVED amount this week (in Rand)
+                TotalThisWeek = await _context.Claims
+                    .Where(c => c.CurrentStatus == ClaimStatus.Approved &&
+                                c.LastModified.HasValue &&
+                                c.LastModified.Value >= startOfWeek)
+                    .SumAsync(c => (decimal?)c.TotalAmount) ?? 0,
+                
                 TotalVerified = claimsForApproval.Count,
                 TotalApproved = await _context.Claims.CountAsync(c => c.CurrentStatus == ClaimStatus.Approved),
                 TotalRejected = await _context.Claims.CountAsync(c => c.CurrentStatus == ClaimStatus.Rejected)

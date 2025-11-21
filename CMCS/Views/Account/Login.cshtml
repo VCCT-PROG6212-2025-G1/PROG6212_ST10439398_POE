@@ -28,13 +28,81 @@
             padding: 20px;
         }
 
+        .login-container {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 30px;
+            max-width: 1100px;
+            width: 100%;
+        }
+
+        .test-credentials {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .test-credentials h3 {
+            color: #1e3a8a;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .test-credentials p {
+            color: #6b7280;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+
+        .credential-card {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .credential-card:hover {
+            border-color: #3b82f6;
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+        }
+
+        .credential-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .role-icon {
+            font-size: 1.5rem;
+        }
+
+        .role-name {
+            font-weight: 600;
+            color: #1f2937;
+            font-size: 1rem;
+        }
+
+        .credential-info {
+            margin-left: 40px;
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+
+        .credential-info div {
+            margin-bottom: 3px;
+        }
+
         .login-card {
             background: white;
             padding: 40px;
             border-radius: 16px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-            width: 100%;
-            max-width: 550px;
         }
 
         .login-header {
@@ -42,17 +110,17 @@
             margin-bottom: 30px;
         }
 
-            .login-header h1 {
-                color: #1e3a8a;
-                font-size: 2.5rem;
-                font-weight: 700;
-                margin-bottom: 8px;
-            }
+        .login-header h1 {
+            color: #1e3a8a;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
 
-            .login-header p {
-                color: #6b7280;
-                font-size: 1rem;
-            }
+        .login-header p {
+            color: #6b7280;
+            font-size: 1rem;
+        }
 
         .alert-error {
             background: #fee2e2;
@@ -82,27 +150,27 @@
             transition: all 0.3s;
         }
 
-            .role-btn:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
-            }
+        .role-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+        }
 
-            .role-btn.active {
-                background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-                color: white;
-                border-color: #3b82f6;
-            }
+        .role-btn.active {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            border-color: #3b82f6;
+        }
 
         .form-group {
             margin-bottom: 20px;
         }
 
-            .form-group label {
-                display: block;
-                margin-bottom: 8px;
-                color: #374151;
-                font-weight: 500;
-            }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #374151;
+            font-weight: 500;
+        }
 
         .form-control {
             width: 100%;
@@ -113,17 +181,37 @@
             transition: all 0.3s;
         }
 
-            .form-control:focus {
-                outline: none;
-                border-color: #3b82f6;
-                box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-            }
+        .form-control:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
 
         .text-danger {
             color: #dc2626;
             font-size: 0.875rem;
             margin-top: 5px;
             display: block;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .remember-me input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin-right: 8px;
+            cursor: pointer;
+        }
+
+        .remember-me label {
+            margin: 0;
+            color: #374151;
+            font-weight: 400;
+            cursor: pointer;
         }
 
         .btn-signin {
@@ -139,10 +227,10 @@
             transition: all 0.3s;
         }
 
-            .btn-signin:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
-            }
+        .btn-signin:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+        }
 
         .login-footer {
             text-align: center;
@@ -151,62 +239,126 @@
             border-top: 1px solid #e5e7eb;
         }
 
-            .login-footer p {
-                color: #6b7280;
-                font-size: 0.9rem;
-                margin: 0;
+        .login-footer p {
+            color: #6b7280;
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        @@media (max-width: 968px) {
+            .login-container {
+                grid-template-columns: 1fr;
             }
+        }
     </style>
 </head>
 <body>
-    <div class="login-card">
-        <div class="login-header">
-            <h1>CMCS</h1>
-            <p>Contract Monthly Claims System</p>
+    <div class="login-container">
+        <!-- Test Credentials Panel -->
+        <div class="test-credentials">
+            <h3>🔑 Test Credentials</h3>
+            <p>Click any credential below to auto-fill the login form:</p>
+
+            <div class="credential-card" onclick="fillCredentials('john.lecturer@iie.ac.za', 'password123', 'Lecturer')">
+                <div class="credential-header">
+                    <span class="role-icon">👨‍🏫</span>
+                    <span class="role-name">Lecturer</span>
+                </div>
+                <div class="credential-info">
+                    <div><strong>Email:</strong> john.lecturer@iie.ac.za</div>
+                    <div><strong>Password:</strong> Password123!</div>
+                </div>
+            </div>
+
+            <div class="credential-card" onclick="fillCredentials('jane.coordinator@iie.ac.za', 'password123', 'Coordinator')">
+                <div class="credential-header">
+                    <span class="role-icon">👩‍💼</span>
+                    <span class="role-name">Programme Coordinator</span>
+                </div>
+                <div class="credential-info">
+                    <div><strong>Email:</strong> jane.coordinator@iie.ac.za</div>
+                    <div><strong>Password:</strong> Password123!</div>
+                </div>
+            </div>
+
+            <div class="credential-card" onclick="fillCredentials('mike.manager@iie.ac.za', 'password123', 'Manager')">
+                <div class="credential-header">
+                    <span class="role-icon">👨‍💻</span>
+                    <span class="role-name">Academic Manager</span>
+                </div>
+                <div class="credential-info">
+                    <div><strong>Email:</strong> mike.manager@iie.ac.za</div>
+                    <div><strong>Password:</strong> Password123!</div>
+                </div>
+            </div>
+
+            <div class="credential-card" onclick="fillCredentials('emily.hr@iie.ac.za', 'password123', 'HR')">
+                <div class="credential-header">
+                    <span class="role-icon">👩‍💻</span>
+                    <span class="role-name">HR Manager</span>
+                </div>
+                <div class="credential-info">
+                    <div><strong>Email:</strong> emily.hr@iie.ac.za</div>
+                    <div><strong>Password:</strong> Password123!</div>
+                </div>
+            </div>
         </div>
 
-        @if (TempData["Error"] != null)
-        {
-            <div class="alert-error">
-                @TempData["Error"]
-            </div>
-        }
-
-        <form asp-action="Login" method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-            <!-- 🔧 FIXED: Added HR role button -->
-            <div class="role-buttons">
-                <button type="button" class="role-btn active" data-role="Lecturer">Lecturer</button>
-                <button type="button" class="role-btn" data-role="Coordinator">Coordinator</button>
-                <button type="button" class="role-btn" data-role="Manager">Manager</button>
-                <button type="button" class="role-btn" data-role="HR">HR</button>
-            </div>
-            <input type="hidden" asp-for="UserType" id="userTypeInput" value="Lecturer" />
-            <span asp-validation-for="UserType" class="text-danger"></span>
-
-            <div class="form-group">
-                <label asp-for="Email">Email Address</label>
-                <input asp-for="Email" type="email" class="form-control" placeholder="Enter your email" />
-                <span asp-validation-for="Email" class="text-danger"></span>
+        <!-- Login Form -->
+        <div class="login-card">
+            <div class="login-header">
+                <h1>CMCS</h1>
+                <p>Contract Monthly Claims System</p>
             </div>
 
-            <div class="form-group">
-                <label asp-for="Password">Password</label>
-                <input asp-for="Password" type="password" class="form-control" placeholder="Enter your password" />
-                <span asp-validation-for="Password" class="text-danger"></span>
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert-error">
+                    @TempData["Error"]
+                </div>
+            }
+
+            <form asp-action="Login" method="post" id="loginForm">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="role-buttons">
+                    <button type="button" class="role-btn active" data-role="Lecturer">Lecturer</button>
+                    <button type="button" class="role-btn" data-role="Coordinator">Coordinator</button>
+                    <button type="button" class="role-btn" data-role="Manager">Manager</button>
+                    <button type="button" class="role-btn" data-role="HR">HR</button>
+                </div>
+                <input type="hidden" asp-for="UserType" id="userTypeInput" value="Lecturer" />
+                <span asp-validation-for="UserType" class="text-danger"></span>
+
+                <div class="form-group">
+                    <label asp-for="Email">Email Address</label>
+                    <input asp-for="Email" type="email" class="form-control" id="emailInput" placeholder="Enter your email" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Password">Password</label>
+                    <input asp-for="Password" type="password" class="form-control" id="passwordInput" placeholder="Enter your password" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+
+                <div class="remember-me">
+                    <input asp-for="RememberMe" type="checkbox" id="rememberMe" />
+                    <label asp-for="RememberMe">Remember Me</label>
+                </div>
+
+                <button type="submit" class="btn-signin">Sign In</button>
+            </form>
+
+            <div class="login-footer">
+                <p>Independent Institute of Education</p>
+                <p>Secure Claims Management Portal</p>
             </div>
-
-            <button type="submit" class="btn-signin">Sign In</button>
-        </form>
-
-        <div class="login-footer">
-            <p>Independent Institute of Education</p>
-            <p>Secure Claims Management Portal</p>
         </div>
     </div>
 
     <script>
+        // Role button handling
         document.addEventListener('DOMContentLoaded', function() {
             const roleButtons = document.querySelectorAll('.role-btn');
             const userTypeInput = document.getElementById('userTypeInput');
@@ -219,6 +371,28 @@
                 });
             });
         });
+
+        // Auto-fill credentials function
+        function fillCredentials(email, password, role) {
+            document.getElementById('emailInput').value = email;
+            document.getElementById('passwordInput').value = password;
+            document.getElementById('userTypeInput').value = role;
+
+            // Update role button selection
+            const roleButtons = document.querySelectorAll('.role-btn');
+            roleButtons.forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('data-role') === role) {
+                    btn.classList.add('active');
+                }
+            });
+
+            // Visual feedback
+            document.getElementById('emailInput').focus();
+            setTimeout(() => {
+                document.getElementById('emailInput').blur();
+            }, 100);
+        }
     </script>
 </body>
 </html>

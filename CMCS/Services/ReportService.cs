@@ -3,6 +3,13 @@ using Microsoft.EntityFrameworkCore;
 using CMCS.Data;
 using CMCS.Models;
 using System.Text;
+using iText.Kernel.Pdf;
+using iText.Layout;
+using iText.Layout.Element;
+using iText.Layout.Properties;
+using iText.Kernel.Colors;
+using iText.Kernel.Font;
+using iText.IO.Font.Constants;
 
 namespace CMCS.Services
 {
@@ -44,10 +51,8 @@ namespace CMCS.Services
 
                 var claims = await query.OrderByDescending(c => c.SubmissionDate).ToListAsync();
 
-                // Generate HTML report (can be converted to PDF with external library)
-                var html = GenerateClaimsReportHtml(claims, reportType, startDate, endDate);
-
-                return Encoding.UTF8.GetBytes(html);
+                // Generate PDF report
+                return GenerateClaimsReportPdf(claims, reportType, startDate, endDate);
             }
             catch (Exception ex)
             {
@@ -74,10 +79,8 @@ namespace CMCS.Services
                     .Where(c => c.SubmissionDate >= startDate && c.SubmissionDate <= endDate)
                     .ToList();
 
-                // Generate HTML invoice (can be converted to PDF with external library)
-                var html = GenerateInvoiceHtml(user, claims, startDate, endDate);
-
-                return Encoding.UTF8.GetBytes(html);
+                // Generate PDF invoice
+                return GenerateInvoicePdf(user, claims, startDate, endDate);
             }
             catch (Exception ex)
             {
@@ -86,122 +89,171 @@ namespace CMCS.Services
             }
         }
 
-        private string GenerateClaimsReportHtml(List<Claim> claims, string reportType, DateTime? startDate, DateTime? endDate)
+        private byte[] GenerateClaimsReportPdf(List<Claim> claims, string reportType, DateTime? startDate, DateTime? endDate)
         {
-            var sb = new StringBuilder();
-
-            sb.AppendLine("<!DOCTYPE html>");
-            sb.AppendLine("<html><head>");
-            sb.AppendLine("<title>Claims Report</title>");
-            sb.AppendLine("<style>");
-            sb.AppendLine("body { font-family: Arial, sans-serif; margin: 20px; }");
-            sb.AppendLine("h1 { color: #333; }");
-            sb.AppendLine("table { width: 100%; border-collapse: collapse; margin-top: 20px; }");
-            sb.AppendLine("th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }");
-            sb.AppendLine("th { background-color: #4CAF50; color: white; }");
-            sb.AppendLine("tr:nth-child(even) { background-color: #f2f2f2; }");
-            sb.AppendLine(".summary { margin-top: 20px; padding: 15px; background-color: #e7f3ff; border-radius: 5px; }");
-            sb.AppendLine("</style>");
-            sb.AppendLine("</head><body>");
-
-            sb.AppendLine("<h1>CMCS Claims Report</h1>");
-            sb.AppendLine($"<p>Report Type: {reportType}</p>");
-            sb.AppendLine($"<p>Generated: {DateTime.Now:dd MMM yyyy HH:mm}</p>");
-
-            if (startDate.HasValue || endDate.HasValue)
+            using (var memoryStream = new MemoryStream())
             {
-                sb.AppendLine($"<p>Period: {startDate?.ToString("dd MMM yyyy") ?? "Start"} - {endDate?.ToString("dd MMM yyyy") ?? "End"}</p>");
+                // Initialize PDF writer
+                PdfWriter writer = new PdfWriter(memoryStream);
+                PdfDocument pdf = new PdfDocument(writer);
+                Document document = new Document(pdf);
+
+                // Add title
+                var titleFont = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
+                Paragraph title = new Paragraph("CMCS Claims Report")
+                    .SetFont(titleFont)
+                    .SetFontSize(20)
+                    .SetBold()
+                    .SetTextAlignment(TextAlignment.CENTER);
+                document.Add(title);
+
+                // Add report info
+                document.Add(new Paragraph($"Report Type: {reportType}").SetFontSize(10));
+                document.Add(new Paragraph($"Generated: {DateTime.Now:dd MMM yyyy HH:mm}").SetFontSize(10));
+                
+                if (startDate.HasValue || endDate.HasValue)
+                {
+                    document.Add(new Paragraph($"Period: {startDate?.ToString("dd MMM yyyy") ?? "Start"} - {endDate?.ToString("dd MMM yyyy") ?? "End"}").SetFontSize(10));
+                }
+
+                document.Add(new Paragraph(" ")); // Spacer
+
+                // Create table
+                Table table = new Table(UnitValue.CreatePercentArray(new float[] { 1, 2, 2, 1.5f, 1.5f, 1.5f, 1.5f }));
+                table.SetWidth(UnitValue.CreatePercentValue(100));
+
+                // Add header cells
+                var headerFont = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
+                table.AddHeaderCell(new Cell().Add(new Paragraph("Claim ID").SetFont(headerFont)).SetBackgroundColor(ColorConstants.LIGHT_GRAY));
+                table.AddHeaderCell(new Cell().Add(new Paragraph("Lecturer").SetFont(headerFont)).SetBackgroundColor(ColorConstants.LIGHT_GRAY));
+                table.AddHeaderCell(new Cell().Add(new Paragraph("Module").SetFont(headerFont)).SetBackgroundColor(ColorConstants.LIGHT_GRAY));
+                table.AddHeaderCell(new Cell().Add(new Paragraph("Hours").SetFont(headerFont)).SetBackgroundColor(ColorConstants.LIGHT_GRAY));
+                table.AddHeaderCell(new Cell().Add(new Paragraph("Rate").SetFont(headerFont)).SetBackgroundColor(ColorConstants.LIGHT_GRAY));
+                table.AddHeaderCell(new Cell().Add(new Paragraph("Total").SetFont(headerFont)).SetBackgroundColor(ColorConstants.LIGHT_GRAY));
+                table.AddHeaderCell(new Cell().Add(new Paragraph("Period").SetFont(headerFont)).SetBackgroundColor(ColorConstants.LIGHT_GRAY));
+
+                // Add data rows
+                foreach (var claim in claims)
+                {
+                    table.AddCell(new Cell().Add(new Paragraph(claim.ClaimId.ToString())));
+                    table.AddCell(new Cell().Add(new Paragraph($"{claim.User.FirstName} {claim.User.LastName}")));
+                    table.AddCell(new Cell().Add(new Paragraph(claim.Module?.ModuleName ?? "N/A")));
+                    table.AddCell(new Cell().Add(new Paragraph(claim.HoursWorked.ToString("N1"))));
+                    table.AddCell(new Cell().Add(new Paragraph($"R {claim.HourlyRate:N2}")));
+                    table.AddCell(new Cell().Add(new Paragraph($"R {claim.TotalAmount:N2}")));
+                    table.AddCell(new Cell().Add(new Paragraph(claim.ClaimPeriod)));
+                }
+
+                document.Add(table);
+
+                // Add summary
+                document.Add(new Paragraph(" ")); // Spacer
+                Paragraph summary = new Paragraph("Summary")
+                    .SetFont(titleFont)
+                    .SetFontSize(14)
+                    .SetBold();
+                document.Add(summary);
+
+                document.Add(new Paragraph($"Total Claims: {claims.Count}"));
+                document.Add(new Paragraph($"Total Hours: {claims.Sum(c => c.HoursWorked):N1}"));
+                document.Add(new Paragraph($"Total Amount: R {claims.Sum(c => c.TotalAmount):N2}").SetBold().SetFontSize(12));
+
+                // Close document
+                document.Close();
+
+                return memoryStream.ToArray();
             }
-
-            sb.AppendLine("<table>");
-            sb.AppendLine("<tr><th>Claim ID</th><th>Lecturer</th><th>Module</th><th>Hours</th><th>Rate</th><th>Total</th><th>Period</th></tr>");
-
-            foreach (var claim in claims)
-            {
-                sb.AppendLine($"<tr>");
-                sb.AppendLine($"<td>{claim.ClaimId}</td>");
-                sb.AppendLine($"<td>{claim.User.FirstName} {claim.User.LastName}</td>");
-                sb.AppendLine($"<td>{claim.Module?.ModuleName ?? "N/A"}</td>");
-                sb.AppendLine($"<td>{claim.HoursWorked:N1}</td>");
-                sb.AppendLine($"<td>R {claim.HourlyRate:N2}</td>");
-                sb.AppendLine($"<td>R {claim.TotalAmount:N2}</td>");
-                sb.AppendLine($"<td>{claim.ClaimPeriod}</td>");
-                sb.AppendLine($"</tr>");
-            }
-
-            sb.AppendLine("</table>");
-
-            sb.AppendLine("<div class='summary'>");
-            sb.AppendLine($"<h3>Summary</h3>");
-            sb.AppendLine($"<p>Total Claims: {claims.Count}</p>");
-            sb.AppendLine($"<p>Total Hours: {claims.Sum(c => c.HoursWorked):N1}</p>");
-            sb.AppendLine($"<p>Total Amount: R {claims.Sum(c => c.TotalAmount):N2}</p>");
-            sb.AppendLine("</div>");
-
-            sb.AppendLine("</body></html>");
-
-            return sb.ToString();
         }
 
-        private string GenerateInvoiceHtml(User user, List<Claim> claims, DateTime startDate, DateTime endDate)
+        private byte[] GenerateInvoicePdf(User user, List<Claim> claims, DateTime startDate, DateTime endDate)
         {
-            var sb = new StringBuilder();
-
-            sb.AppendLine("<!DOCTYPE html>");
-            sb.AppendLine("<html><head>");
-            sb.AppendLine("<title>Invoice</title>");
-            sb.AppendLine("<style>");
-            sb.AppendLine("body { font-family: Arial, sans-serif; margin: 20px; }");
-            sb.AppendLine("h1 { color: #333; }");
-            sb.AppendLine(".header { border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px; }");
-            sb.AppendLine(".invoice-info { display: flex; justify-content: space-between; }");
-            sb.AppendLine("table { width: 100%; border-collapse: collapse; margin-top: 20px; }");
-            sb.AppendLine("th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }");
-            sb.AppendLine("th { background-color: #2196F3; color: white; }");
-            sb.AppendLine("tr:nth-child(even) { background-color: #f2f2f2; }");
-            sb.AppendLine(".total { font-size: 1.2em; font-weight: bold; text-align: right; margin-top: 20px; }");
-            sb.AppendLine("</style>");
-            sb.AppendLine("</head><body>");
-
-            sb.AppendLine("<div class='header'>");
-            sb.AppendLine("<h1>PAYMENT INVOICE</h1>");
-            sb.AppendLine($"<p>Invoice Number: INV-{DateTime.Now:yyyyMMdd}-{user.UserId}</p>");
-            sb.AppendLine("</div>");
-
-            sb.AppendLine("<div class='invoice-info'>");
-            sb.AppendLine("<div>");
-            sb.AppendLine($"<p><strong>Lecturer:</strong> {user.FirstName} {user.LastName}</p>");
-            sb.AppendLine($"<p><strong>Email:</strong> {user.Email}</p>");
-            sb.AppendLine($"<p><strong>Department:</strong> {user.Department ?? "N/A"}</p>");
-            sb.AppendLine("</div>");
-            sb.AppendLine("<div>");
-            sb.AppendLine($"<p><strong>Invoice Date:</strong> {DateTime.Now:dd MMM yyyy}</p>");
-            sb.AppendLine($"<p><strong>Period:</strong> {startDate:dd MMM yyyy} - {endDate:dd MMM yyyy}</p>");
-            sb.AppendLine("</div>");
-            sb.AppendLine("</div>");
-
-            sb.AppendLine("<table>");
-            sb.AppendLine("<tr><th>Claim ID</th><th>Module</th><th>Hours</th><th>Rate</th><th>Amount</th></tr>");
-
-            foreach (var claim in claims)
+            using (var memoryStream = new MemoryStream())
             {
-                sb.AppendLine($"<tr>");
-                sb.AppendLine($"<td>{claim.ClaimId}</td>");
-                sb.AppendLine($"<td>{claim.Module?.ModuleName ?? "N/A"}</td>");
-                sb.AppendLine($"<td>{claim.HoursWorked:N1}</td>");
-                sb.AppendLine($"<td>R {claim.HourlyRate:N2}</td>");
-                sb.AppendLine($"<td>R {claim.TotalAmount:N2}</td>");
-                sb.AppendLine($"</tr>");
+                // Initialize PDF writer
+                PdfWriter writer = new PdfWriter(memoryStream);
+                PdfDocument pdf = new PdfDocument(writer);
+                Document document = new Document(pdf);
+
+                // Add title
+                var titleFont = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
+                Paragraph title = new Paragraph("PAYMENT INVOICE")
+                    .SetFont(titleFont)
+                    .SetFontSize(22)
+                    .SetBold()
+                    .SetTextAlignment(TextAlignment.CENTER);
+                document.Add(title);
+
+                document.Add(new Paragraph($"Invoice Number: INV-{DateTime.Now:yyyyMMdd}-{user.UserId}")
+                    .SetTextAlignment(TextAlignment.CENTER));
+                
+                document.Add(new Paragraph(" ")); // Spacer
+
+                // Lecturer information
+                Table infoTable = new Table(UnitValue.CreatePercentArray(new float[] { 1, 1 }));
+                infoTable.SetWidth(UnitValue.CreatePercentValue(100));
+
+                // Left column
+                Cell leftCell = new Cell().Add(new Paragraph($"Lecturer: {user.FirstName} {user.LastName}").SetBold());
+                leftCell.Add(new Paragraph($"Email: {user.Email}"));
+                leftCell.Add(new Paragraph($"Department: {user.Department ?? "N/A"}"));
+                leftCell.SetBorder(iText.Layout.Borders.Border.NO_BORDER);
+
+                // Right column
+                Cell rightCell = new Cell().Add(new Paragraph($"Invoice Date: {DateTime.Now:dd MMM yyyy}").SetBold());
+                rightCell.Add(new Paragraph($"Period: {startDate:dd MMM yyyy} - {endDate:dd MMM yyyy}"));
+                rightCell.SetBorder(iText.Layout.Borders.Border.NO_BORDER);
+                rightCell.SetTextAlignment(TextAlignment.RIGHT);
+
+                infoTable.AddCell(leftCell);
+                infoTable.AddCell(rightCell);
+                document.Add(infoTable);
+
+                document.Add(new Paragraph(" ")); // Spacer
+
+                // Claims table
+                Table claimsTable = new Table(UnitValue.CreatePercentArray(new float[] { 1, 3, 1.5f, 1.5f, 2 }));
+                claimsTable.SetWidth(UnitValue.CreatePercentValue(100));
+
+                // Add header
+                var headerFont = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
+                claimsTable.AddHeaderCell(new Cell().Add(new Paragraph("Claim ID").SetFont(headerFont)).SetBackgroundColor(ColorConstants.LIGHT_GRAY));
+                claimsTable.AddHeaderCell(new Cell().Add(new Paragraph("Module").SetFont(headerFont)).SetBackgroundColor(ColorConstants.LIGHT_GRAY));
+                claimsTable.AddHeaderCell(new Cell().Add(new Paragraph("Hours").SetFont(headerFont)).SetBackgroundColor(ColorConstants.LIGHT_GRAY));
+                claimsTable.AddHeaderCell(new Cell().Add(new Paragraph("Rate").SetFont(headerFont)).SetBackgroundColor(ColorConstants.LIGHT_GRAY));
+                claimsTable.AddHeaderCell(new Cell().Add(new Paragraph("Amount").SetFont(headerFont)).SetBackgroundColor(ColorConstants.LIGHT_GRAY));
+
+                // Add claim rows
+                foreach (var claim in claims)
+                {
+                    claimsTable.AddCell(new Cell().Add(new Paragraph(claim.ClaimId.ToString())));
+                    claimsTable.AddCell(new Cell().Add(new Paragraph(claim.Module?.ModuleName ?? "N/A")));
+                    claimsTable.AddCell(new Cell().Add(new Paragraph(claim.HoursWorked.ToString("N1"))));
+                    claimsTable.AddCell(new Cell().Add(new Paragraph($"R {claim.HourlyRate:N2}")));
+                    claimsTable.AddCell(new Cell().Add(new Paragraph($"R {claim.TotalAmount:N2}")));
+                }
+
+                document.Add(claimsTable);
+
+                document.Add(new Paragraph(" ")); // Spacer
+
+                // Total section
+                Paragraph totalHours = new Paragraph($"Total Hours: {claims.Sum(c => c.HoursWorked):N1}")
+                    .SetTextAlignment(TextAlignment.RIGHT)
+                    .SetFontSize(12);
+                document.Add(totalHours);
+
+                Paragraph totalAmount = new Paragraph($"TOTAL AMOUNT DUE: R {claims.Sum(c => c.TotalAmount):N2}")
+                    .SetFont(titleFont)
+                    .SetTextAlignment(TextAlignment.RIGHT)
+                    .SetFontSize(14)
+                    .SetBold();
+                document.Add(totalAmount);
+
+                // Close document
+                document.Close();
+
+                return memoryStream.ToArray();
             }
-
-            sb.AppendLine("</table>");
-
-            sb.AppendLine($"<p class='total'>Total Hours: {claims.Sum(c => c.HoursWorked):N1}</p>");
-            sb.AppendLine($"<p class='total'>TOTAL AMOUNT DUE: R {claims.Sum(c => c.TotalAmount):N2}</p>");
-
-            sb.AppendLine("</body></html>");
-
-            return sb.ToString();
         }
     }
 }

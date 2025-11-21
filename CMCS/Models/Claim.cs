@@ -40,7 +40,7 @@ namespace CMCS.Models
         [Required]
         public string ClaimPeriod { get; set; }
 
-        public string AdditionalNotes { get; set; }
+        public string AdditionalNotes { get; set; } = string.Empty;
 
         [Required]
         public ClaimStatus CurrentStatus { get; set; } = ClaimStatus.Draft;

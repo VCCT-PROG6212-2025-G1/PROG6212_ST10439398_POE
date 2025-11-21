@@ -8,25 +8,28 @@ namespace CMCS.Controllers
 {
     public class HomeController : Controller
     {
-        [Authorize]
+        // ? FIXED: Remove [Authorize] to prevent redirect loop
+        // Let users access home page without auth
         public IActionResult Index()
         {
-            // Redirect based on user role
-            var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
-
-            switch (userRole)
+            // Check if user is authenticated
+            if (User.Identity?.IsAuthenticated == true)
             {
-                case "Lecturer":
-                    return RedirectToAction("Dashboard", "Lecturer");
-                case "Coordinator":
-                    return RedirectToAction("Dashboard", "Coordinator");
-                case "Manager":
-                    return RedirectToAction("Dashboard", "Manager");
-                case "HR":
-                    return RedirectToAction("Dashboard", "HR");
-                default:
-                    return View();
+                // Redirect authenticated users to their dashboard
+                var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+                return userRole switch
+                {
+                    "Lecturer" => RedirectToAction("Dashboard", "Lecturer"),
+                    "Coordinator" => RedirectToAction("Dashboard", "Coordinator"),
+                    "Manager" => RedirectToAction("Dashboard", "Manager"),
+                    "HR" => RedirectToAction("Dashboard", "HR"),
+                    _ => RedirectToAction("Login", "Account")
+                };
             }
+
+            // Show home page for unauthenticated users or redirect to login
+            return RedirectToAction("Login", "Account");
         }
 
         public IActionResult Privacy()

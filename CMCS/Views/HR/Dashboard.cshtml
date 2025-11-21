@@ -128,28 +128,28 @@
                                     <td>@user.FullName</td>
                                     <td>@user.Email</td>
                                     <td>
-                                        @switch (user.Role)
+                                        @switch (user.UserRole)
                                         {
-                                            case "Lecturer":
-                                                <span class="badge bg-info">@user.Role</span>
+                                            case CMCS.Models.UserRole.Lecturer:
+                                                <span class="badge bg-info">Lecturer</span>
                                                 break;
-                                            case "Coordinator":
-                                                <span class="badge bg-warning text-dark">@user.Role</span>
+                                            case CMCS.Models.UserRole.Coordinator:
+                                                <span class="badge bg-warning text-dark">Coordinator</span>
                                                 break;
-                                            case "Manager":
-                                                <span class="badge bg-secondary">@user.Role</span>
+                                            case CMCS.Models.UserRole.Manager:
+                                                <span class="badge bg-secondary">Manager</span>
                                                 break;
-                                            case "HR":
-                                                <span class="badge bg-primary">@user.Role</span>
+                                            case CMCS.Models.UserRole.HR:
+                                                <span class="badge bg-primary">HR</span>
                                                 break;
                                             default:
-                                                <span class="badge bg-dark">@user.Role</span>
+                                                <span class="badge bg-dark">@user.UserRole</span>
                                                 break;
                                         }
                                     </td>
                                     <td>@(user.Department ?? "N/A")</td>
                                     <td>
-                                        @if (user.Role == "Lecturer")
+                                        @if (user.UserRole == CMCS.Models.UserRole.Lecturer)
                                         {
                                             <span>R @user.HourlyRate.ToString("N2")</span>
                                         }

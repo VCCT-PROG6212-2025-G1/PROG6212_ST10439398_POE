@@ -155,6 +155,10 @@
               "target": "Package",
               "version": "[4.0.3, )"
             },
+            "BouncyCastle.Cryptography": {
+              "target": "Package",
+              "version": "[2.4.0, )"
+            },
             "Microsoft.AspNetCore.Authentication.Cookies": {
               "target": "Package",
               "version": "[2.3.0, )"
@@ -198,6 +202,14 @@
             "Swashbuckle.AspNetCore": {
               "target": "Package",
               "version": "[10.0.1, )"
+            },
+            "itext7": {
+              "target": "Package",
+              "version": "[8.0.5, )"
+            },
+            "itext7.bouncy-castle-adapter": {
+              "target": "Package",
+              "version": "[8.0.5, )"
             }
           },
           "imports": [

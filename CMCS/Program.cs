@@ -28,17 +28,42 @@ builder.Services.AddScoped<IFileEncryptionService, FileEncryptionService>();
 // Add Report Service for PDF generation
 builder.Services.AddScoped<IReportService, ReportService>();
 
-// Add Authentication
+// Configure Authentication to prevent redirect loops
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
         options.LoginPath = "/Account/Login";
         options.LogoutPath = "/Account/Logout";
         options.AccessDeniedPath = "/Account/AccessDenied";
-        options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
+        options.ExpireTimeSpan = TimeSpan.FromHours(8);
         options.SlidingExpiration = true;
         options.Cookie.HttpOnly = true;
         options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+        options.Cookie.SameSite = SameSiteMode.Lax;  // Prevent CSRF
+        options.Cookie.Name = ".CMCS.Auth";
+        
+        // CRITICAL: Prevent redirect loops by checking if already on login page
+        options.Events = new CookieAuthenticationEvents
+        {
+            OnRedirectToLogin = context =>
+            {
+                // Prevent redirect loop if already on login page
+                if (!context.Request.Path.StartsWithSegments("/Account/Login"))
+                {
+                    context.Response.Redirect(context.RedirectUri);
+                }
+                else
+                {
+                    context.Response.StatusCode = 401; // Unauthorized
+                }
+                return Task.CompletedTask;
+            },
+            OnRedirectToAccessDenied = context =>
+            {
+                context.Response.Redirect(context.RedirectUri);
+                return Task.CompletedTask;
+            }
+        };
     });
 
 // Add logging
@@ -46,14 +71,16 @@ builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 builder.Logging.AddDebug();
 
-// Add Session - MANDATORY for Part 3
+// Configure Session with better timeout handling
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.IdleTimeout = TimeSpan.FromHours(8);  // Match auth timeout
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
     options.Cookie.Name = ".CMCS.Session";
+    options.Cookie.SameSite = SameSiteMode.Lax;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
 });
 
 // Add Swagger for API testing - Required for best marks
@@ -102,7 +129,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-// Session must be before Authentication
+// CRITICAL ORDER: Session MUST come before Authentication
 app.UseSession();
 
 app.UseAuthentication();
@@ -111,7 +138,7 @@ app.UseAuthorization();
 // Map API controllers
 app.MapControllers();
 
-// Map MVC routes
+// FIXED: Changed default route to Account/Login
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Account}/{action=Login}/{id?}");

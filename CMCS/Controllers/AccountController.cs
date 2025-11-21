@@ -22,24 +22,38 @@ namespace CMCS.Controllers
         }
 
         [HttpGet]
-        public IActionResult Login()
+        public IActionResult Login(string returnUrl = null)
         {
-            // Check session first
-            if (HttpContext.Session.GetInt32("UserId") != null)
+            // ? FIXED: Prevent redirect loop by checking if already on login page
+            var currentPath = HttpContext.Request.Path.Value?.ToLower();
+            if (currentPath == "/account/login")
             {
+                // Already on login page, clear any stale session
+                if (HttpContext.Session.GetInt32("UserId") != null)
+                {
+                    HttpContext.Session.Clear();
+                }
+                ViewData["ReturnUrl"] = returnUrl;
+                return View();
+            }
+
+            // Check if user is already logged in
+            var userId = HttpContext.Session.GetInt32("UserId");
+            var userRole = HttpContext.Session.GetString("UserRole");
+
+            if (userId != null && !string.IsNullOrEmpty(userRole))
+            {
+                // User is logged in, redirect to their dashboard
                 return RedirectToDashboard();
             }
 
-            if (User.Identity?.IsAuthenticated == true)
-            {
-                return RedirectToDashboard();
-            }
+            ViewData["ReturnUrl"] = returnUrl;
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginViewModel model)
+        public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = null)
         {
             try
             {
@@ -78,7 +92,9 @@ namespace CMCS.Controllers
                     _logger.LogWarning("Failed login attempt for user: {Email}", model.Email);
                     return View(model);
                 }
-                // ================================================================
+
+                // Clear any existing session data first
+                HttpContext.Session.Clear();
 
                 // Create authentication claims
                 var claims = new List<System.Security.Claims.Claim>
@@ -93,15 +109,15 @@ namespace CMCS.Controllers
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                 var authProperties = new AuthenticationProperties
                 {
-                    IsPersistent = true,
-                    ExpiresUtc = DateTimeOffset.UtcNow.AddHours(8)
+                    IsPersistent = model.RememberMe,  // Use remember me checkbox
+                    ExpiresUtc = DateTimeOffset.UtcNow.AddHours(8),
+                    AllowRefresh = true
                 };
 
                 await HttpContext.SignInAsync(
                     CookieAuthenticationDefaults.AuthenticationScheme,
                     new ClaimsPrincipal(claimsIdentity),
                     authProperties);
-
 
                 // Store user information in session for authorization checks
                 HttpContext.Session.SetInt32("UserId", user.UserId);
@@ -112,9 +128,14 @@ namespace CMCS.Controllers
 
                 _logger.LogInformation("User {UserId} logged in successfully. Session created with Role: {Role}",
                     user.UserId, user.UserRole);
-         
 
                 TempData["Success"] = $"Welcome back, {user.FirstName}!";
+
+                // Handle return URL or redirect based on role
+                if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                {
+                    return Redirect(returnUrl);
+                }
 
                 // Redirect based on role
                 return user.UserRole switch
@@ -143,10 +164,16 @@ namespace CMCS.Controllers
             {
                 var userId = HttpContext.Session.GetInt32("UserId");
 
-                // Clear session - MANDATORY
+                // Sign out from cookie authentication
+                await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+                // Clear session completely
                 HttpContext.Session.Clear();
 
-                await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                // Clear response cache
+                Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+                Response.Headers["Pragma"] = "no-cache";
+                Response.Headers["Expires"] = "0";
 
                 _logger.LogInformation("User {UserId} logged out. Session cleared.", userId);
 
@@ -163,6 +190,7 @@ namespace CMCS.Controllers
 
         public IActionResult AccessDenied()
         {
+            // Don't require auth for access denied page
             return View();
         }
 
@@ -172,24 +200,25 @@ namespace CMCS.Controllers
 
             if (string.IsNullOrEmpty(role))
             {
-                if (User.IsInRole("Lecturer")) return RedirectToAction("Dashboard", "Lecturer");
-                if (User.IsInRole("Coordinator")) return RedirectToAction("Dashboard", "Coordinator");
-                if (User.IsInRole("Manager")) return RedirectToAction("Dashboard", "Manager");
-                if (User.IsInRole("HR")) return RedirectToAction("Dashboard", "HR");
-            }
-            else
-            {
-                return role switch
+                // Fallback to claims if session is empty
+                if (User.Identity?.IsAuthenticated == true)
                 {
-                    "Lecturer" => RedirectToAction("Dashboard", "Lecturer"),
-                    "Coordinator" => RedirectToAction("Dashboard", "Coordinator"),
-                    "Manager" => RedirectToAction("Dashboard", "Manager"),
-                    "HR" => RedirectToAction("Dashboard", "HR"),
-                    _ => RedirectToAction("Index", "Home")
-                };
+                    var claimRole = User.FindFirst(ClaimTypes.Role)?.Value;
+                    if (!string.IsNullOrEmpty(claimRole))
+                    {
+                        role = claimRole;
+                    }
+                }
             }
 
-            return RedirectToAction("Index", "Home");
+            return role switch
+            {
+                "Lecturer" => RedirectToAction("Dashboard", "Lecturer"),
+                "Coordinator" => RedirectToAction("Dashboard", "Coordinator"),
+                "Manager" => RedirectToAction("Dashboard", "Manager"),
+                "HR" => RedirectToAction("Dashboard", "HR"),
+                _ => RedirectToAction("Index", "Home")
+            };
         }
     }
 }

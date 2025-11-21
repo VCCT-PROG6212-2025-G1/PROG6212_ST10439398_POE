@@ -7,7 +7,10 @@ namespace CMCS.ViewModels
     {
         public List<Claim> ClaimsForApproval { get; set; } = new List<Claim>();
         public int UrgentClaims { get; set; }
-        public int TotalThisWeek { get; set; }
+        
+        // ✅ FIXED: Changed to decimal for Rand amount
+        public decimal TotalThisWeek { get; set; }
+        
         public int PendingApproval { get; set; }
         public int ApprovedToday { get; set; }
 
