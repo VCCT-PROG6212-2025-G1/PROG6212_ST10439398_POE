@@ -259,7 +259,7 @@
             <h3>🔑 Test Credentials</h3>
             <p>Click any credential below to auto-fill the login form:</p>
 
-            <div class="credential-card" onclick="fillCredentials('john.lecturer@iie.ac.za', 'password123', 'Lecturer')">
+            <div class="credential-card" onclick="fillCredentials('john.lecturer@iie.ac.za', 'Password123!', 'Lecturer')">
                 <div class="credential-header">
                     <span class="role-icon">👨‍🏫</span>
                     <span class="role-name">Lecturer</span>
@@ -270,7 +270,7 @@
                 </div>
             </div>
 
-            <div class="credential-card" onclick="fillCredentials('jane.coordinator@iie.ac.za', 'password123', 'Coordinator')">
+            <div class="credential-card" onclick="fillCredentials('jane.coordinator@iie.ac.za', 'Password123!', 'Coordinator')">
                 <div class="credential-header">
                     <span class="role-icon">👩‍💼</span>
                     <span class="role-name">Programme Coordinator</span>
@@ -281,7 +281,7 @@
                 </div>
             </div>
 
-            <div class="credential-card" onclick="fillCredentials('mike.manager@iie.ac.za', 'password123', 'Manager')">
+            <div class="credential-card" onclick="fillCredentials('mike.manager@iie.ac.za', 'Password123!', 'Manager')">
                 <div class="credential-header">
                     <span class="role-icon">👨‍💻</span>
                     <span class="role-name">Academic Manager</span>
@@ -292,7 +292,7 @@
                 </div>
             </div>
 
-            <div class="credential-card" onclick="fillCredentials('emily.hr@iie.ac.za', 'password123', 'HR')">
+            <div class="credential-card" onclick="fillCredentials('emily.hr@iie.ac.za', 'Password123!', 'HR')">
                 <div class="credential-header">
                     <span class="role-icon">👩‍💻</span>
                     <span class="role-name">HR Manager</span>
@@ -372,7 +372,7 @@
             });
         });
 
-        // Auto-fill credentials function
+        // ✅ FIXED: Auto-fill credentials function with correct password
         function fillCredentials(email, password, role) {
             document.getElementById('emailInput').value = email;
             document.getElementById('passwordInput').value = password;

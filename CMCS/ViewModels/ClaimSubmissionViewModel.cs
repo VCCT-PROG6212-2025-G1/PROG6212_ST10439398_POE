@@ -9,7 +9,7 @@ namespace CMCS.ViewModels
         public int ModuleId { get; set; }
 
         [Required(ErrorMessage = "Hours worked is required")]
-        [Range(0.5, 1000, ErrorMessage = "Hours must be between 0.5 and 1000")]
+        [Range(0.5, 180, ErrorMessage = "Hours must be between 0.5 and 180")]
         public decimal HoursWorked { get; set; }
 
         [Required(ErrorMessage = "Claim period is required")]

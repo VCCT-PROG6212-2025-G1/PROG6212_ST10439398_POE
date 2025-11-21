@@ -34,10 +34,12 @@
 ```
 
 6. **Login with test accounts**
-   - Lecturer: john.lecturer@iie.ac.za
-   - Coordinator: jane.coordinator@iie.ac.za
-   - Manager: mike.manager@iie.ac.za
-   - Password: (any text for demo)
+   - **Lecturer:** john.lecturer@iie.ac.za / Password123!
+   - **Coordinator:** jane.coordinator@iie.ac.za / Password123!
+   - **Manager:** mike.manager@iie.ac.za / Password123!
+   - **HR:** emily.hr@iie.ac.za / Password123!
+   
+   **Note:** Click any credential card on the login page for instant auto-fill!
 
 ### Project Structure
 ```
@@ -46,8 +48,11 @@ CMCS/
 │   ├── AccountController.cs
 │   ├── LecturerController.cs
 │   ├── CoordinatorController.cs
-│   ├── HomeController.cs
-│   └── ModulesController.cs
+│   ├── ManagerController.cs
+│   ├── HRController.cs
+│   └── Api/
+│       ├── ClaimsApiController.cs
+│       └── HRApiController.cs
 ├── Models/
 │   ├── User.cs
 │   ├── Module.cs
@@ -57,14 +62,19 @@ CMCS/
 ├── ViewModels/
 │   ├── LecturerDashboardViewModel.cs
 │   ├── CoordinatorDashboardViewModel.cs
+│   ├── ManagerDashboardViewModel.cs
 │   └── ClaimSubmissionViewModel.cs
 ├── Data/
 │   └── CMCSContext.cs
+├── Services/
+│   ├── FileEncryptionService.cs
+│   └── ReportService.cs
 ├── Views/
 │   ├── Account/Login.cshtml
 │   ├── Lecturer/
 │   ├── Coordinator/
-│   ├── Modules/
+│   ├── Manager/
+│   ├── HR/
 │   └── Shared/_Layout.cshtml
 ├── wwwroot/
 │   ├── css/site.css
@@ -72,7 +82,16 @@ CMCS/
 │   └── uploads/
 ├── appsettings.json
 └── Program.cs
+```
 
+## Features
+- ✅ Role-based authentication (Lecturer, Coordinator, Manager, HR)
+- ✅ Claims submission with file upload and encryption
+- ✅ Multi-level approval workflow
+- ✅ Real-time dashboard statistics
+- ✅ PDF report generation (invoices, claims reports)
+- ✅ RESTful API for automation
+- ✅ Swagger documentation (available at `/swagger`)
 
 ## .gitignore (Update if needed)**
 ```
