@@ -1,0 +1,225 @@
+﻿<!--------------------- Start of File ------------------------->
+@model CMCS.ViewModels.LoginViewModel
+@{
+    ViewData["Title"] = "Login";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - CMCS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-card {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 550px;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+            .login-header h1 {
+                color: #1e3a8a;
+                font-size: 2.5rem;
+                font-weight: 700;
+                margin-bottom: 8px;
+            }
+
+            .login-header p {
+                color: #6b7280;
+                font-size: 1rem;
+            }
+
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #ef4444;
+        }
+
+        .role-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .role-btn {
+            padding: 12px;
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
+            background: white;
+            color: #374151;
+            font-weight: 500;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+            .role-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+            }
+
+            .role-btn.active {
+                background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+                color: white;
+                border-color: #3b82f6;
+            }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+            .form-group label {
+                display: block;
+                margin-bottom: 8px;
+                color: #374151;
+                font-weight: 500;
+            }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+            .form-control:focus {
+                outline: none;
+                border-color: #3b82f6;
+                box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            }
+
+        .text-danger {
+            color: #dc2626;
+            font-size: 0.875rem;
+            margin-top: 5px;
+            display: block;
+        }
+
+        .btn-signin {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+            .btn-signin:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+            }
+
+        .login-footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+            .login-footer p {
+                color: #6b7280;
+                font-size: 0.9rem;
+                margin: 0;
+            }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <div class="login-header">
+            <h1>CMCS</h1>
+            <p>Contract Monthly Claims System</p>
+        </div>
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert-error">
+                @TempData["Error"]
+            </div>
+        }
+
+        <form asp-action="Login" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <!-- 🔧 FIXED: Added HR role button -->
+            <div class="role-buttons">
+                <button type="button" class="role-btn active" data-role="Lecturer">Lecturer</button>
+                <button type="button" class="role-btn" data-role="Coordinator">Coordinator</button>
+                <button type="button" class="role-btn" data-role="Manager">Manager</button>
+                <button type="button" class="role-btn" data-role="HR">HR</button>
+            </div>
+            <input type="hidden" asp-for="UserType" id="userTypeInput" value="Lecturer" />
+            <span asp-validation-for="UserType" class="text-danger"></span>
+
+            <div class="form-group">
+                <label asp-for="Email">Email Address</label>
+                <input asp-for="Email" type="email" class="form-control" placeholder="Enter your email" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Password">Password</label>
+                <input asp-for="Password" type="password" class="form-control" placeholder="Enter your password" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn-signin">Sign In</button>
+        </form>
+
+        <div class="login-footer">
+            <p>Independent Institute of Education</p>
+            <p>Secure Claims Management Portal</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const roleButtons = document.querySelectorAll('.role-btn');
+            const userTypeInput = document.getElementById('userTypeInput');
+
+            roleButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    roleButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    userTypeInput.value = this.getAttribute('data-role');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+<!--------------------- End of File ------------------------->

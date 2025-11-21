@@ -371,7 +371,7 @@ namespace CMCS.Migrations
                             HourlyRate = 450.00m,
                             IsActive = true,
                             LastName = "Lecturer",
-                            PasswordHash = "$2a$11$1Fu7XrWCp1e2zJSCKOJH0..GAMCb4Qbq02qkWLmugIOoyuJZ8V9Ma",
+                            PasswordHash = "$2a$11$2D61u8DrV007EQa2ITzb2eNgRRntqXl0JkkEXSi5fm2et0gdCywsy",
                             PhoneNumber = "+27 11 123 4567",
                             UserRole = 0
                         },
@@ -384,7 +384,7 @@ namespace CMCS.Migrations
                             HourlyRate = 0m,
                             IsActive = true,
                             LastName = "Coordinator",
-                            PasswordHash = "$2a$11$1Fu7XrWCp1e2zJSCKOJH0..GAMCb4Qbq02qkWLmugIOoyuJZ8V9Ma",
+                            PasswordHash = "$2a$11$2D61u8DrV007EQa2ITzb2eNgRRntqXl0JkkEXSi5fm2et0gdCywsy",
                             PhoneNumber = "+27 11 234 5678",
                             UserRole = 1
                         },
@@ -397,7 +397,7 @@ namespace CMCS.Migrations
                             HourlyRate = 0m,
                             IsActive = true,
                             LastName = "Manager",
-                            PasswordHash = "$2a$11$1Fu7XrWCp1e2zJSCKOJH0..GAMCb4Qbq02qkWLmugIOoyuJZ8V9Ma",
+                            PasswordHash = "$2a$11$2D61u8DrV007EQa2ITzb2eNgRRntqXl0JkkEXSi5fm2et0gdCywsy",
                             PhoneNumber = "+27 11 345 6789",
                             UserRole = 2
                         },
@@ -410,7 +410,7 @@ namespace CMCS.Migrations
                             HourlyRate = 420.00m,
                             IsActive = true,
                             LastName = "Davis",
-                            PasswordHash = "$2a$11$1Fu7XrWCp1e2zJSCKOJH0..GAMCb4Qbq02qkWLmugIOoyuJZ8V9Ma",
+                            PasswordHash = "$2a$11$2D61u8DrV007EQa2ITzb2eNgRRntqXl0JkkEXSi5fm2et0gdCywsy",
                             PhoneNumber = "+27 11 456 7890",
                             UserRole = 0
                         },
@@ -423,7 +423,7 @@ namespace CMCS.Migrations
                             HourlyRate = 0m,
                             IsActive = true,
                             LastName = "HR",
-                            PasswordHash = "$2a$11$1Fu7XrWCp1e2zJSCKOJH0..GAMCb4Qbq02qkWLmugIOoyuJZ8V9Ma",
+                            PasswordHash = "$2a$11$2D61u8DrV007EQa2ITzb2eNgRRntqXl0JkkEXSi5fm2et0gdCywsy",
                             PhoneNumber = "+27 11 567 8901",
                             UserRole = 3
                         });

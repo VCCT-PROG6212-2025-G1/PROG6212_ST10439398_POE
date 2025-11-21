@@ -3,10 +3,10 @@
     ViewData["Title"] = "Submit Claim";
 }
 
-<div class="container">
+<div class="container mt-4">
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
                 <div class="card-header bg-primary text-white">
                     <h4 class="mb-0">
                         <i class="bi bi-file-earmark-plus"></i> Submit New Claim
@@ -24,98 +24,101 @@
                     <form asp-action="SubmitClaim" method="post" enctype="multipart/form-data" id="claimForm">
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
 
-                        <!-- Auto-pulled Information (Read-only) -->
-                        <div class="alert alert-info">
-                            <h6><i class="bi bi-info-circle"></i> Your Information (Auto-populated by HR)</h6>
-                            <div class="row mt-2">
+                        <!-- Auto-pulled Information -->
+                        <div class="alert alert-info mb-4">
+                            <h6 class="fw-bold mb-3"><i class="bi bi-info-circle"></i> Your Information (Auto-populated by HR)
+                            </h6>
+                            <div class="row">
                                 <div class="col-md-6">
-                                    <small class="text-muted">Name</small>
+                                    <label class="text-muted small">Name</label>
                                     <p class="mb-0 fw-bold">@ViewBag.UserName</p>
                                 </div>
                                 <div class="col-md-6">
-                                    <small class="text-muted">Hourly Rate (Set by HR)</small>
-                                    <p class="mb-0 fw-bold text-success">R @ViewBag.UserHourlyRate</p>
+                                    <label class="text-muted small">Hourly Rate (Set by HR)</label>
+                                    <p class="mb-0 fw-bold text-success fs-5">R @ViewBag.UserHourlyRate</p>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Hidden field for hourly rate (for JavaScript calculation) -->
                         <input type="hidden" id="hourlyRate" value="@ViewBag.UserHourlyRate" />
 
                         <!-- Module Selection -->
                         <div class="mb-3">
-                            <label asp-for="ModuleId" class="form-label">Module</label>
+                            <label asp-for="ModuleId" class="form-label fw-semibold">Module <span class="text-danger">*</span>
+                            </label>
                             <select asp-for="ModuleId" asp-items="ViewBag.Modules" class="form-select">
                                 <option value="">-- Select Module --</option>
                             </select>
-                            <span asp-validation-for="ModuleId" class="text-danger"></span>
+                            <span asp-validation-for="ModuleId" class="text-danger small"></span>
                         </div>
 
-                        <!-- Hours Worked with Auto-calculation -->
+                        <!-- Hours Worked -->
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label asp-for="HoursWorked" class="form-label">Hours Worked</label>
+                                <label asp-for="HoursWorked" class="form-label fw-semibold">Hours Worked <span
+                                        class="text-danger">*</span></label>
                                 <input asp-for="HoursWorked" class="form-control" id="hoursWorked"
                                        type="number" step="0.5" min="0.5" max="180"
                                        placeholder="Enter hours (max 180)" />
-                                <span asp-validation-for="HoursWorked" class="text-danger"></span>
-                                <small class="text-muted">Maximum 180 hours per claim</small>
+                                <span asp-validation-for="HoursWorked" class="text-danger small"></span>
+                                <small class="form-text text-muted">Maximum 180 hours per claim</small>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Calculated Total</label>
+                                <label class="form-label fw-semibold">Calculated Total</label>
                                 <div class="input-group">
                                     <span class="input-group-text">R</span>
-                                    <input type="text" class="form-control fw-bold text-success"
+                                    <input type="text" class="form-control fw-bold text-success fs-5"
                                            id="calculatedTotal" readonly value="0.00" />
                                 </div>
-                                <small class="text-muted">Auto-calculated: Hours × Hourly Rate</small>
+                                <small class="form-text text-muted">Auto-calculated: Hours × Hourly Rate</small>
                             </div>
                         </div>
 
                         <!-- Claim Period -->
                         <div class="mb-3">
-                            <label asp-for="ClaimPeriod" class="form-label">Claim Period</label>
+                            <label asp-for="ClaimPeriod" class="form-label fw-semibold">Claim Period <span
+                                    class="text-danger">*</span></label>
                             <input asp-for="ClaimPeriod" class="form-control" placeholder="e.g., October 2024" />
-                            <span asp-validation-for="ClaimPeriod" class="text-danger"></span>
+                            <span asp-validation-for="ClaimPeriod" class="text-danger small"></span>
                         </div>
 
                         <!-- Notes -->
                         <div class="mb-3">
-                            <label asp-for="AdditionalNotes" class="form-label">Additional Notes</label>
+                            <label asp-for="AdditionalNotes" class="form-label fw-semibold">Additional Notes</label>
                             <textarea asp-for="AdditionalNotes" class="form-control" rows="3"
                                       placeholder="Any additional information about this claim..."></textarea>
-                            <span asp-validation-for="AdditionalNotes" class="text-danger"></span>
+                            <span asp-validation-for="AdditionalNotes" class="text-danger small"></span>
                         </div>
 
                         <!-- Supporting Documents -->
-                        <div class="mb-3">
-                            <label asp-for="SupportingDocuments" class="form-label">Supporting Documents</label>
+                        <div class="mb-4">
+                            <label asp-for="SupportingDocuments" class="form-label fw-semibold">Supporting Documents</label>
                             <input asp-for="SupportingDocuments" class="form-control" type="file"
-                                   accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg" multiple />
-                            <span asp-validation-for="SupportingDocuments" class="text-danger"></span>
-                            <small class="text-muted">
-                                Accepted formats: PDF, Word, Excel, Images (Max 10MB each)
+                                   accept=".pdf,.doc,.docx,.xls,.xlsx" multiple />
+                            <span asp-validation-for="SupportingDocuments" class="text-danger small"></span>
+                            <small class="form-text text-muted">
+                                Accepted formats: PDF, Word, Excel (Max 10MB each)
                             </small>
                         </div>
 
                         <!-- Summary Card -->
                         <div class="card bg-light mb-4">
                             <div class="card-body">
-                                <h6 class="card-title">
+                                <h6 class="card-title fw-bold mb-3">
                                     <i class="bi bi-calculator"></i> Claim Summary
                                 </h6>
-                                <div class="row">
+                                <div class="row text-center">
                                     <div class="col-md-4">
-                                        <small class="text-muted">Hours</small>
-                                        <p class="mb-0 fw-bold" id="summaryHours">0</p>
+                                        <small class="text-muted d-block">Hours</small>
+                                        <p class="mb-0 fw-bold fs-4" id="summaryHours">0</p>
                                     </div>
                                     <div class="col-md-4">
-                                        <small class="text-muted">Rate</small>
-                                        <p class="mb-0 fw-bold">R @ViewBag.UserHourlyRate</p>
+                                        <small class="text-muted d-block">Rate</small>
+                                        <p class="mb-0 fw-bold fs-4">R @ViewBag.UserHourlyRate</p>
                                     </div>
                                     <div class="col-md-4">
-                                        <small class="text-muted">Total Amount</small>
-                                        <p class="mb-0 fw-bold text-success fs-5" id="summaryTotal">R 0.00</p>
+                                        <small class="text-muted d-block">Total Amount</small>
+                                        <p class="mb-0 fw-bold text-success fs-3" id="summaryTotal">R 0.00</p>
                                     </div>
                                 </div>
                             </div>
@@ -141,14 +144,11 @@
     <partial name="_ValidationScriptsPartial" />
     <script>
         $(document).ready(function() {
-            // Get hourly rate from hidden field
             var hourlyRate = parseFloat($('#hourlyRate').val()) || 0;
 
-            // Function to calculate and update totals
             function calculateTotal() {
                 var hours = parseFloat($('#hoursWorked').val()) || 0;
 
-                // Validate hours
                 if (hours < 0) hours = 0;
                 if (hours > 180) {
                     hours = 180;
@@ -158,18 +158,15 @@
 
                 var total = hours * hourlyRate;
 
-                // Update displays
                 $('#calculatedTotal').val(total.toFixed(2));
                 $('#summaryHours').text(hours.toFixed(1));
                 $('#summaryTotal').text('R ' + total.toFixed(2));
             }
 
-            // Calculate on input change
             $('#hoursWorked').on('input change', function() {
                 calculateTotal();
             });
 
-            // Form validation before submit
             $('#claimForm').on('submit', function(e) {
                 var hours = parseFloat($('#hoursWorked').val()) || 0;
                 if (hours <= 0) {
@@ -185,7 +182,6 @@
                 return true;
             });
 
-            // Initial calculation
             calculateTotal();
         });
     </script>

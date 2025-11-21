@@ -69,7 +69,6 @@ namespace CMCS.Controllers
                     return View(model);
                 }
 
-                // ========== PASSWORD VALIDATION - MANDATORY FOR PART 3 ==========
                 // Verify password using BCrypt
                 if (string.IsNullOrEmpty(user.PasswordHash) ||
                     !BCrypt.Net.BCrypt.Verify(model.Password, user.PasswordHash))
@@ -103,7 +102,7 @@ namespace CMCS.Controllers
                     new ClaimsPrincipal(claimsIdentity),
                     authProperties);
 
-                // ========== SESSION STORAGE - MANDATORY FOR PART 3 ==========
+
                 // Store user information in session for authorization checks
                 HttpContext.Session.SetInt32("UserId", user.UserId);
                 HttpContext.Session.SetString("UserRole", user.UserRole.ToString());
@@ -113,7 +112,7 @@ namespace CMCS.Controllers
 
                 _logger.LogInformation("User {UserId} logged in successfully. Session created with Role: {Role}",
                     user.UserId, user.UserRole);
-                // =============================================================
+         
 
                 TempData["Success"] = $"Welcome back, {user.FirstName}!";
 

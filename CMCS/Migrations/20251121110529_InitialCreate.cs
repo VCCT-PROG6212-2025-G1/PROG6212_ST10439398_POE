@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-#pragma warning disable CA1814 /
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
 
 namespace CMCS.Migrations
 {
@@ -13,25 +13,6 @@ namespace CMCS.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
-                name: "Users",
-                columns: table => new
-                {
-                    UserId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    FirstName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    LastName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    PhoneNumber = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    UserRole = table.Column<int>(type: "int", nullable: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Users", x => x.UserId);
-                });
-
             migrationBuilder.CreateTable(
                 name: "Modules",
                 columns: table => new
@@ -44,17 +25,36 @@ namespace CMCS.Migrations
                     StandardHourlyRate = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    LastModified = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    UserId = table.Column<int>(type: "int", nullable: true)
+                    LastModified = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Modules", x => x.ModuleId);
-                    table.ForeignKey(
-                        name: "FK_Modules_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
-                        principalColumn: "UserId");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Users",
+                columns: table => new
+                {
+                    UserId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    FirstName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    LastName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    PasswordHash = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
+                    UserRole = table.Column<int>(type: "int", nullable: false),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    Department = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Faculty = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Campus = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    HourlyRate = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LastModified = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Users", x => x.UserId);
                 });
 
             migrationBuilder.CreateTable(
@@ -147,25 +147,25 @@ namespace CMCS.Migrations
 
             migrationBuilder.InsertData(
                 table: "Modules",
-                columns: new[] { "ModuleId", "CreatedDate", "Description", "IsActive", "LastModified", "ModuleCode", "ModuleName", "StandardHourlyRate", "UserId" },
+                columns: new[] { "ModuleId", "CreatedDate", "Description", "IsActive", "LastModified", "ModuleCode", "ModuleName", "StandardHourlyRate" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2024, 10, 1, 9, 0, 0, 0, DateTimeKind.Unspecified), "Advanced programming concepts in C# and .NET development", true, null, "PROG6212", "Programming 2B", 450.00m, null },
-                    { 2, new DateTime(2024, 10, 1, 9, 0, 0, 0, DateTimeKind.Unspecified), "User interface design and usability principles", true, null, "HCIN6212", "Human Computer Interaction", 420.00m, null },
-                    { 3, new DateTime(2024, 10, 1, 9, 0, 0, 0, DateTimeKind.Unspecified), "Introduction to programming fundamentals and logic", true, null, "PROG5112", "Programming 1B", 400.00m, null },
-                    { 4, new DateTime(2024, 10, 1, 9, 0, 0, 0, DateTimeKind.Unspecified), "Modern web development with HTML, CSS, and JavaScript", true, null, "WEDE5020", "Web Development", 430.00m, null }
+                    { 1, new DateTime(2024, 10, 1, 9, 0, 0, 0, DateTimeKind.Unspecified), "Advanced programming concepts in C# and .NET development", true, null, "PROG6212", "Programming 2B", 450.00m },
+                    { 2, new DateTime(2024, 10, 1, 9, 0, 0, 0, DateTimeKind.Unspecified), "User interface design and usability principles", true, null, "HCIN6212", "Human Computer Interaction", 420.00m },
+                    { 3, new DateTime(2024, 10, 1, 9, 0, 0, 0, DateTimeKind.Unspecified), "Introduction to programming fundamentals and logic", true, null, "PROG5112", "Programming 1B", 400.00m },
+                    { 4, new DateTime(2024, 10, 1, 9, 0, 0, 0, DateTimeKind.Unspecified), "Modern web development with HTML, CSS, and JavaScript", true, null, "WEDE5020", "Web Development", 430.00m }
                 });
 
             migrationBuilder.InsertData(
                 table: "Users",
-                columns: new[] { "UserId", "CreatedDate", "Email", "FirstName", "IsActive", "LastName", "PhoneNumber", "UserRole" },
+                columns: new[] { "UserId", "Campus", "CreatedDate", "Department", "Email", "Faculty", "FirstName", "HourlyRate", "IsActive", "LastModified", "LastName", "PasswordHash", "PhoneNumber", "UserRole" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2024, 10, 1, 9, 0, 0, 0, DateTimeKind.Unspecified), "john.lecturer@iie.ac.za", "John", true, "Lecturer", "+27 11 123 4567", 0 },
-                    { 2, new DateTime(2024, 10, 1, 9, 0, 0, 0, DateTimeKind.Unspecified), "jane.coordinator@iie.ac.za", "Jane", true, "Coordinator", "+27 11 234 5678", 1 },
-                    { 3, new DateTime(2024, 10, 1, 9, 0, 0, 0, DateTimeKind.Unspecified), "mike.manager@iie.ac.za", "Mike", true, "Manager", "+27 11 345 6789", 2 },
-                    { 4, new DateTime(2024, 10, 1, 9, 0, 0, 0, DateTimeKind.Unspecified), "sarah.davis@iie.ac.za", "Sarah", true, "Davis", "+27 11 456 7890", 0 },
-                    { 5, new DateTime(2024, 10, 1, 9, 0, 0, 0, DateTimeKind.Unspecified), "emily.hr@iie.ac.za", "Emily", true, "HR", "+27 11 567 8901", 3 }
+                    { 1, null, new DateTime(2024, 10, 1, 9, 0, 0, 0, DateTimeKind.Unspecified), null, "john.lecturer@iie.ac.za", null, "John", 450.00m, true, null, "Lecturer", "$2a$11$2D61u8DrV007EQa2ITzb2eNgRRntqXl0JkkEXSi5fm2et0gdCywsy", "+27 11 123 4567", 0 },
+                    { 2, null, new DateTime(2024, 10, 1, 9, 0, 0, 0, DateTimeKind.Unspecified), null, "jane.coordinator@iie.ac.za", null, "Jane", 0m, true, null, "Coordinator", "$2a$11$2D61u8DrV007EQa2ITzb2eNgRRntqXl0JkkEXSi5fm2et0gdCywsy", "+27 11 234 5678", 1 },
+                    { 3, null, new DateTime(2024, 10, 1, 9, 0, 0, 0, DateTimeKind.Unspecified), null, "mike.manager@iie.ac.za", null, "Mike", 0m, true, null, "Manager", "$2a$11$2D61u8DrV007EQa2ITzb2eNgRRntqXl0JkkEXSi5fm2et0gdCywsy", "+27 11 345 6789", 2 },
+                    { 4, null, new DateTime(2024, 10, 1, 9, 0, 0, 0, DateTimeKind.Unspecified), null, "sarah.davis@iie.ac.za", null, "Sarah", 420.00m, true, null, "Davis", "$2a$11$2D61u8DrV007EQa2ITzb2eNgRRntqXl0JkkEXSi5fm2et0gdCywsy", "+27 11 456 7890", 0 },
+                    { 5, null, new DateTime(2024, 10, 1, 9, 0, 0, 0, DateTimeKind.Unspecified), null, "emily.hr@iie.ac.za", null, "Emily", 0m, true, null, "HR", "$2a$11$2D61u8DrV007EQa2ITzb2eNgRRntqXl0JkkEXSi5fm2et0gdCywsy", "+27 11 567 8901", 3 }
                 });
 
             migrationBuilder.InsertData(
@@ -212,11 +212,6 @@ namespace CMCS.Migrations
                 table: "Modules",
                 column: "ModuleCode",
                 unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Modules_UserId",
-                table: "Modules",
-                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SupportingDocuments_ClaimId",

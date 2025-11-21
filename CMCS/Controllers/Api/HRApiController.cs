@@ -13,12 +13,12 @@ namespace CMCS.Controllers.Api
     public class HRApiController : ControllerBase
     {
         private readonly CMCSContext _context;
-        private readonly ReportService _reportService;
+        private readonly IReportService _reportService;
         private readonly ILogger<HRApiController> _logger;
 
         public HRApiController(
             CMCSContext context,
-            ReportService reportService,
+            IReportService reportService,
             ILogger<HRApiController> logger)
         {
             _context = context;

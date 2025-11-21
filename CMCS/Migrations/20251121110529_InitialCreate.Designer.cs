@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CMCS.Migrations
 {
     [DbContext(typeof(CMCSContext))]
-    [Migration("20251022174726_InitialCreate")]
+    [Migration("20251121110529_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -207,15 +207,10 @@ namespace CMCS.Migrations
                     b.Property<decimal>("StandardHourlyRate")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int?>("UserId")
-                        .HasColumnType("int");
-
                     b.HasKey("ModuleId");
 
                     b.HasIndex("ModuleCode")
                         .IsUnique();
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Modules");
 
@@ -311,29 +306,51 @@ namespace CMCS.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"));
 
+                    b.Property<string>("Campus")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("Department")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
+                    b.Property<string>("Faculty")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<decimal>("HourlyRate")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastModified")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("PhoneNumber")
+                    b.Property<string>("PasswordHash")
                         .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("PhoneNumber")
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
@@ -354,8 +371,10 @@ namespace CMCS.Migrations
                             CreatedDate = new DateTime(2024, 10, 1, 9, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "john.lecturer@iie.ac.za",
                             FirstName = "John",
+                            HourlyRate = 450.00m,
                             IsActive = true,
                             LastName = "Lecturer",
+                            PasswordHash = "$2a$11$2D61u8DrV007EQa2ITzb2eNgRRntqXl0JkkEXSi5fm2et0gdCywsy",
                             PhoneNumber = "+27 11 123 4567",
                             UserRole = 0
                         },
@@ -365,8 +384,10 @@ namespace CMCS.Migrations
                             CreatedDate = new DateTime(2024, 10, 1, 9, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "jane.coordinator@iie.ac.za",
                             FirstName = "Jane",
+                            HourlyRate = 0m,
                             IsActive = true,
                             LastName = "Coordinator",
+                            PasswordHash = "$2a$11$2D61u8DrV007EQa2ITzb2eNgRRntqXl0JkkEXSi5fm2et0gdCywsy",
                             PhoneNumber = "+27 11 234 5678",
                             UserRole = 1
                         },
@@ -376,8 +397,10 @@ namespace CMCS.Migrations
                             CreatedDate = new DateTime(2024, 10, 1, 9, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "mike.manager@iie.ac.za",
                             FirstName = "Mike",
+                            HourlyRate = 0m,
                             IsActive = true,
                             LastName = "Manager",
+                            PasswordHash = "$2a$11$2D61u8DrV007EQa2ITzb2eNgRRntqXl0JkkEXSi5fm2et0gdCywsy",
                             PhoneNumber = "+27 11 345 6789",
                             UserRole = 2
                         },
@@ -387,8 +410,10 @@ namespace CMCS.Migrations
                             CreatedDate = new DateTime(2024, 10, 1, 9, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "sarah.davis@iie.ac.za",
                             FirstName = "Sarah",
+                            HourlyRate = 420.00m,
                             IsActive = true,
                             LastName = "Davis",
+                            PasswordHash = "$2a$11$2D61u8DrV007EQa2ITzb2eNgRRntqXl0JkkEXSi5fm2et0gdCywsy",
                             PhoneNumber = "+27 11 456 7890",
                             UserRole = 0
                         },
@@ -398,8 +423,10 @@ namespace CMCS.Migrations
                             CreatedDate = new DateTime(2024, 10, 1, 9, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "emily.hr@iie.ac.za",
                             FirstName = "Emily",
+                            HourlyRate = 0m,
                             IsActive = true,
                             LastName = "HR",
+                            PasswordHash = "$2a$11$2D61u8DrV007EQa2ITzb2eNgRRntqXl0JkkEXSi5fm2et0gdCywsy",
                             PhoneNumber = "+27 11 567 8901",
                             UserRole = 3
                         });
@@ -442,13 +469,6 @@ namespace CMCS.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("CMCS.Models.Module", b =>
-                {
-                    b.HasOne("CMCS.Models.User", null)
-                        .WithMany("Modules")
-                        .HasForeignKey("UserId");
-                });
-
             modelBuilder.Entity("CMCS.Models.SupportingDocument", b =>
                 {
                     b.HasOne("CMCS.Models.Claim", "Claim")
@@ -475,8 +495,6 @@ namespace CMCS.Migrations
             modelBuilder.Entity("CMCS.Models.User", b =>
                 {
                     b.Navigation("Claims");
-
-                    b.Navigation("Modules");
                 });
 #pragma warning restore 612, 618
         }

@@ -14,12 +14,12 @@ namespace CMCS.Controllers
     public class HRController : Controller
     {
         private readonly CMCSContext _context;
-        private readonly ReportService _reportService;
+        private readonly IReportService _reportService;
         private readonly ILogger<HRController> _logger;
 
         public HRController(
             CMCSContext context,
-            ReportService reportService,
+            IReportService reportService,
             ILogger<HRController> logger)
         {
             _context = context;

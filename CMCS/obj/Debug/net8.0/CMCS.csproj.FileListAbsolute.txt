@@ -539,6 +539,7 @@ C:\Users\morgt\Desktop\PROG6212_ST10439398_POE\PROG6212_ST10439398_POE\CMCS\obj\
 C:\Users\morgt\Desktop\PROG6212_ST10439398_POE\PROG6212_ST10439398_POE\CMCS\obj\Debug\net8.0\staticwebassets.build.json.cache
 C:\Users\morgt\Desktop\PROG6212_ST10439398_POE\PROG6212_ST10439398_POE\CMCS\obj\Debug\net8.0\staticwebassets.development.json
 C:\Users\morgt\Desktop\PROG6212_ST10439398_POE\PROG6212_ST10439398_POE\CMCS\obj\Debug\net8.0\staticwebassets.build.endpoints.json
+C:\Users\morgt\Desktop\PROG6212_ST10439398_POE\PROG6212_ST10439398_POE\CMCS\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
 C:\Users\morgt\Desktop\PROG6212_ST10439398_POE\PROG6212_ST10439398_POE\CMCS\obj\Debug\net8.0\CMCS.csproj.Up2Date
 C:\Users\morgt\Desktop\PROG6212_ST10439398_POE\PROG6212_ST10439398_POE\CMCS\obj\Debug\net8.0\CMCS.dll
 C:\Users\morgt\Desktop\PROG6212_ST10439398_POE\PROG6212_ST10439398_POE\CMCS\obj\Debug\net8.0\refint\CMCS.dll
