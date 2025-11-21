@@ -190,7 +190,7 @@ namespace CMCS.Controllers
                     HourlyRate = hourlyRate,
                     TotalAmount = totalAmount,
                     ClaimPeriod = model.ClaimPeriod,
-                    AdditionalNotes = model.AdditionalNotes ?? string.Empty,  // ? FIXED: Ensure never NULL
+                    AdditionalNotes = model.AdditionalNotes ?? string.Empty,  
                     CurrentStatus = ClaimStatus.Submitted,
                     SubmissionDate = DateTime.Now
                 };

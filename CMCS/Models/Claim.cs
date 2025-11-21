@@ -27,7 +27,7 @@ namespace CMCS.Models
         public int ModuleId { get; set; }
 
         [Required]
-        [Range(0, 999.99)]
+        [Range(0, 180)]
         public decimal HoursWorked { get; set; }
 
         [Required]
